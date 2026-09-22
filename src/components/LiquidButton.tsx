@@ -32,7 +32,7 @@ export function LiquidButton({
       <div className="relative z-10 flex items-center justify-between gap-4 w-full">
         {/* Text moving smoothly to the left */}
         <span
-          className={`font-bold text-lg tracking-wide transition-all duration-300 ease-out group-hover:-translate-x-1.5 ${
+          className={`whitespace-nowrap font-extrabold text-xs sm:text-sm md:text-base tracking-wide transition-all duration-300 ease-out group-hover:-translate-x-1 ${
             isPrimary
               ? 'text-white group-hover:text-black'
               : 'text-black group-hover:text-white'
@@ -43,19 +43,19 @@ export function LiquidButton({
 
         {/* Opposite Color Circle with Right Arrow */}
         <span
-          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-all duration-300 group-hover:scale-105 group-hover:translate-x-0.5 ${
+          className={`flex h-8 w-8 sm:h-9 sm:w-9 lg:h-10 lg:w-10 shrink-0 items-center justify-center rounded-full transition-all duration-300 group-hover:scale-105 ${
             isPrimary
               ? 'bg-white text-black group-hover:bg-black group-hover:text-white'
               : 'bg-black text-white group-hover:bg-white group-hover:text-black'
           }`}
         >
-          <HugeiconsIcon icon={ArrowRight01Icon} size={20} strokeWidth={2.4} />
+          <HugeiconsIcon icon={ArrowRight01Icon} size={18} strokeWidth={2.4} />
         </span>
       </div>
     </>
   )
 
-  const baseClasses = `group relative inline-flex items-center justify-between overflow-hidden rounded-full border border-black px-8 py-3.5 transition-all duration-300 shadow-md hover:shadow-lg cursor-pointer select-none ${
+  const baseClasses = `group relative inline-flex items-center justify-between overflow-hidden rounded-full border border-black pl-6 pr-3 py-2 sm:pl-8 sm:pr-3.5 sm:py-2.5 transition-all duration-300 shadow-sm hover:shadow-md cursor-pointer select-none ${
     isPrimary ? 'bg-black text-white' : 'bg-white text-black'
   } ${className}`
 

@@ -31,14 +31,14 @@ export function Navbar({ cartCount = 0, wishlistCount = 0, onOpenCart }: NavbarP
 
   return (
     <header className="sticky top-0 z-50 w-full border-b-0 sm:border-b border-black/10 bg-white/95 backdrop-blur-md">
-      {/* Top Banner Announcement - Proper legible text on mobile */}
+      {/* Top Banner Announcement - Legible & Well Proportioned */}
       <div className="bg-black py-2 px-3 text-center text-xs font-extrabold text-white tracking-wide uppercase overflow-x-auto whitespace-nowrap no-scrollbar">
         Free Express Shipping Over ₹1,999 • 7-Day Easy Returns
       </div>
 
-      <div className="kaira-container flex items-center justify-between py-2.5 sm:py-4">
+      <div className="kaira-container flex items-center justify-between py-3 sm:py-4">
         {/* Left Section: Mobile Menu Button & Brand Logo */}
-        <div className="flex items-center gap-2.5 sm:gap-4 shrink-0">
+        <div className="flex items-center gap-2 sm:gap-4 shrink-0">
           <button
             type="button"
             onClick={() => {
@@ -48,7 +48,7 @@ export function Navbar({ cartCount = 0, wishlistCount = 0, onOpenCart }: NavbarP
             className="p-1.5 text-black hover:bg-black/5 rounded-xl transition-colors xl:hidden cursor-pointer shrink-0"
             aria-label="Toggle Navigation"
           >
-            <HugeiconsIcon icon={mobileMenuOpen ? Cancel01Icon : Menu01Icon} size={22} />
+            <HugeiconsIcon icon={mobileMenuOpen ? Cancel01Icon : Menu01Icon} size={24} />
           </button>
 
           {/* Brand Logo */}
@@ -57,7 +57,7 @@ export function Navbar({ cartCount = 0, wishlistCount = 0, onOpenCart }: NavbarP
           </a>
         </div>
 
-        {/* Center: Desktop Navigation Links (Visible on XL screen >= 1280px or LG screen without collision) */}
+        {/* Center: Desktop Navigation Links (Visible on XL screen >= 1280px) */}
         <nav className="hidden xl:flex items-center gap-6 xl:gap-8 shrink-0">
           {navLinks.map((link) => (
             <a
@@ -71,7 +71,7 @@ export function Navbar({ cartCount = 0, wishlistCount = 0, onOpenCart }: NavbarP
         </nav>
 
         {/* Right: Search Input & Action Icons */}
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
           {/* Search Bar (Visible on XL screens >= 1280px) */}
           <div className="relative hidden xl:flex w-56 lg:w-64">
             <input
@@ -96,7 +96,7 @@ export function Navbar({ cartCount = 0, wishlistCount = 0, onOpenCart }: NavbarP
             className="p-1.5 sm:p-2 text-black/80 hover:text-black hover:bg-black/5 rounded-full transition-colors xl:hidden cursor-pointer"
             aria-label="Search"
           >
-            <HugeiconsIcon icon={Search01Icon} size={20} />
+            <HugeiconsIcon icon={Search01Icon} size={22} />
           </button>
 
           {/* Wishlist Button */}
@@ -105,7 +105,7 @@ export function Navbar({ cartCount = 0, wishlistCount = 0, onOpenCart }: NavbarP
             className="relative p-1.5 sm:p-2 text-black/80 hover:text-black hover:bg-black/5 rounded-full transition-colors cursor-pointer"
             aria-label="Wishlist"
           >
-            <HugeiconsIcon icon={FavouriteIcon} size={20} />
+            <HugeiconsIcon icon={FavouriteIcon} size={22} />
             {wishlistCount > 0 && (
               <span className="absolute right-0.5 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-black text-[9px] font-black text-white">
                 {wishlistCount}
@@ -113,17 +113,17 @@ export function Navbar({ cartCount = 0, wishlistCount = 0, onOpenCart }: NavbarP
             )}
           </button>
 
-          {/* Shopping Cart Trigger (Liquid Button effect) */}
+          {/* Shopping Cart Trigger (Standard Bag Pill) */}
           <button
             type="button"
             onClick={onOpenCart}
-            className="group relative flex items-center gap-1.5 overflow-hidden rounded-full border border-black/15 bg-black px-3 py-1.5 sm:px-4 sm:py-2 text-xs font-black text-white transition-all duration-300 cursor-pointer shadow-xs select-none ml-1"
+            className="group relative flex items-center gap-1.5 overflow-hidden rounded-full border border-black/15 bg-black px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs font-black text-white transition-all duration-300 cursor-pointer shadow-xs select-none ml-1"
             aria-label="Shopping Cart"
           >
             <span className="absolute inset-0 translate-y-full rounded-full bg-white transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:translate-y-0" />
 
             <div className="relative z-10 flex items-center gap-1.5">
-              <HugeiconsIcon icon={ShoppingBag01Icon} size={16} className="transition-colors duration-300 group-hover:text-black" />
+              <HugeiconsIcon icon={ShoppingBag01Icon} size={18} className="transition-colors duration-300 group-hover:text-black" />
               <span className="hidden sm:inline font-black transition-colors duration-300 group-hover:text-black">Bag</span>
               <span className="flex h-4.5 w-4.5 items-center justify-center rounded-full bg-white text-[10px] font-black text-black transition-all duration-300 group-hover:bg-black group-hover:text-white">
                 {cartCount}
