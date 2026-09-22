@@ -7,7 +7,6 @@ import { formatCurrency } from '../utils/formatCurrency'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
   FavouriteIcon,
-  ShoppingBag01Icon,
   PackageIcon,
   SecurityCheckIcon,
   RefreshIcon,

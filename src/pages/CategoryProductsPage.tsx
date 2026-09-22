@@ -181,24 +181,6 @@ export function CategoryProductsPage() {
                   {info.subtitle}
                 </p>
               </div>
-
-              {/* Category Quick Selector Pills */}
-              <div className="flex items-center gap-2 pt-2 md:pt-0">
-                {Object.keys(CATEGORY_NAMES).map((slug) => (
-                  <a
-                    key={slug}
-                    href={`/#/category/${slug}`}
-                    onClick={() => setTimeout(() => window.location.reload(), 50)}
-                    className={`px-3.5 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider transition-all ${
-                      currentSlug === slug
-                        ? 'bg-black text-white shadow-xs'
-                        : 'bg-gray-100 text-black/70 hover:bg-gray-200'
-                    }`}
-                  >
-                    {CATEGORY_NAMES[slug].title.split(' ')[0]}
-                  </a>
-                ))}
-              </div>
             </div>
           </div>
         </section>
