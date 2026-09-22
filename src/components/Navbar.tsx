@@ -18,6 +18,7 @@ interface NavbarProps {
 
 export function Navbar({ cartCount = 0, wishlistCount = 0, onOpenCart }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
 
   const navLinks = [
@@ -29,37 +30,40 @@ export function Navbar({ cartCount = 0, wishlistCount = 0, onOpenCart }: NavbarP
   ]
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-black/10 bg-white/90 backdrop-blur-md">
-      {/* Top Banner Announcement */}
-      <div className="bg-black py-2.5 px-4 text-center text-base font-semibold text-white tracking-wide">
-        Free shipping on all orders over $100 • Express Checkout Available
+    <header className="sticky top-0 z-50 w-full border-b border-black/10 bg-white/95 backdrop-blur-md">
+      {/* Top Banner Announcement - Single line text */}
+      <div className="bg-black py-1.5 px-3 text-center text-[9px] sm:text-xs font-black text-white tracking-wider uppercase overflow-hidden whitespace-nowrap">
+        Free Express Shipping Over ₹1,999 • 7-Day Easy Returns
       </div>
 
-      <div className="kaira-container flex items-center justify-between py-4">
-        {/* Left: Mobile Menu Button & Logo */}
-        <div className="flex items-center gap-3 sm:gap-6">
+      <div className="kaira-container flex items-center justify-between py-3 sm:py-4">
+        {/* Left Section: Mobile Menu Button & Brand Logo */}
+        <div className="flex items-center gap-2.5 sm:gap-4">
           <button
             type="button"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-1.5 text-black/80 hover:text-black lg:hidden cursor-pointer"
+            onClick={() => {
+              setMobileMenuOpen(!mobileMenuOpen)
+              setMobileSearchOpen(false)
+            }}
+            className="p-1.5 text-black hover:bg-black/5 rounded-xl transition-colors lg:hidden cursor-pointer shrink-0"
             aria-label="Toggle Navigation"
           >
-            <HugeiconsIcon icon={mobileMenuOpen ? Cancel01Icon : Menu01Icon} size={24} />
+            <HugeiconsIcon icon={mobileMenuOpen ? Cancel01Icon : Menu01Icon} size={22} />
           </button>
 
-          {/* Brand Logo (Pure Code SVG Vector) */}
-          <a href="#" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
-            <KairaLogo className="h-5 sm:h-7 lg:h-8 text-black" height={30} />
+          {/* Brand Logo */}
+          <a href="/" className="flex items-center hover:opacity-90 transition-opacity">
+            <KairaLogo className="h-6 sm:h-7 lg:h-8 text-black" height={28} />
           </a>
         </div>
 
         {/* Center: Desktop Navigation Links */}
-        <nav className="hidden items-center gap-8 xl:gap-10 lg:flex">
+        <nav className="hidden lg:flex items-center gap-6 xl:gap-10">
           {navLinks.map((link) => (
             <a
               key={link.label}
               href={link.href}
-              className="text-base xl:text-lg font-bold text-black/80 hover:text-black transition-colors"
+              className="text-sm xl:text-base font-black text-black/80 hover:text-black transition-colors uppercase tracking-wider"
             >
               {link.label}
             </a>
@@ -67,67 +71,61 @@ export function Navbar({ cartCount = 0, wishlistCount = 0, onOpenCart }: NavbarP
         </nav>
 
         {/* Right: Search Input & Action Icons */}
-        <div className="flex items-center gap-2 sm:gap-4">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           {/* Search Bar (Desktop) */}
-          <div className="relative hidden w-56 sm:w-72 lg:w-96 lg:flex">
+          <div className="relative hidden w-48 sm:w-60 lg:w-72 lg:flex">
             <input
               type="text"
-              placeholder="Search Kaira..."
+              placeholder="Search store..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-full border border-black/15 bg-gray-50 py-2 pl-9 pr-4 text-sm sm:text-base font-medium text-black placeholder:text-black/40 focus:border-black focus:bg-white focus:outline-none transition-all"
+              className="w-full rounded-full border border-black/15 bg-neutral-50 py-1.5 pl-9 pr-4 text-xs font-semibold text-black placeholder:text-black/40 focus:border-black focus:bg-white focus:outline-none transition-all"
             />
-            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-black/40">
-              <HugeiconsIcon icon={Search01Icon} size={16} />
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-black/40">
+              <HugeiconsIcon icon={Search01Icon} size={15} />
             </div>
           </div>
 
-          {/* Search Button (Mobile) */}
+          {/* Search Button (Mobile & Tablet Toggle) */}
           <button
             type="button"
-            className="p-1.5 text-black/80 hover:text-black lg:hidden cursor-pointer"
+            onClick={() => {
+              setMobileSearchOpen(!mobileSearchOpen)
+              setMobileMenuOpen(false)
+            }}
+            className="p-1.5 sm:p-2 text-black/80 hover:text-black hover:bg-black/5 rounded-full transition-colors lg:hidden cursor-pointer"
             aria-label="Search"
           >
-            <HugeiconsIcon icon={Search01Icon} size={22} />
+            <HugeiconsIcon icon={Search01Icon} size={20} />
           </button>
 
           {/* Wishlist Button */}
           <button
             type="button"
-            className="relative p-1.5 text-black/80 hover:text-black transition-colors cursor-pointer"
+            className="relative p-1.5 sm:p-2 text-black/80 hover:text-black hover:bg-black/5 rounded-full transition-colors cursor-pointer"
             aria-label="Wishlist"
           >
-            <HugeiconsIcon icon={FavouriteIcon} size={22} />
+            <HugeiconsIcon icon={FavouriteIcon} size={20} />
             {wishlistCount > 0 && (
-              <span className="absolute right-0 top-0 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-black text-[10px] font-bold text-white">
+              <span className="absolute right-0.5 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-black text-[9px] font-black text-white">
                 {wishlistCount}
               </span>
             )}
           </button>
 
-          {/* User Account */}
-          <button
-            type="button"
-            className="p-1.5 text-black/80 hover:text-black transition-colors cursor-pointer"
-            aria-label="Account"
-          >
-            <HugeiconsIcon icon={UserIcon} size={22} />
-          </button>
-
-          {/* Shopping Cart Drawer Trigger */}
+          {/* Shopping Cart Trigger (Liquid Button effect) */}
           <button
             type="button"
             onClick={onOpenCart}
-            className="group relative flex items-center gap-2 overflow-hidden rounded-full border border-black/15 bg-black px-3.5 py-2 sm:px-5 sm:py-2.5 text-sm sm:text-base font-bold text-white transition-all duration-300 cursor-pointer shadow-xs select-none"
+            className="group relative flex items-center gap-1.5 overflow-hidden rounded-full border border-black/15 bg-black px-3 py-1.5 sm:px-4 sm:py-2 text-xs font-black text-white transition-all duration-300 cursor-pointer shadow-xs select-none ml-1"
             aria-label="Shopping Cart"
           >
-            {/* Liquid Fill Overlay */}
             <span className="absolute inset-0 translate-y-full rounded-full bg-white transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:translate-y-0" />
 
-            <div className="relative z-10 flex items-center gap-2">
-              <HugeiconsIcon icon={ShoppingBag01Icon} size={18} className="transition-colors duration-300 group-hover:text-black" />
-              <span className="hidden font-bold sm:inline transition-all duration-300 group-hover:text-black group-hover:-translate-x-0.5">Bag</span>
-              <span className="flex h-4.5 w-4.5 sm:h-5 sm:w-5 items-center justify-center rounded-full bg-white text-[10px] sm:text-xs font-bold text-black transition-all duration-300 group-hover:bg-black group-hover:text-white">
+            <div className="relative z-10 flex items-center gap-1.5">
+              <HugeiconsIcon icon={ShoppingBag01Icon} size={16} className="transition-colors duration-300 group-hover:text-black" />
+              <span className="hidden sm:inline font-black transition-colors duration-300 group-hover:text-black">Bag</span>
+              <span className="flex h-4.5 w-4.5 items-center justify-center rounded-full bg-white text-[10px] font-black text-black transition-all duration-300 group-hover:bg-black group-hover:text-white">
                 {cartCount}
               </span>
             </div>
@@ -135,23 +133,52 @@ export function Navbar({ cartCount = 0, wishlistCount = 0, onOpenCart }: NavbarP
         </div>
       </div>
 
-      {/* Mobile Navigation Drawer */}
+      {/* Mobile/Tablet Interactive Search Bar Dropdown */}
+      {mobileSearchOpen && (
+        <div className="border-t border-black/10 bg-white px-4 py-3 lg:hidden animate-fade-in-down">
+          <div className="relative w-full">
+            <input
+              type="text"
+              placeholder="Search products, categories, styles..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              autoFocus
+              className="w-full rounded-xl border border-black/20 bg-neutral-50 py-2.5 pl-10 pr-4 text-sm font-semibold text-black placeholder:text-black/40 focus:border-black focus:bg-white focus:outline-none"
+            />
+            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-black/50">
+              <HugeiconsIcon icon={Search01Icon} size={18} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Mobile & Tablet Slide-Down Navigation Menu Drawer */}
       {mobileMenuOpen && (
-        <div className="border-t border-black/10 bg-white px-5 py-5 lg:hidden">
-          <nav className="flex flex-col gap-3">
+        <div className="border-t border-black/10 bg-white/98 backdrop-blur-xl px-5 py-6 lg:hidden animate-fade-in-down shadow-xl">
+          <nav className="flex flex-col gap-2">
             {navLinks.map((link) => (
               <a
                 key={link.label}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className="text-lg font-bold text-black/80 hover:text-black py-2 border-b border-black/5 last:border-none"
+                className="text-base font-black text-black uppercase tracking-wider py-3 border-b border-black/5 last:border-none flex items-center justify-between hover:text-black/70 transition-colors"
               >
-                {link.label}
+                <span>{link.label}</span>
+                <span className="text-black/30">→</span>
               </a>
             ))}
+
+            <div className="pt-4 flex items-center justify-between border-t border-black/10 mt-2 text-sm font-extrabold text-black">
+              <div className="flex items-center gap-2">
+                <HugeiconsIcon icon={UserIcon} size={20} />
+                <span>My Account</span>
+              </div>
+              <span className="text-xs font-bold text-black/50">Sign In</span>
+            </div>
           </nav>
         </div>
       )}
     </header>
   )
 }
+

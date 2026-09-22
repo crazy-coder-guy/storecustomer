@@ -14,10 +14,10 @@ export function HeroSection({ onShopClick }: HeroSectionProps) {
             <div className="inline-flex items-center gap-2 rounded-full border border-black/15 bg-white px-3.5 py-1 sm:px-4 sm:py-1.5 text-xs sm:text-sm font-semibold text-black shadow-2xs">
               <span>New Season Collection</span>
             </div>
-            <h1 className="text-3xl font-black tracking-tight text-black sm:text-5xl lg:text-7xl leading-[1.1] sm:leading-[1.08]">
+            <h1 className="text-4xl font-black tracking-tight text-black sm:text-6xl lg:text-8xl leading-[1.06] sm:leading-[1.05]">
               Modern Essentials for Everyday Style
             </h1>
-            <p className="text-base text-black/75 sm:text-xl max-w-xl leading-relaxed">
+            <p className="text-lg text-black/80 sm:text-2xl max-w-2xl font-medium leading-relaxed">
               Discover refined apparel crafted with exceptional fabrics and minimal aesthetics. Designed by Kaira.
             </p>
             <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-5 pt-2 sm:pt-3">

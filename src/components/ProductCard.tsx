@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { FavouriteIcon, ShoppingBag01Icon } from '@hugeicons/core-free-icons'
+import { FavouriteIcon, ArrowRight01Icon } from '@hugeicons/core-free-icons'
 import { formatCurrency } from '../utils/formatCurrency'
 
 export interface ProductItem {
@@ -27,7 +28,7 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
   return (
     <div className="group relative flex flex-col space-y-3 cursor-pointer select-none">
       {/* Product Image Container */}
-      <div className="relative aspect-[4/4.2] w-full overflow-hidden rounded-2xl bg-gray-100">
+      <Link to={`/product/${product.id}`} className="relative aspect-[4/4.2] w-full overflow-hidden rounded-2xl bg-gray-100 block">
         {/* Badge */}
         {product.badge && (
           <span className="absolute left-3 top-3 z-10 rounded-full bg-black px-3 py-1 text-[10px] font-extrabold uppercase tracking-widest text-white shadow-sm">
@@ -39,6 +40,7 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
         <button
           type="button"
           onClick={(e) => {
+            e.preventDefault()
             e.stopPropagation()
             setIsWishlisted(!isWishlisted)
           }}
@@ -56,19 +58,19 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
           alt={product.name}
           className="h-full w-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
         />
-      </div>
+      </Link>
 
       {/* Details Below Image */}
-      <div className="space-y-1.5 px-0.5 flex-1 flex flex-col justify-between">
+      <div className="space-y-2 px-0.5 flex-1 flex flex-col justify-between">
         <div>
-          <div className="flex items-center justify-between text-xs font-semibold text-black/50 uppercase tracking-wider">
+          <div className="flex items-center justify-between text-xs sm:text-sm font-bold text-black/50 uppercase tracking-widest">
             <span>{product.category}</span>
             {product.colors && (
               <div className="flex items-center -space-x-1">
                 {product.colors.map((hex, i) => (
                   <span
                     key={i}
-                    className="h-2.5 w-2.5 rounded-full border border-white shadow-2xs"
+                    className="h-3 w-3 rounded-full border border-white shadow-2xs"
                     style={{ backgroundColor: hex }}
                   />
                 ))}
@@ -76,14 +78,16 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
             )}
           </div>
 
-          <h3 className="text-base font-bold text-black group-hover:text-black/70 transition-colors line-clamp-1 mt-0.5">
-            {product.name}
-          </h3>
+          <Link to={`/product/${product.id}`} className="block">
+            <h3 className="text-lg sm:text-xl font-extrabold text-black group-hover:text-black/70 transition-colors line-clamp-1 mt-1">
+              {product.name}
+            </h3>
+          </Link>
 
-          <div className="flex items-baseline gap-2 pt-0.5">
-            <span className="text-base font-black text-black">{formatCurrency(product.price)}</span>
+          <div className="flex items-baseline gap-2.5 pt-1">
+            <span className="text-lg sm:text-xl font-black text-black">{formatCurrency(product.price)}</span>
             {product.mrp && product.mrp > product.price && (
-              <span className="text-xs font-medium text-black/40 line-through">
+              <span className="text-sm font-semibold text-black/40 line-through">
                 {formatCurrency(product.mrp)}
               </span>
             )}
@@ -98,18 +102,18 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
               e.stopPropagation()
               onAddToCart?.(product)
             }}
-            className="group/btn relative flex w-full items-center justify-between overflow-hidden rounded-full border border-black bg-black px-5 py-2.5 transition-all duration-300 hover:shadow-lg cursor-pointer"
+            className="group/btn relative flex w-full items-center justify-between overflow-hidden rounded-full border border-black bg-black px-6 py-3 transition-all duration-300 hover:shadow-lg cursor-pointer"
           >
             {/* Liquid Fill Overlay */}
             <span className="absolute inset-0 translate-y-full rounded-full bg-white transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover/btn:translate-y-0" />
 
             {/* Button Content */}
             <div className="relative z-10 flex items-center justify-between w-full">
-              <span className="font-bold text-xs uppercase tracking-wider text-white transition-all duration-300 group-hover/btn:text-black group-hover/btn:-translate-x-1">
+              <span className="font-extrabold text-xs sm:text-sm uppercase tracking-wider text-white transition-all duration-300 group-hover/btn:text-black group-hover/btn:-translate-x-1">
                 Add to Bag
               </span>
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-black transition-all duration-300 group-hover/btn:bg-black group-hover/btn:text-white">
-                <HugeiconsIcon icon={ShoppingBag01Icon} size={14} />
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-black transition-all duration-300 group-hover/btn:bg-black group-hover/btn:text-white">
+                <HugeiconsIcon icon={ArrowRight01Icon} size={16} strokeWidth={2.4} />
               </span>
             </div>
           </button>

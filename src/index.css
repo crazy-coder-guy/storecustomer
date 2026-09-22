@@ -11,6 +11,10 @@
   font-style: normal;
 }
 
+html {
+  font-size: 112.5%; /* Scales 1rem from 16px to 18px (25% zoom feel) */
+}
+
 html,
 body,
 #root {
