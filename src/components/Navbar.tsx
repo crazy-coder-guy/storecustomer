@@ -38,32 +38,32 @@ export function Navbar({ cartCount = 0, wishlistCount = 0, onOpenCart }: NavbarP
 
       <div className="kaira-container flex items-center justify-between py-3 sm:py-4">
         {/* Left Section: Mobile Menu Button & Brand Logo */}
-        <div className="flex items-center gap-2.5 sm:gap-4">
+        <div className="flex items-center gap-2.5 sm:gap-4 shrink-0">
           <button
             type="button"
             onClick={() => {
               setMobileMenuOpen(!mobileMenuOpen)
               setMobileSearchOpen(false)
             }}
-            className="p-1.5 text-black hover:bg-black/5 rounded-xl transition-colors lg:hidden cursor-pointer shrink-0"
+            className="p-1.5 text-black hover:bg-black/5 rounded-xl transition-colors xl:hidden cursor-pointer shrink-0"
             aria-label="Toggle Navigation"
           >
             <HugeiconsIcon icon={mobileMenuOpen ? Cancel01Icon : Menu01Icon} size={22} />
           </button>
 
           {/* Brand Logo */}
-          <a href="/" className="flex items-center hover:opacity-90 transition-opacity">
+          <a href="/" className="flex items-center hover:opacity-90 transition-opacity shrink-0">
             <KairaLogo className="h-6 sm:h-7 lg:h-8 text-black" height={28} />
           </a>
         </div>
 
-        {/* Center: Desktop Navigation Links */}
-        <nav className="hidden lg:flex items-center gap-6 xl:gap-10">
+        {/* Center: Desktop Navigation Links (Visible on XL screen >= 1280px or LG screen without collision) */}
+        <nav className="hidden xl:flex items-center gap-6 xl:gap-8 shrink-0">
           {navLinks.map((link) => (
             <a
               key={link.label}
               href={link.href}
-              className="text-sm xl:text-base font-black text-black/80 hover:text-black transition-colors uppercase tracking-wider"
+              className="text-xs xl:text-sm font-black text-black/80 hover:text-black transition-colors uppercase tracking-wider whitespace-nowrap shrink-0"
             >
               {link.label}
             </a>
@@ -71,9 +71,9 @@ export function Navbar({ cartCount = 0, wishlistCount = 0, onOpenCart }: NavbarP
         </nav>
 
         {/* Right: Search Input & Action Icons */}
-        <div className="flex items-center gap-1.5 sm:gap-2">
-          {/* Search Bar (Desktop) */}
-          <div className="relative hidden w-48 sm:w-60 lg:w-72 lg:flex">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          {/* Search Bar (Visible on XL screens >= 1280px) */}
+          <div className="relative hidden xl:flex w-56 lg:w-64">
             <input
               type="text"
               placeholder="Search store..."
@@ -86,14 +86,14 @@ export function Navbar({ cartCount = 0, wishlistCount = 0, onOpenCart }: NavbarP
             </div>
           </div>
 
-          {/* Search Button (Mobile & Tablet Toggle) */}
+          {/* Search Button (Mobile & Tablet Toggle < 1280px) */}
           <button
             type="button"
             onClick={() => {
               setMobileSearchOpen(!mobileSearchOpen)
               setMobileMenuOpen(false)
             }}
-            className="p-1.5 sm:p-2 text-black/80 hover:text-black hover:bg-black/5 rounded-full transition-colors lg:hidden cursor-pointer"
+            className="p-1.5 sm:p-2 text-black/80 hover:text-black hover:bg-black/5 rounded-full transition-colors xl:hidden cursor-pointer"
             aria-label="Search"
           >
             <HugeiconsIcon icon={Search01Icon} size={20} />
@@ -135,7 +135,7 @@ export function Navbar({ cartCount = 0, wishlistCount = 0, onOpenCart }: NavbarP
 
       {/* Mobile/Tablet Interactive Search Bar Dropdown */}
       {mobileSearchOpen && (
-        <div className="border-t border-black/10 bg-white px-4 py-3 lg:hidden animate-fade-in-down">
+        <div className="border-t border-black/10 bg-white px-4 py-3 xl:hidden animate-fade-in-down">
           <div className="relative w-full">
             <input
               type="text"
@@ -154,7 +154,7 @@ export function Navbar({ cartCount = 0, wishlistCount = 0, onOpenCart }: NavbarP
 
       {/* Mobile & Tablet Slide-Down Navigation Menu Drawer */}
       {mobileMenuOpen && (
-        <div className="border-t border-black/10 bg-white/98 backdrop-blur-xl px-5 py-6 lg:hidden animate-fade-in-down shadow-xl">
+        <div className="border-t border-black/10 bg-white/98 backdrop-blur-xl px-5 py-6 xl:hidden animate-fade-in-down shadow-xl">
           <nav className="flex flex-col gap-2">
             {navLinks.map((link) => (
               <a

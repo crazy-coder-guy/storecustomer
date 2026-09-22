@@ -167,18 +167,18 @@ export function ProductDetailPage() {
         {/* Split Viewport Layout: Sticky Left Image Gallery + Scrollable Right Specs */}
         <section className="py-6 lg:py-10">
           <div className="kaira-container">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 xl:gap-12 items-start">
               
-              {/* Left Column: Sticky Image Gallery (Balanced Height) */}
-              <div className="lg:col-span-7 lg:sticky lg:top-24 flex flex-col-reverse sm:flex-row gap-4 h-auto lg:h-[calc(100vh-200px)] lg:max-h-[620px]">
+              {/* Left Column: Sticky Image Gallery (Tablet Landscape & Desktop Optimized) */}
+              <div className="lg:col-span-7 lg:sticky lg:top-24 flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 h-auto lg:h-[calc(100vh-180px)] lg:max-h-[580px]">
                 {/* Thumbnails */}
-                <div className="flex sm:flex-col gap-3 overflow-x-auto sm:overflow-y-auto shrink-0 pr-1 max-h-full">
+                <div className="flex sm:flex-col gap-2.5 sm:gap-3 overflow-x-auto sm:overflow-y-auto shrink-0 pr-1 max-h-full">
                   {product.images.map((img, idx) => (
                     <button
                       key={idx}
                       type="button"
                       onClick={() => setSelectedImage(img)}
-                      className={`relative h-20 w-20 sm:h-24 sm:w-24 overflow-hidden rounded-2xl border-2 transition-all cursor-pointer shrink-0 ${
+                      className={`relative h-16 w-16 sm:h-20 sm:w-20 lg:h-24 lg:w-24 overflow-hidden rounded-2xl border-2 transition-all cursor-pointer shrink-0 ${
                         selectedImage === img
                           ? 'border-black shadow-md scale-105'
                           : 'border-transparent opacity-60 hover:opacity-100'
@@ -189,10 +189,10 @@ export function ProductDetailPage() {
                   ))}
                 </div>
 
-                {/* Main Image Container - Full Device Viewport Height */}
-                <div className="relative flex-1 h-full min-h-[500px] lg:min-h-0 overflow-hidden rounded-3xl bg-neutral-100 border border-black/10 shadow-sm">
+                {/* Main Image Container */}
+                <div className="relative flex-1 h-full min-h-[380px] sm:min-h-[460px] lg:min-h-0 overflow-hidden rounded-3xl bg-neutral-100 border border-black/10 shadow-sm">
                   {product.badge && (
-                    <span className="absolute left-5 top-5 z-10 rounded-full bg-black px-4 py-1.5 text-xs font-black text-white uppercase tracking-widest shadow-lg">
+                    <span className="absolute left-4 top-4 sm:left-5 sm:top-5 z-10 rounded-full bg-black px-3.5 py-1 sm:px-4 sm:py-1.5 text-[10px] sm:text-xs font-black text-white uppercase tracking-widest shadow-lg">
                       {product.badge}
                     </span>
                   )}
@@ -200,11 +200,11 @@ export function ProductDetailPage() {
                   <button
                     type="button"
                     onClick={() => setIsWishlisted(!isWishlisted)}
-                    className={`absolute right-5 top-5 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/95 backdrop-blur-md transition-all cursor-pointer hover:scale-110 shadow-md ${
+                    className={`absolute right-4 top-4 sm:right-5 sm:top-5 z-10 flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full bg-white/95 backdrop-blur-md transition-all cursor-pointer hover:scale-110 shadow-md ${
                       isWishlisted ? 'text-red-500' : 'text-black/80 hover:text-black'
                     }`}
                   >
-                    <HugeiconsIcon icon={FavouriteIcon} size={20} />
+                    <HugeiconsIcon icon={FavouriteIcon} size={18} />
                   </button>
 
                   <img
