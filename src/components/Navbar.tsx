@@ -30,13 +30,13 @@ export function Navbar({ cartCount = 0, wishlistCount = 0, onOpenCart }: NavbarP
   ]
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-black/10 bg-white/95 backdrop-blur-md">
-      {/* Top Banner Announcement - Single line text */}
-      <div className="bg-black py-1.5 px-3 text-center text-[9px] sm:text-xs font-black text-white tracking-wider uppercase overflow-hidden whitespace-nowrap">
+    <header className="sticky top-0 z-50 w-full border-b-0 sm:border-b border-black/10 bg-white/95 backdrop-blur-md">
+      {/* Top Banner Announcement - Proper legible text on mobile */}
+      <div className="bg-black py-2 px-3 text-center text-xs font-extrabold text-white tracking-wide uppercase overflow-x-auto whitespace-nowrap no-scrollbar">
         Free Express Shipping Over ₹1,999 • 7-Day Easy Returns
       </div>
 
-      <div className="kaira-container flex items-center justify-between py-3 sm:py-4">
+      <div className="kaira-container flex items-center justify-between py-2.5 sm:py-4">
         {/* Left Section: Mobile Menu Button & Brand Logo */}
         <div className="flex items-center gap-2.5 sm:gap-4 shrink-0">
           <button
