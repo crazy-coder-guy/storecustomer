@@ -1,14 +1,24 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
   ShoppingBag01Icon,
   Search01Icon,
-  UserIcon,
-  Menu01Icon,
-  Cancel01Icon,
   FavouriteIcon,
+  ArrowLeft01Icon,
 } from '@hugeicons/core-free-icons'
 import { KairaLogo } from './KairaLogo'
+import { useCart } from '../context/CartContext'
+import { useWishlist } from '../context/WishlistContext'
+
+const SEARCH_SUGGESTIONS = [
+  'Search "Oversized Shirts"',
+  'Search "Acid Wash Tee"',
+  'Search "Hooded Shirt"',
+  'Search "Drop Shoulder"',
+  'Search "Heavyweight Fleece"',
+  'Search "Co-ord Sets"',
+]
 
 interface NavbarProps {
   cartCount?: number
@@ -16,18 +26,49 @@ interface NavbarProps {
   onOpenCart?: () => void
 }
 
-export function Navbar({ cartCount = 0, wishlistCount = 0, onOpenCart }: NavbarProps) {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
+export function Navbar({ cartCount: propCartCount, wishlistCount: propWishlistCount, onOpenCart }: NavbarProps) {
+  const navigate = useNavigate()
+  const { cartCount: contextCartCount } = useCart()
+  const { wishlistCount: contextWishlistCount } = useWishlist()
+  const cartCount = propCartCount !== undefined ? propCartCount : contextCartCount
+  const wishlistCount = propWishlistCount !== undefined ? propWishlistCount : contextWishlistCount
   const [searchQuery, setSearchQuery] = useState('')
+  const [placeholderIndex, setPlaceholderIndex] = useState(0)
+  const [isFading, setIsFading] = useState(false)
+  const [isFocused, setIsFocused] = useState(false)
 
-  const navLinks = [
-    { label: 'Home', href: '/' },
-    { label: 'New Arrivals', href: '/#new-arrivals' },
-    { label: 'Shop', href: '/#shop' },
-    { label: 'Categories', href: '/#categories' },
-    { label: 'About', href: '/about' },
-  ]
+  // Blinkit style rotating placeholder animation
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsFading(true)
+      setTimeout(() => {
+        setPlaceholderIndex((prev) => (prev + 1) % SEARCH_SUGGESTIONS.length)
+        setIsFading(false)
+      }, 300)
+    }, 2800)
+
+    return () => clearInterval(interval)
+  }, [])
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
+    } else {
+      navigate('/search')
+    }
+  }
+
+  const location = useLocation()
+  const isInsidePage = location.pathname !== '/'
+
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1)
+    } else {
+      navigate('/')
+    }
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b-0 sm:border-b border-black/10 bg-white/95 backdrop-blur-md">
@@ -36,72 +77,85 @@ export function Navbar({ cartCount = 0, wishlistCount = 0, onOpenCart }: NavbarP
         Free Express Shipping Over ₹1,999 • 7-Day Easy Returns
       </div>
 
-      <div className="kaira-container flex items-center justify-between py-3 sm:py-4">
-        {/* Left Section: Mobile Menu Button & Brand Logo */}
-        <div className="flex items-center gap-2 sm:gap-4 shrink-0">
-          <button
-            type="button"
-            onClick={() => {
-              setMobileMenuOpen(!mobileMenuOpen)
-              setMobileSearchOpen(false)
-            }}
-            className="p-1.5 text-black hover:bg-black/5 rounded-xl transition-colors xl:hidden cursor-pointer shrink-0"
-            aria-label="Toggle Navigation"
-          >
-            <HugeiconsIcon icon={mobileMenuOpen ? Cancel01Icon : Menu01Icon} size={24} />
-          </button>
-
-          {/* Brand Logo */}
-          <a href="/" className="flex items-center hover:opacity-90 transition-opacity shrink-0">
-            <KairaLogo className="h-6 sm:h-7 lg:h-8 text-black" height={28} />
-          </a>
+      <div className="kaira-container flex items-center justify-between py-3 sm:py-4 gap-4">
+        {/* Left Section: Brand Logo on Home, or Circular Back Button on Inside Pages */}
+        <div className="flex items-center shrink-0">
+          {isInsidePage ? (
+            <button
+              type="button"
+              onClick={handleBack}
+              className="group flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full border border-black/15 bg-neutral-100 text-black hover:bg-black hover:text-white active:scale-95 transition-all duration-200 cursor-pointer shadow-2xs"
+              aria-label="Go Back"
+              title="Go Back"
+            >
+              <HugeiconsIcon
+                icon={ArrowLeft01Icon}
+                size={22}
+                className="transition-transform duration-200 group-hover:-translate-x-0.5"
+              />
+            </button>
+          ) : (
+            <a href="/" className="flex items-center hover:opacity-90 transition-opacity shrink-0">
+              <KairaLogo className="h-6 sm:h-7 lg:h-8 text-black" height={28} />
+            </a>
+          )}
         </div>
 
-        {/* Center: Desktop Navigation Links (Visible on XL screen >= 1280px) */}
-        <nav className="hidden xl:flex items-center gap-6 xl:gap-8 shrink-0">
-          {navLinks.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              className="text-xs xl:text-sm font-black text-black/80 hover:text-black transition-colors uppercase tracking-wider whitespace-nowrap shrink-0"
-            >
-              {link.label}
-            </a>
-          ))}
-        </nav>
+        {/* Center/Right: Prominent Blinkit-Style Animated Search Bar (Medium & Large screens) */}
+        <div className="hidden md:flex flex-1 max-w-md lg:max-w-xl mx-4">
+          <form
+            onSubmit={handleSearchSubmit}
+            className={`relative flex items-center w-full rounded-full border bg-neutral-100 transition-all duration-300 ${
+              isFocused
+                ? 'border-black bg-white ring-2 ring-black/5 shadow-sm'
+                : 'border-black/15 hover:border-black/30'
+            }`}
+          >
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-black/50 pointer-events-none">
+              <HugeiconsIcon icon={Search01Icon} size={18} />
+            </div>
 
-        {/* Right: Search Input & Action Icons */}
-        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-          {/* Search Bar (Visible on XL screens >= 1280px) */}
-          <div className="relative hidden xl:flex w-56 lg:w-64">
             <input
               type="text"
-              placeholder="Search store..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-full border border-black/15 bg-neutral-50 py-1.5 pl-9 pr-4 text-xs font-semibold text-black placeholder:text-black/40 focus:border-black focus:bg-white focus:outline-none transition-all"
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
+              className="w-full bg-transparent py-2.5 sm:py-3 pl-11 pr-4 text-xs sm:text-sm font-semibold text-black focus:outline-none placeholder-transparent"
+              aria-label="Search store"
             />
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-black/40">
-              <HugeiconsIcon icon={Search01Icon} size={15} />
-            </div>
-          </div>
 
-          {/* Search Button (Mobile & Tablet Toggle < 1280px) */}
-          <button
-            type="button"
-            onClick={() => {
-              setMobileSearchOpen(!mobileSearchOpen)
-              setMobileMenuOpen(false)
-            }}
-            className="p-1.5 sm:p-2 text-black/80 hover:text-black hover:bg-black/5 rounded-full transition-colors xl:hidden cursor-pointer"
+            {/* Blinkit Animated Placeholder when input is empty */}
+            {!searchQuery && (
+              <div className="pointer-events-none absolute left-11 top-1/2 -translate-y-1/2 overflow-hidden h-5 flex items-center">
+                <span
+                  className={`text-xs sm:text-sm font-semibold text-black/45 transition-all duration-300 ease-out whitespace-nowrap ${
+                    isFading
+                      ? '-translate-y-3 opacity-0'
+                      : 'translate-y-0 opacity-100'
+                  }`}
+                >
+                  {SEARCH_SUGGESTIONS[placeholderIndex]}
+                </span>
+              </div>
+            )}
+          </form>
+        </div>
+
+        {/* Right Section: Action Icons */}
+        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+          {/* Search Button (Mobile view < 768px navigates directly to separate /search page) */}
+          <Link
+            to="/search"
+            className="p-1.5 sm:p-2 text-black/80 hover:text-black hover:bg-black/5 rounded-full transition-colors md:hidden cursor-pointer"
             aria-label="Search"
           >
             <HugeiconsIcon icon={Search01Icon} size={22} />
-          </button>
+          </Link>
 
           {/* Wishlist Button */}
-          <button
-            type="button"
+          <Link
+            to="/wishlist"
             className="relative p-1.5 sm:p-2 text-black/80 hover:text-black hover:bg-black/5 rounded-full transition-colors cursor-pointer"
             aria-label="Wishlist"
           >
@@ -111,74 +165,43 @@ export function Navbar({ cartCount = 0, wishlistCount = 0, onOpenCart }: NavbarP
                 {wishlistCount}
               </span>
             )}
-          </button>
+          </Link>
 
-          {/* Shopping Cart Trigger (Standard Bag Pill) */}
-          <button
-            type="button"
-            onClick={onOpenCart}
-            className="group relative flex items-center gap-1.5 overflow-hidden rounded-full border border-black/15 bg-black px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs font-black text-white transition-all duration-300 cursor-pointer shadow-xs select-none ml-1"
-            aria-label="Shopping Cart"
-          >
-            <span className="absolute inset-0 translate-y-full rounded-full bg-white transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:translate-y-0" />
-
-            <div className="relative z-10 flex items-center gap-1.5">
-              <HugeiconsIcon icon={ShoppingBag01Icon} size={18} className="transition-colors duration-300 group-hover:text-black" />
-              <span className="hidden sm:inline font-black transition-colors duration-300 group-hover:text-black">Bag</span>
-              <span className="flex h-4.5 w-4.5 items-center justify-center rounded-full bg-white text-[10px] font-black text-black transition-all duration-300 group-hover:bg-black group-hover:text-white">
-                {cartCount}
-              </span>
-            </div>
-          </button>
+          {/* Shopping Cart Trigger (Standard Bag Pill linking to /cart) */}
+          {onOpenCart ? (
+            <button
+              type="button"
+              onClick={onOpenCart}
+              className="group relative flex items-center gap-1.5 overflow-hidden rounded-full border border-black/15 bg-black px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs font-black text-white transition-all duration-300 cursor-pointer shadow-xs select-none ml-1"
+              aria-label="Shopping Cart"
+            >
+              <span className="absolute inset-0 translate-y-full rounded-full bg-white transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:translate-y-0" />
+              <div className="relative z-10 flex items-center gap-1.5">
+                <HugeiconsIcon icon={ShoppingBag01Icon} size={18} className="transition-colors duration-300 group-hover:text-black" />
+                <span className="hidden sm:inline font-black transition-colors duration-300 group-hover:text-black">Bag</span>
+                <span className="flex h-4.5 w-4.5 items-center justify-center rounded-full bg-white text-[10px] font-black text-black transition-all duration-300 group-hover:bg-black group-hover:text-white">
+                  {cartCount}
+                </span>
+              </div>
+            </button>
+          ) : (
+            <Link
+              to="/cart"
+              className="group relative flex items-center gap-1.5 overflow-hidden rounded-full border border-black/15 bg-black px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs font-black text-white transition-all duration-300 cursor-pointer shadow-xs select-none ml-1"
+              aria-label="Shopping Cart"
+            >
+              <span className="absolute inset-0 translate-y-full rounded-full bg-white transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:translate-y-0" />
+              <div className="relative z-10 flex items-center gap-1.5">
+                <HugeiconsIcon icon={ShoppingBag01Icon} size={18} className="transition-colors duration-300 group-hover:text-black" />
+                <span className="hidden sm:inline font-black transition-colors duration-300 group-hover:text-black">Bag</span>
+                <span className="flex h-4.5 w-4.5 items-center justify-center rounded-full bg-white text-[10px] font-black text-black transition-all duration-300 group-hover:bg-black group-hover:text-white">
+                  {cartCount}
+                </span>
+              </div>
+            </Link>
+          )}
         </div>
       </div>
-
-      {/* Mobile/Tablet Interactive Search Bar Dropdown */}
-      {mobileSearchOpen && (
-        <div className="border-t border-black/10 bg-white px-4 py-3 xl:hidden animate-fade-in-down">
-          <div className="relative w-full">
-            <input
-              type="text"
-              placeholder="Search products, categories, styles..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              autoFocus
-              className="w-full rounded-xl border border-black/20 bg-neutral-50 py-2.5 pl-10 pr-4 text-sm font-semibold text-black placeholder:text-black/40 focus:border-black focus:bg-white focus:outline-none"
-            />
-            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-black/50">
-              <HugeiconsIcon icon={Search01Icon} size={18} />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Mobile & Tablet Slide-Down Navigation Menu Drawer */}
-      {mobileMenuOpen && (
-        <div className="border-t border-black/10 bg-white/98 backdrop-blur-xl px-5 py-6 xl:hidden animate-fade-in-down shadow-xl">
-          <nav className="flex flex-col gap-2">
-            {navLinks.map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-base font-black text-black uppercase tracking-wider py-3 border-b border-black/5 last:border-none flex items-center justify-between hover:text-black/70 transition-colors"
-              >
-                <span>{link.label}</span>
-                <span className="text-black/30">→</span>
-              </a>
-            ))}
-
-            <div className="pt-4 flex items-center justify-between border-t border-black/10 mt-2 text-sm font-extrabold text-black">
-              <div className="flex items-center gap-2">
-                <HugeiconsIcon icon={UserIcon} size={20} />
-                <span>My Account</span>
-              </div>
-              <span className="text-xs font-bold text-black/50">Sign In</span>
-            </div>
-          </nav>
-        </div>
-      )}
     </header>
   )
 }
-

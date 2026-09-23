@@ -1,4 +1,7 @@
+import { useState } from 'react'
 import { ProductCard, type ProductItem } from './ProductCard'
+import { useCart } from '../context/CartContext'
+import { ProductDetailDrawer } from './ProductDetailDrawer'
 
 interface TopSellingSectionProps {
   onAddToCart?: (product: ProductItem) => void
@@ -56,6 +59,26 @@ const TOP_SELLING_PRODUCTS: ProductItem[] = [
 ]
 
 export function TopSellingSection({ onAddToCart }: TopSellingSectionProps) {
+  const { addToCart } = useCart()
+  const [selectedDrawerProductId, setSelectedDrawerProductId] = useState<string | null>(null)
+
+  const handleAdd = (product: ProductItem) => {
+    if (onAddToCart) {
+      onAddToCart(product)
+    } else {
+      addToCart({
+        productId: product.id,
+        name: product.name,
+        price: product.price,
+        mrp: product.mrp || product.price,
+        image: product.image,
+        size: 'M',
+        color: { name: 'Classic Tone', hex: product.colors?.[0] || '#000000' },
+        quantity: 1,
+      })
+    }
+  }
+
   return (
     <section id="shop" className="py-16 sm:py-24 bg-white">
       <div className="kaira-container">
@@ -79,10 +102,22 @@ export function TopSellingSection({ onAddToCart }: TopSellingSectionProps) {
         {/* Product Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-10">
           {TOP_SELLING_PRODUCTS.map((product) => (
-            <ProductCard key={product.id} product={product} onAddToCart={onAddToCart} />
+            <ProductCard
+              key={product.id}
+              product={product}
+              onAddToCart={handleAdd}
+              onOpenDetail={(id) => setSelectedDrawerProductId(id)}
+            />
           ))}
         </div>
       </div>
+
+      {/* Slide-over Product Details Drawer */}
+      <ProductDetailDrawer
+        productId={selectedDrawerProductId}
+        isOpen={Boolean(selectedDrawerProductId)}
+        onClose={() => setSelectedDrawerProductId(null)}
+      />
     </section>
   )
 }

@@ -1,9 +1,12 @@
 import { useState } from 'react'
+import { useParams } from 'react-router-dom'
 import { Navbar } from '../components/Navbar'
 import { Footer } from '../components/Footer'
 import { ProductCard, type ProductItem } from '../components/ProductCard'
+import { ProductDetailDrawer } from '../components/ProductDetailDrawer'
+import { useCart } from '../context/CartContext'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { ArrowLeft01Icon, FilterIcon } from '@hugeicons/core-free-icons'
+import { FilterIcon } from '@hugeicons/core-free-icons'
 
 const ALL_CATEGORY_PRODUCTS: Record<string, ProductItem[]> = {
   'heavyweight-t-shirts': [
@@ -144,36 +147,40 @@ const CATEGORY_NAMES: Record<string, { title: string; subtitle: string }> = {
 }
 
 export function CategoryProductsPage() {
-  const [cartCount, setCartCount] = useState(0)
+  const { slug } = useParams<{ slug: string }>()
+  const { addToCart } = useCart()
+  const [selectedDrawerProductId, setSelectedDrawerProductId] = useState<string | null>(null)
 
-  // Extract category slug from hash/url or fallback to heavyweight-t-shirts
-  const hash = window.location.hash.replace('#/category/', '').replace('#', '')
-  const currentSlug = ALL_CATEGORY_PRODUCTS[hash] ? hash : 'heavyweight-t-shirts'
+  const activeSlug = slug || 'heavyweight-t-shirts'
+  const products = ALL_CATEGORY_PRODUCTS[activeSlug] || ALL_CATEGORY_PRODUCTS['heavyweight-t-shirts']
+  const info = CATEGORY_NAMES[activeSlug] || {
+    title: 'Curated Collection',
+    subtitle: 'Exceptional modern garments tailored with heavy organic cottons and modern silhouettes.',
+  }
 
-  const info = CATEGORY_NAMES[currentSlug] || CATEGORY_NAMES['heavyweight-t-shirts']
-  const products = ALL_CATEGORY_PRODUCTS[currentSlug] || ALL_CATEGORY_PRODUCTS['heavyweight-t-shirts']
+  const handleAdd = (product: ProductItem) => {
+    addToCart({
+      productId: product.id,
+      name: product.name,
+      price: product.price,
+      mrp: product.mrp || product.price,
+      image: product.image,
+      size: 'M',
+      color: { name: 'Tone', hex: product.colors?.[0] || '#000000' },
+      quantity: 1,
+    })
+  }
 
   return (
     <div className="min-h-screen bg-white text-black flex flex-col justify-between">
       <div>
-        <Navbar cartCount={cartCount} onOpenCart={() => alert('Shopping bag clicked')} />
+        <Navbar />
 
         {/* Compact Integrated Header Bar */}
         <section className="py-6 sm:py-8 border-b border-black/10">
           <div className="kaira-container">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="space-y-1">
-                <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap no-scrollbar pb-1">
-                  <a
-                    href="/"
-                    className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-black uppercase tracking-widest text-black/60 hover:text-black transition-colors shrink-0"
-                  >
-                    <HugeiconsIcon icon={ArrowLeft01Icon} size={13} />
-                    <span>Back to Home</span>
-                  </a>
-                  <span className="text-black/30 shrink-0">•</span>
-                  <span className="text-[11px] sm:text-xs font-extrabold uppercase tracking-widest text-black/40 shrink-0">Category Collection</span>
-                </div>
                 <h1 className="text-2xl sm:text-4xl font-black text-black tracking-tight">
                   {info.title}
                 </h1>
@@ -200,7 +207,8 @@ export function CategoryProductsPage() {
                 <ProductCard
                   key={product.id}
                   product={product}
-                  onAddToCart={() => setCartCount((c) => c + 1)}
+                  onAddToCart={handleAdd}
+                  onOpenDetail={(id) => setSelectedDrawerProductId(id)}
                 />
               ))}
             </div>
@@ -209,6 +217,13 @@ export function CategoryProductsPage() {
       </div>
 
       <Footer />
+
+      {/* Slide-over Product Details Drawer */}
+      <ProductDetailDrawer
+        productId={selectedDrawerProductId}
+        isOpen={Boolean(selectedDrawerProductId)}
+        onClose={() => setSelectedDrawerProductId(null)}
+      />
     </div>
   )
 }

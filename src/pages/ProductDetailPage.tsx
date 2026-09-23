@@ -1,9 +1,11 @@
 import { useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { Navbar } from '../components/Navbar'
 import { Footer } from '../components/Footer'
 import { LiquidButton } from '../components/LiquidButton'
 import { formatCurrency } from '../utils/formatCurrency'
+import { useCart } from '../context/CartContext'
+import { useWishlist } from '../context/WishlistContext'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
   FavouriteIcon,
@@ -11,7 +13,6 @@ import {
   SecurityCheckIcon,
   RefreshIcon,
   StarIcon,
-  ArrowLeft01Icon,
   CheckmarkCircle02Icon,
 } from '@hugeicons/core-free-icons'
 
@@ -117,13 +118,14 @@ const SAMPLE_PRODUCTS_DB: Record<string, ProductDetailData> = {
 
 export function ProductDetailPage() {
   const { id } = useParams<{ id: string }>()
-  const [cartCount, setCartCount] = useState(0)
-  const [isWishlisted, setIsWishlisted] = useState(false)
+  const { addToCart } = useCart()
+  const { isInWishlist, toggleWishlist } = useWishlist()
   const [openAccordion, setOpenAccordion] = useState<string | null>('description')
 
   // Fallback to prod-1 if id not found
   const productKey = id && SAMPLE_PRODUCTS_DB[id] ? id : 'prod-1'
   const product = SAMPLE_PRODUCTS_DB[productKey]
+  const isWishlisted = isInWishlist(product.id)
 
   const [selectedImage, setSelectedImage] = useState(product.images[0])
   const [selectedSize, setSelectedSize] = useState(product.sizes[1] || product.sizes[0])
@@ -131,7 +133,17 @@ export function ProductDetailPage() {
   const [addedNotification, setAddedNotification] = useState(false)
 
   const handleAddToCart = () => {
-    setCartCount((c) => c + 1)
+    addToCart({
+      productId: product.id,
+      name: product.name,
+      subtitle: product.subtitle,
+      price: product.price,
+      mrp: product.mrp,
+      image: selectedImage || product.images[0],
+      size: selectedSize,
+      color: selectedColor,
+      quantity: 1,
+    })
     setAddedNotification(true)
     setTimeout(() => setAddedNotification(false), 2500)
   }
@@ -143,26 +155,7 @@ export function ProductDetailPage() {
   return (
     <div className="min-h-screen bg-white text-black flex flex-col justify-between">
       <div>
-        <Navbar cartCount={cartCount} onOpenCart={() => alert('Bag drawer opened')} />
-
-        {/* Breadcrumb Navigation */}
-        {/* Breadcrumb Navigation - Single Line Safe */}
-        <div className="border-b border-black/5 bg-neutral-50/50 py-2.5">
-          <div className="kaira-container flex items-center justify-between text-[11px] sm:text-xs font-bold text-black/60 uppercase tracking-wider overflow-x-auto whitespace-nowrap no-scrollbar">
-            <div className="flex items-center gap-1.5 shrink-0">
-              <Link to="/" className="hover:text-black transition-colors flex items-center gap-1 shrink-0">
-                <HugeiconsIcon icon={ArrowLeft01Icon} size={13} />
-                <span>Home</span>
-              </Link>
-              <span className="text-black/30">/</span>
-              <span className="shrink-0">{product.category}</span>
-              <span className="text-black/30">/</span>
-              <span className="text-black font-black truncate max-w-[150px] sm:max-w-none">
-                {product.name}
-              </span>
-            </div>
-          </div>
-        </div>
+        <Navbar />
 
         {/* Split Viewport Layout: Sticky Left Image Gallery + Scrollable Right Specs */}
         <section className="py-6 lg:py-10">
@@ -199,9 +192,9 @@ export function ProductDetailPage() {
 
                   <button
                     type="button"
-                    onClick={() => setIsWishlisted(!isWishlisted)}
+                    onClick={() => toggleWishlist(product.id)}
                     className={`absolute right-4 top-4 sm:right-5 sm:top-5 z-10 flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full bg-white/95 backdrop-blur-md transition-all cursor-pointer hover:scale-110 shadow-md ${
-                      isWishlisted ? 'text-red-500' : 'text-black/80 hover:text-black'
+                      isWishlisted ? 'text-red-500 fill-red-500' : 'text-black/80 hover:text-black'
                     }`}
                   >
                     <HugeiconsIcon icon={FavouriteIcon} size={18} />

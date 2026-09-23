@@ -1,8 +1,8 @@
-import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { FavouriteIcon, ArrowRight01Icon } from '@hugeicons/core-free-icons'
 import { formatCurrency } from '../utils/formatCurrency'
+import { useWishlist } from '../context/WishlistContext'
 
 export interface ProductItem {
   id: string
@@ -20,10 +20,12 @@ export interface ProductItem {
 interface ProductCardProps {
   product: ProductItem
   onAddToCart?: (product: ProductItem) => void
+  onOpenDetail?: (productId: string) => void
 }
 
-export function ProductCard({ product, onAddToCart }: ProductCardProps) {
-  const [isWishlisted, setIsWishlisted] = useState(false)
+export function ProductCard({ product, onAddToCart, onOpenDetail }: ProductCardProps) {
+  const { isInWishlist, toggleWishlist } = useWishlist()
+  const isWishlisted = isInWishlist(product.id)
 
   return (
     <div className="group relative flex flex-col space-y-3 cursor-pointer select-none">
@@ -42,10 +44,10 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
           onClick={(e) => {
             e.preventDefault()
             e.stopPropagation()
-            setIsWishlisted(!isWishlisted)
+            toggleWishlist(product.id)
           }}
           className={`absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 backdrop-blur-md transition-all duration-300 cursor-pointer hover:scale-105 shadow-sm ${
-            isWishlisted ? 'text-red-500' : 'text-black/70 hover:text-black'
+            isWishlisted ? 'text-red-500 fill-red-500' : 'text-black/70 hover:text-black'
           }`}
           aria-label="Add to Wishlist"
         >
@@ -78,11 +80,23 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
             )}
           </div>
 
-          <Link to={`/product/${product.id}`} className="block">
-            <h3 className="text-lg sm:text-xl font-extrabold text-black group-hover:text-black/70 transition-colors line-clamp-1 mt-1">
-              {product.name}
-            </h3>
-          </Link>
+          {onOpenDetail ? (
+            <button
+              type="button"
+              onClick={() => onOpenDetail(product.id)}
+              className="block text-left group-hover:text-black/70 transition-colors line-clamp-1 mt-1 cursor-pointer w-full"
+            >
+              <h3 className="text-lg sm:text-xl font-extrabold text-black">
+                {product.name}
+              </h3>
+            </button>
+          ) : (
+            <Link to={`/product/${product.id}`} className="block">
+              <h3 className="text-lg sm:text-xl font-extrabold text-black group-hover:text-black/70 transition-colors line-clamp-1 mt-1">
+                {product.name}
+              </h3>
+            </Link>
+          )}
 
           <div className="flex items-baseline gap-2.5 pt-1">
             <span className="text-lg sm:text-xl font-black text-black">{formatCurrency(product.price)}</span>
