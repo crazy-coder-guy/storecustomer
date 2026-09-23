@@ -1,15 +1,16 @@
 interface KairaLogoProps {
   className?: string
   height?: number
+  animated?: boolean
 }
 
-export function KairaLogo({ className = 'h-7 sm:h-9 text-black', height = 36 }: KairaLogoProps) {
+export function KairaLogo({ className = 'h-7 sm:h-9 text-black', height = 36, animated = false }: KairaLogoProps) {
   return (
     <svg
       viewBox="0 0 220 44"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className={className}
+      className={`${className} ${animated ? 'kaira-logo-animated' : ''}`}
       style={{ height: `${height}px`, width: 'auto' }}
       aria-label="Kaira Logo"
     >
@@ -20,6 +21,7 @@ export function KairaLogo({ className = 'h-7 sm:h-9 text-black', height = 36 }: 
         strokeWidth="4.5"
         strokeLinecap="round"
         strokeLinejoin="round"
+        className={animated ? 'kaira-letter-path kaira-path-1' : ''}
       />
 
       {/* A (Minimalist Crossbar-less Lambda Accent) */}
@@ -29,6 +31,7 @@ export function KairaLogo({ className = 'h-7 sm:h-9 text-black', height = 36 }: 
         strokeWidth="4.5"
         strokeLinecap="round"
         strokeLinejoin="round"
+        className={animated ? 'kaira-letter-path kaira-path-2' : ''}
       />
 
       {/* I */}
@@ -37,6 +40,7 @@ export function KairaLogo({ className = 'h-7 sm:h-9 text-black', height = 36 }: 
         stroke="currentColor"
         strokeWidth="4.5"
         strokeLinecap="round"
+        className={animated ? 'kaira-letter-path kaira-path-3' : ''}
       />
 
       {/* R (Futuristic Curved R) */}
@@ -46,6 +50,7 @@ export function KairaLogo({ className = 'h-7 sm:h-9 text-black', height = 36 }: 
         strokeWidth="4.5"
         strokeLinecap="round"
         strokeLinejoin="round"
+        className={animated ? 'kaira-letter-path kaira-path-4' : ''}
       />
 
       {/* A (Matching Accent Lambda) */}
@@ -55,6 +60,7 @@ export function KairaLogo({ className = 'h-7 sm:h-9 text-black', height = 36 }: 
         strokeWidth="4.5"
         strokeLinecap="round"
         strokeLinejoin="round"
+        className={animated ? 'kaira-letter-path kaira-path-5' : ''}
       />
     </svg>
   )

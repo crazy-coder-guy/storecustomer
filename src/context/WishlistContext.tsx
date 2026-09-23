@@ -1,10 +1,8 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
-import { PRODUCTS_DATABASE, type ProductDetailData } from '../utils/productsData'
 
 interface WishlistContextType {
   wishlistIds: string[]
   wishlistCount: number
-  wishlistProducts: ProductDetailData[]
   isInWishlist: (productId: string) => boolean
   toggleWishlist: (productId: string) => void
   addToWishlist: (productId: string) => void
@@ -14,7 +12,9 @@ interface WishlistContextType {
 
 const WishlistContext = createContext<WishlistContextType | undefined>(undefined)
 
-const INITIAL_WISHLIST_IDS = ['prod-1', 'prod-3']
+// Wishlist ids now refer to real product UUIDs from the backend, so there is
+// no meaningful hardcoded default set — it simply starts empty.
+const INITIAL_WISHLIST_IDS: string[] = []
 
 export function WishlistProvider({ children }: { children: ReactNode }) {
   const [wishlistIds, setWishlistIds] = useState<string[]>(() => {
@@ -55,16 +55,11 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
     setWishlistIds([])
   }
 
-  const wishlistProducts = wishlistIds
-    .map((id) => PRODUCTS_DATABASE[id])
-    .filter((p): p is ProductDetailData => Boolean(p))
-
   return (
     <WishlistContext.Provider
       value={{
         wishlistIds,
         wishlistCount: wishlistIds.length,
-        wishlistProducts,
         isInWishlist,
         toggleWishlist,
         addToWishlist,

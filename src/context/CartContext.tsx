@@ -28,33 +28,6 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
 
-const INITIAL_DEMO_ITEMS: CartItem[] = [
-  {
-    id: 'cart-demo-1',
-    productId: 'prod-1',
-    name: 'Hooded Shirt: Desert Vibe',
-    subtitle: 'Oversized Shirts',
-    price: 1999,
-    mrp: 2499,
-    image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?q=80&w=800&auto=format&fit=crop',
-    size: 'L',
-    color: { name: 'Desert Vibe', hex: '#D2B48C' },
-    quantity: 1,
-  },
-  {
-    id: 'cart-demo-2',
-    productId: 'prod-2',
-    name: 'Minimalist Mountain Line Graphic Tee',
-    subtitle: 'Graphic Tees',
-    price: 1499,
-    mrp: 1999,
-    image: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?q=80&w=800&auto=format&fit=crop',
-    size: 'M',
-    color: { name: 'Pitch Black', hex: '#000000' },
-    quantity: 1,
-  },
-]
-
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>(() => {
     try {
@@ -63,7 +36,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     } catch {
       // fallback
     }
-    return INITIAL_DEMO_ITEMS
+    return []
   })
 
   useEffect(() => {

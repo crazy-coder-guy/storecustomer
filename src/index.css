@@ -190,3 +190,98 @@ body {
 .animate-marquee:hover {
   animation-play-state: paused;
 }
+
+/* 8s Refined Luxury Shimmer & Letter Stroke Wave on KAIRA */
+@keyframes letterDrawWave {
+  0%, 70% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  75% {
+    stroke-dashoffset: 70;
+    opacity: 0.25;
+  }
+  85% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+.kaira-letter-path {
+  stroke-dasharray: 70;
+  stroke-dashoffset: 0;
+  transition: opacity 0.3s ease;
+}
+
+.kaira-path-1 {
+  animation: letterDrawWave 8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation-delay: 0s;
+}
+
+.kaira-path-2 {
+  animation: letterDrawWave 8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation-delay: 0.12s;
+}
+
+.kaira-path-3 {
+  animation: letterDrawWave 8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation-delay: 0.24s;
+}
+
+.kaira-path-4 {
+  animation: letterDrawWave 8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation-delay: 0.36s;
+}
+
+.kaira-path-5 {
+  animation: letterDrawWave 8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation-delay: 0.48s;
+}
+
+/* -------------------------------------------------------------
+   FULL-WIDTH PURE BLACK BADGE BAR
+   Bold, minimalist, opaque pure black bar with clean slide-up
+   ------------------------------------------------------------- */
+@keyframes badgeSlideUp {
+  0% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0%);
+    opacity: 1;
+  }
+}
+
+.animate-badge-slide-up {
+  animation: badgeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.pure-black-badge-bar {
+  background-color: #000000;
+  color: #ffffff;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  text-transform: none !important;
+}
+
+/* -------------------------------------------------------------
+   SEARCH SUGGESTIONS DROPDOWN ENTRANCE
+   ------------------------------------------------------------- */
+@keyframes dropdownFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.985);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-dropdown-in {
+  animation: dropdownFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+}

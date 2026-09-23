@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
@@ -6,10 +6,15 @@ import {
   Search01Icon,
   FavouriteIcon,
   ArrowLeft01Icon,
+  Image01Icon,
+  ArrowRight01Icon,
+  Cancel01Icon,
 } from '@hugeicons/core-free-icons'
 import { KairaLogo } from './KairaLogo'
 import { useCart } from '../context/CartContext'
 import { useWishlist } from '../context/WishlistContext'
+import { useStorefrontSettings, useSearchProducts, PLACEHOLDER_PRODUCT_IMAGE } from '../hooks/queries'
+import { formatCurrency } from '../utils/formatCurrency'
 
 const SEARCH_SUGGESTIONS = [
   'Search "Oversized Shirts"',
@@ -32,10 +37,48 @@ export function Navbar({ cartCount: propCartCount, wishlistCount: propWishlistCo
   const { wishlistCount: contextWishlistCount } = useWishlist()
   const cartCount = propCartCount !== undefined ? propCartCount : contextCartCount
   const wishlistCount = propWishlistCount !== undefined ? propWishlistCount : contextWishlistCount
+  const { data: settings } = useStorefrontSettings()
+  const announcementText = settings?.announcementText || 'Free Express Shipping Over ₹1,999 • 7-Day Easy Returns'
   const [searchQuery, setSearchQuery] = useState('')
+  const [debouncedQuery, setDebouncedQuery] = useState('')
   const [placeholderIndex, setPlaceholderIndex] = useState(0)
   const [isFading, setIsFading] = useState(false)
   const [isFocused, setIsFocused] = useState(false)
+  const searchContainerRef = useRef<HTMLDivElement>(null)
+
+  // Debounce the query before hitting the API for live suggestions.
+  useEffect(() => {
+    const handle = setTimeout(() => setDebouncedQuery(searchQuery.trim()), 250)
+    return () => clearTimeout(handle)
+  }, [searchQuery])
+
+  const showSuggestions = isFocused && searchQuery.trim().length > 0
+  const { data: suggestionsData, isLoading: suggestionsLoading } = useSearchProducts(
+    debouncedQuery,
+    showSuggestions
+  )
+  const suggestions = suggestionsData?.items.slice(0, 6) ?? []
+
+  // Close the suggestions dropdown when clicking outside the search bar,
+  // rather than on input blur, so clicking a suggestion still registers.
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
+        setIsFocused(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  // Close on Escape
+  useEffect(() => {
+    function handleEscape(e: KeyboardEvent) {
+      if (e.key === 'Escape') setIsFocused(false)
+    }
+    document.addEventListener('keydown', handleEscape)
+    return () => document.removeEventListener('keydown', handleEscape)
+  }, [])
 
   // Blinkit style rotating placeholder animation
   useEffect(() => {
@@ -52,6 +95,7 @@ export function Navbar({ cartCount: propCartCount, wishlistCount: propWishlistCo
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    setIsFocused(false)
     if (searchQuery.trim()) {
       navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
     } else {
@@ -74,7 +118,7 @@ export function Navbar({ cartCount: propCartCount, wishlistCount: propWishlistCo
     <header className="sticky top-0 z-50 w-full border-b-0 sm:border-b border-black/10 bg-white/95 backdrop-blur-md">
       {/* Top Banner Announcement - Legible & Well Proportioned */}
       <div className="bg-black py-2 px-3 text-center text-xs font-extrabold text-white tracking-wide uppercase overflow-x-auto whitespace-nowrap no-scrollbar">
-        Free Express Shipping Over ₹1,999 • 7-Day Easy Returns
+        {announcementText}
       </div>
 
       <div className="kaira-container flex items-center justify-between py-3 sm:py-4 gap-4">
@@ -95,14 +139,22 @@ export function Navbar({ cartCount: propCartCount, wishlistCount: propWishlistCo
               />
             </button>
           ) : (
-            <a href="/" className="flex items-center hover:opacity-90 transition-opacity shrink-0">
-              <KairaLogo className="h-6 sm:h-7 lg:h-8 text-black" height={28} />
+            <a
+              href="/"
+              className="group flex items-center hover:opacity-90 transition-opacity shrink-0"
+              aria-label="Kaira Home"
+            >
+              <KairaLogo
+                animated={true}
+                className="h-6 sm:h-7 lg:h-8 text-black transition-transform duration-300 group-hover:scale-105"
+                height={28}
+              />
             </a>
           )}
         </div>
 
         {/* Center/Right: Prominent Blinkit-Style Animated Search Bar (Medium & Large screens) */}
-        <div className="hidden md:flex flex-1 max-w-md lg:max-w-xl mx-4">
+        <div ref={searchContainerRef} className="hidden md:flex flex-1 max-w-md lg:max-w-xl mx-4 relative">
           <form
             onSubmit={handleSearchSubmit}
             className={`relative flex items-center w-full rounded-full border bg-neutral-100 transition-all duration-300 ${
@@ -120,7 +172,6 @@ export function Navbar({ cartCount: propCartCount, wishlistCount: propWishlistCo
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onFocus={() => setIsFocused(true)}
-              onBlur={() => setIsFocused(false)}
               className="w-full bg-transparent py-2.5 sm:py-3 pl-11 pr-4 text-xs sm:text-sm font-semibold text-black focus:outline-none placeholder-transparent"
               aria-label="Search store"
             />
@@ -139,7 +190,127 @@ export function Navbar({ cartCount: propCartCount, wishlistCount: propWishlistCo
                 </span>
               </div>
             )}
+            {/* Clear Button */}
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchQuery('')
+                  setDebouncedQuery('')
+                }}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded-full bg-black/5 hover:bg-black/10 text-black/60 hover:text-black transition-colors cursor-pointer"
+                aria-label="Clear search"
+              >
+                <HugeiconsIcon icon={Cancel01Icon} size={13} />
+              </button>
+            )}
           </form>
+
+          {/* Live Suggestions Dropdown (desktop/tablet only — stays on the page, no navigation) */}
+          {showSuggestions && (
+            <div className="absolute left-0 right-0 top-full mt-2 z-50 overflow-hidden rounded-2xl border border-black/10 bg-white/95 backdrop-blur-xl shadow-2xl animate-dropdown-in">
+              {suggestionsLoading ? (
+                <div className="flex flex-col gap-2 p-3">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="flex items-center gap-3 p-2.5 rounded-xl bg-neutral-100/70 animate-pulse">
+                      <div className="h-14 w-14 rounded-xl bg-neutral-200 shrink-0" />
+                      <div className="flex-1 space-y-2">
+                        <div className="h-3.5 w-3/4 rounded bg-neutral-200" />
+                        <div className="h-2.5 w-1/3 rounded bg-neutral-200" />
+                      </div>
+                      <div className="h-3.5 w-14 rounded bg-neutral-200 shrink-0" />
+                    </div>
+                  ))}
+                </div>
+              ) : suggestions.length === 0 ? (
+                <div className="px-5 py-8 text-center">
+                  <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-black/5 text-black/40">
+                    <HugeiconsIcon icon={Search01Icon} size={18} />
+                  </div>
+                  <p className="text-xs sm:text-sm font-semibold text-black/70">
+                    No products found for <span className="text-black font-bold">"{searchQuery}"</span>
+                  </p>
+                  <p className="text-[11px] text-black/40 mt-1">
+                    Try checking your spelling or searching for another keyword
+                  </p>
+                </div>
+              ) : (
+                <div className="p-2">
+                  <div className="px-3 pt-2 pb-1.5 flex items-center justify-between text-[11px] font-bold text-black/45 tracking-wider">
+                    <span>Matches</span>
+                    <span className="text-[10px] font-medium text-black/40">{suggestions.length} items</span>
+                  </div>
+                  <ul className="max-h-[400px] overflow-y-auto space-y-1 pr-0.5">
+                    {suggestions.map((product) => {
+                      const hasDiscount = product.mrp && product.mrp > product.basePrice
+                      const discountPercent = hasDiscount
+                        ? Math.round(((product.mrp - product.basePrice) / product.mrp) * 100)
+                        : 0
+
+                      return (
+                        <li key={product.id}>
+                          <Link
+                            to={`/product/${product.id}`}
+                            onClick={() => setIsFocused(false)}
+                            className="group flex items-center gap-3.5 px-3 py-2.5 rounded-xl hover:bg-neutral-100/80 transition-all duration-200 cursor-pointer"
+                          >
+                            <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-neutral-100 border border-black/5 group-hover:scale-105 transition-transform duration-300">
+                              {product.image ? (
+                                <img
+                                  src={product.image || PLACEHOLDER_PRODUCT_IMAGE}
+                                  alt=""
+                                  className="h-full w-full object-cover object-top"
+                                />
+                              ) : (
+                                <HugeiconsIcon icon={Image01Icon} size={18} className="text-black/30" />
+                              )}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2">
+                                <p className="truncate text-xs sm:text-sm font-bold text-black group-hover:text-black transition-colors">
+                                  {product.name}
+                                </p>
+                                {product.badge && (
+                                  <span className="shrink-0 px-2 py-0.5 rounded-full bg-black text-[10px] font-bold text-white tracking-normal leading-tight">
+                                    {product.badge}
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-[11px] font-medium text-black/50 truncate mt-0.5">
+                                {product.categoryName}
+                              </p>
+                            </div>
+                            <div className="shrink-0 flex items-center gap-2.5 text-right pl-2">
+                              <div className="flex flex-col items-end">
+                                <span className="text-xs sm:text-sm font-black text-black">
+                                  {formatCurrency(product.basePrice)}
+                                </span>
+                                {hasDiscount && (
+                                  <div className="flex items-center gap-1">
+                                    <span className="text-[10px] text-black/40 line-through">
+                                      {formatCurrency(product.mrp)}
+                                    </span>
+                                    {discountPercent > 0 && (
+                                      <span className="text-[10px] font-bold text-emerald-600">
+                                        {discountPercent}% off
+                                      </span>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                              <div className="h-7 w-7 rounded-full bg-black/5 flex items-center justify-center text-black/50 group-hover:bg-black group-hover:text-white transition-all duration-200">
+                                <HugeiconsIcon icon={ArrowRight01Icon} size={14} />
+                              </div>
+                            </div>
+                          </Link>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Right Section: Action Icons */}

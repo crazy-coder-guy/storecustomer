@@ -1,12 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { formatCurrency } from '../utils/formatCurrency'
-import { getProductById, type ProductDetailData } from '../utils/productsData'
+import { useProductDetail, PLACEHOLDER_PRODUCT_IMAGE } from '../hooks/queries'
 import { useCart } from '../context/CartContext'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
   Cancel01Icon,
-  StarIcon,
   SecurityCheckIcon,
   PackageIcon,
   RefreshIcon,
@@ -20,25 +19,62 @@ interface ProductDetailDrawerProps {
   onClose: () => void
 }
 
+interface ColorOption {
+  name: string
+  hex: string
+}
+
 export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetailDrawerProps) {
   const { addToCart } = useCart()
-  const [product, setProduct] = useState<ProductDetailData | null>(null)
+  const { data: product } = useProductDetail(productId ?? undefined)
   const [selectedImage, setSelectedImage] = useState<string>('')
   const [selectedSize, setSelectedSize] = useState<string>('')
-  const [selectedColor, setSelectedColor] = useState<{ name: string; hex: string } | null>(null)
+  const [selectedColor, setSelectedColor] = useState<ColorOption | null>(null)
   const [addedSuccess, setAddedSuccess] = useState(false)
   const [activeTab, setActiveTab] = useState<'details' | 'care' | 'origin'>('details')
 
+  const images = useMemo(() => {
+    if (!product) return []
+    const sorted = [...product.images].sort((a, b) => a.sortOrder - b.sortOrder)
+    return sorted.map((img) => img.imageUrl)
+  }, [product])
+
+  const colors = useMemo<ColorOption[]>(() => {
+    if (!product) return []
+    const seen = new Map<string, ColorOption>()
+    product.variants.forEach((v) => {
+      if (v.color && !seen.has(v.color.id)) {
+        seen.set(v.color.id, { name: v.color.name, hex: v.color.hexCode })
+      }
+    })
+    return Array.from(seen.values())
+  }, [product])
+
+  const sizes = useMemo(() => {
+    if (!product) return []
+    const seen = new Map<string, { name: string; sortOrder: number }>()
+    product.variants
+      .filter((v) => !selectedColor || v.color?.hexCode === selectedColor.hex)
+      .forEach((v) => {
+        if (v.size && !seen.has(v.size.id)) {
+          seen.set(v.size.id, { name: v.size.name, sortOrder: v.size.sortOrder })
+        }
+      })
+    return Array.from(seen.values()).sort((a, b) => a.sortOrder - b.sortOrder).map((s) => s.name)
+  }, [product, selectedColor])
+
   useEffect(() => {
-    if (productId) {
-      const data = getProductById(productId)
-      setProduct(data)
-      setSelectedImage(data.images[0])
-      setSelectedSize(data.sizes[1] || data.sizes[0] || 'M')
-      setSelectedColor(data.colors[0] || { name: 'Standard', hex: '#000000' })
+    if (product) {
+      setSelectedImage(images[0] || PLACEHOLDER_PRODUCT_IMAGE)
+      setSelectedColor(colors[0] || null)
       setAddedSuccess(false)
     }
-  }, [productId])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product])
+
+  useEffect(() => {
+    setSelectedSize(sizes[0] || '')
+  }, [sizes])
 
   // Close on Escape key
   useEffect(() => {
@@ -63,15 +99,21 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
 
   if (!isOpen || !product) return null
 
+  const selectedVariant = product.variants.find(
+    (v) => v.color?.hexCode === selectedColor?.hex && v.size?.name === selectedSize
+  )
+  const effectivePrice = selectedVariant?.price ?? product.basePrice
+  const effectiveMrp = product.mrp
+
   const handleQuickAdd = () => {
-    if (!product || !selectedColor) return
+    if (!selectedColor) return
     addToCart({
       productId: product.id,
       name: product.name,
-      subtitle: product.subtitle,
-      price: product.price,
-      mrp: product.mrp,
-      image: selectedImage || product.images[0],
+      subtitle: product.category?.name,
+      price: effectivePrice,
+      mrp: effectiveMrp,
+      image: selectedImage || images[0] || PLACEHOLDER_PRODUCT_IMAGE,
       size: selectedSize,
       color: selectedColor,
       quantity: 1,
@@ -80,8 +122,8 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
     setTimeout(() => setAddedSuccess(false), 2200)
   }
 
-  const discountPercent = product.mrp > product.price
-    ? Math.round(((product.mrp - product.price) / product.mrp) * 100)
+  const discountPercent = effectiveMrp > effectivePrice
+    ? Math.round(((effectiveMrp - effectivePrice) / effectiveMrp) * 100)
     : 0
 
   return (
@@ -100,7 +142,7 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
           <div className="flex items-center justify-between border-b border-black/10 px-6 py-4.5 bg-white/90 backdrop-blur-md sticky top-0 z-10">
             <div>
               <span className="text-[10px] font-extrabold uppercase tracking-widest text-black/50">
-                {product.category}
+                {product.category?.name}
               </span>
               <h2 className="text-base sm:text-lg font-black text-black tracking-tight line-clamp-1">
                 Product Details
@@ -124,22 +166,27 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
             <div className="flex items-center gap-3">
               {/* Main Image View - Fills width without empty gaps */}
               <div className="relative aspect-[4/3] sm:aspect-[4/3] flex-1 overflow-hidden rounded-2xl bg-neutral-100 border border-black/10">
+                {/* Pure Black Full-Width Badge Bar */}
                 {product.badge && (
-                  <span className="absolute left-2.5 top-2.5 z-10 rounded-full bg-black px-2.5 py-0.5 text-[9px] font-black uppercase tracking-widest text-white shadow-xs">
-                    {product.badge}
-                  </span>
+                  <div className="absolute inset-x-0 bottom-0 z-10 pointer-events-none animate-badge-slide-up">
+                    <div className="pure-black-badge-bar w-full py-1.5 px-3 text-center shadow-md">
+                      <span className="text-[11px] sm:text-xs font-bold tracking-wide text-white">
+                        {product.badge}
+                      </span>
+                    </div>
+                  </div>
                 )}
                 <img
-                  src={selectedImage}
+                  src={selectedImage || PLACEHOLDER_PRODUCT_IMAGE}
                   alt={product.name}
                   className="h-full w-full object-cover object-top transition-all duration-300"
                 />
               </div>
 
               {/* Reference Thumbnails Column on the Right */}
-              {product.images.length > 1 && (
+              {images.length > 1 && (
                 <div className="flex flex-col gap-2 shrink-0 justify-center">
-                  {product.images.map((img, idx) => (
+                  {images.map((img, idx) => (
                     <button
                       key={idx}
                       type="button"
@@ -159,14 +206,9 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
 
             {/* Title & Price Info */}
             <div className="space-y-2 border-b border-black/10 pb-5">
-              <div className="flex items-center gap-2 text-xs">
-                <div className="flex items-center gap-1 font-black text-black">
-                  <HugeiconsIcon icon={StarIcon} size={14} className="fill-black text-black" />
-                  <span>{product.rating}</span>
-                </div>
-                <span className="text-black/30">•</span>
-                <span className="font-semibold text-black/50">
-                  {product.reviewsCount} reviews
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-black uppercase tracking-widest text-black/50">
+                  {product.category?.name}
                 </span>
               </div>
 
@@ -176,11 +218,11 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
 
               <div className="flex items-baseline gap-3 pt-1">
                 <span className="text-2xl font-black text-black">
-                  {formatCurrency(product.price)}
+                  {formatCurrency(effectivePrice)}
                 </span>
-                {product.mrp > product.price && (
+                {effectiveMrp > effectivePrice && (
                   <span className="text-sm font-semibold text-black/40 line-through">
-                    {formatCurrency(product.mrp)}
+                    {formatCurrency(effectiveMrp)}
                   </span>
                 )}
                 {discountPercent > 0 && (
@@ -197,7 +239,7 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
                 <span>Color: <strong className="text-black">{selectedColor?.name}</strong></span>
               </label>
               <div className="flex items-center gap-2.5">
-                {product.colors.map((color) => (
+                {colors.map((color) => (
                   <button
                     key={color.name}
                     type="button"
@@ -222,10 +264,9 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
             <div className="space-y-2">
               <label className="text-xs font-bold text-black/70 flex items-center justify-between">
                 <span>Select Size</span>
-                <span className="text-[11px] font-extrabold text-black/50 uppercase">Oversized Relaxed Fit</span>
               </label>
               <div className="flex flex-wrap gap-2">
-                {product.sizes.map((size) => (
+                {sizes.map((size) => (
                   <button
                     key={size}
                     type="button"
@@ -248,14 +289,8 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
                 About The Product
               </h3>
               <p className="text-xs sm:text-sm text-black/75 font-medium leading-relaxed">
-                {product.description}
+                {product.description || 'No additional description available for this product yet.'}
               </p>
-              {product.styleTip && (
-                <div className="rounded-xl bg-neutral-50 p-3 border border-black/5 text-xs">
-                  <span className="font-black text-black">Style Tip: </span>
-                  <span className="text-black/70 font-medium">{product.styleTip}</span>
-                </div>
-              )}
             </div>
 
             {/* Specs Segmented Tabs */}
@@ -268,48 +303,41 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
                     activeTab === 'details' ? 'border-black text-black' : 'border-transparent text-black/40 hover:text-black'
                   }`}
                 >
-                  Key Highlights
+                  Key Details
                 </button>
                 <button
                   type="button"
                   onClick={() => setActiveTab('care')}
-                  className={`pb-2 mr-5 transition-colors cursor-pointer border-b-2 -mb-px ${
+                  className={`pb-2 transition-colors cursor-pointer border-b-2 -mb-px ${
                     activeTab === 'care' ? 'border-black text-black' : 'border-transparent text-black/40 hover:text-black'
                   }`}
                 >
-                  Material & Care
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('origin')}
-                  className={`pb-2 transition-colors cursor-pointer border-b-2 -mb-px ${
-                    activeTab === 'origin' ? 'border-black text-black' : 'border-transparent text-black/40 hover:text-black'
-                  }`}
-                >
-                  Origin & Craft
+                  Availability
                 </button>
               </div>
 
               {activeTab === 'details' && (
                 <ul className="space-y-1.5 text-xs text-black/70 font-medium list-disc list-inside">
-                  {product.details.map((detail, idx) => (
-                    <li key={idx}>{detail}</li>
-                  ))}
+                  <li>Category: {product.category?.name}</li>
+                  <li>Product Type: {product.productType}</li>
+                  {selectedVariant && <li>SKU: {selectedVariant.sku}</li>}
                 </ul>
               )}
 
               {activeTab === 'care' && (
-                <ul className="space-y-1.5 text-xs text-black/70 font-medium list-disc list-inside">
-                  {product.materialCare.map((care, idx) => (
-                    <li key={idx}>{care}</li>
-                  ))}
-                </ul>
-              )}
-
-              {activeTab === 'origin' && (
                 <div className="space-y-1 text-xs text-black/70 font-medium">
-                  <p><strong className="text-black">Country of Origin:</strong> {product.countryOfOrigin}</p>
-                  <p><strong className="text-black">Crafted By:</strong> {product.manufacturedBy.join(', ')}</p>
+                  {selectedVariant ? (
+                    <p>
+                      <strong className="text-black">
+                        {selectedVariant.stockQuantity > 0
+                          ? `${selectedVariant.stockQuantity} in stock`
+                          : 'Out of stock'}
+                      </strong>{' '}
+                      for {selectedColor?.name} / {selectedSize}
+                    </p>
+                  ) : (
+                    <p>Select a color and size to see availability.</p>
+                  )}
                 </div>
               )}
             </div>

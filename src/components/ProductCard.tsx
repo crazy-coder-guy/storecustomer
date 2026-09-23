@@ -3,19 +3,9 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { FavouriteIcon, ArrowRight01Icon } from '@hugeicons/core-free-icons'
 import { formatCurrency } from '../utils/formatCurrency'
 import { useWishlist } from '../context/WishlistContext'
+import type { ProductCardData } from '../hooks/queries'
 
-export interface ProductItem {
-  id: string
-  name: string
-  category: string
-  price: number
-  mrp?: number
-  image: string
-  rating: number
-  reviewsCount: number
-  badge?: string
-  colors?: string[]
-}
+export type ProductItem = ProductCardData
 
 interface ProductCardProps {
   product: ProductItem
@@ -31,11 +21,15 @@ export function ProductCard({ product, onAddToCart, onOpenDetail }: ProductCardP
     <div className="group relative flex flex-col space-y-3 cursor-pointer select-none">
       {/* Product Image Container */}
       <Link to={`/product/${product.id}`} className="relative aspect-[4/4.2] w-full overflow-hidden rounded-2xl bg-gray-100 block">
-        {/* Badge */}
+        {/* Pure Black Full-Width Badge Bar */}
         {product.badge && (
-          <span className="absolute left-3 top-3 z-10 rounded-full bg-black px-3 py-1 text-[10px] font-extrabold uppercase tracking-widest text-white shadow-sm">
-            {product.badge}
-          </span>
+          <div className="absolute inset-x-0 bottom-0 z-10 pointer-events-none animate-badge-slide-up">
+            <div className="pure-black-badge-bar w-full py-1.5 px-3 text-center shadow-md">
+              <span className="text-[11px] sm:text-xs font-bold tracking-wide text-white">
+                {product.badge}
+              </span>
+            </div>
+          </div>
         )}
 
         {/* Wishlist Button */}
@@ -66,7 +60,7 @@ export function ProductCard({ product, onAddToCart, onOpenDetail }: ProductCardP
       <div className="space-y-2 px-0.5 flex-1 flex flex-col justify-between">
         <div>
           <div className="flex items-center justify-between text-xs sm:text-sm font-bold text-black/50 uppercase tracking-widest">
-            <span>{product.category}</span>
+            <span>{product.categoryName}</span>
             {product.colors && (
               <div className="flex items-center -space-x-1">
                 {product.colors.map((hex, i) => (

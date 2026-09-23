@@ -1,11 +1,18 @@
 import { LiquidButton } from './LiquidButton'
 import bannerImg from '../assets/banner.png'
+import { useStorefrontSettings } from '../hooks/queries'
 
 interface HeroSectionProps {
   onShopClick?: () => void
 }
 
 export function HeroSection({ onShopClick }: HeroSectionProps) {
+  const { data: settings } = useStorefrontSettings()
+  const heroTitle = settings?.heroTitle || 'Modern Essentials for Everyday Style'
+  const heroSubtitle =
+    settings?.heroSubtitle ||
+    'Discover refined apparel crafted with exceptional fabrics and minimal aesthetics. Designed by Kaira.'
+
   return (
     <section className="relative overflow-hidden bg-white py-2 sm:py-4 lg:py-6">
       <div className="kaira-container">
@@ -15,10 +22,10 @@ export function HeroSection({ onShopClick }: HeroSectionProps) {
               <span>New Season Collection</span>
             </div>
             <h1 className="text-4xl font-black tracking-tight text-black sm:text-6xl lg:text-8xl leading-[1.06] sm:leading-[1.05]">
-              Modern Essentials for Everyday Style
+              {heroTitle}
             </h1>
             <p className="text-lg text-black/80 sm:text-2xl max-w-2xl font-medium leading-relaxed">
-              Discover refined apparel crafted with exceptional fabrics and minimal aesthetics. Designed by Kaira.
+              {heroSubtitle}
             </p>
             <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-5 pt-2 sm:pt-3">
               <LiquidButton

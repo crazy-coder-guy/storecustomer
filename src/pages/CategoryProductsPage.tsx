@@ -1,162 +1,32 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Navbar } from '../components/Navbar'
 import { Footer } from '../components/Footer'
 import { ProductCard, type ProductItem } from '../components/ProductCard'
 import { ProductDetailDrawer } from '../components/ProductDetailDrawer'
 import { useCart } from '../context/CartContext'
+import { useCategories, useProductCards, useProducts } from '../hooks/queries'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { FilterIcon } from '@hugeicons/core-free-icons'
-
-const ALL_CATEGORY_PRODUCTS: Record<string, ProductItem[]> = {
-  'heavyweight-t-shirts': [
-    {
-      id: 'h-1',
-      name: 'Heavyweight Oversized Cotton Tee',
-      category: 'Heavyweight T-Shirts',
-      price: 1299,
-      mrp: 1799,
-      image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?q=80&w=800&auto=format&fit=crop',
-      rating: 4.9,
-      reviewsCount: 142,
-      badge: 'Top Seller',
-      colors: ['#000000', '#F5F5F0', '#3D3D3D'],
-    },
-    {
-      id: 'h-2',
-      name: '240 GSM Boxy Heavy Crewneck',
-      category: 'Heavyweight T-Shirts',
-      price: 1599,
-      mrp: 2099,
-      image: 'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?q=80&w=800&auto=format&fit=crop',
-      rating: 4.8,
-      reviewsCount: 89,
-      badge: 'Heavyweight',
-      colors: ['#1C2833', '#888888'],
-    },
-    {
-      id: 'h-3',
-      name: 'Vintage Acid Wash Heavy Crewneck',
-      category: 'Heavyweight T-Shirts',
-      price: 1699,
-      mrp: 2299,
-      image: 'https://images.unsplash.com/photo-1576995853123-5a10305d93c0?q=80&w=800&auto=format&fit=crop',
-      rating: 4.9,
-      reviewsCount: 115,
-      badge: 'Must Have',
-      colors: ['#2C3E50', '#888888'],
-    },
-    {
-      id: 'h-4',
-      name: 'Structured Heavy Raw Cotton Tee',
-      category: 'Heavyweight T-Shirts',
-      price: 1499,
-      mrp: 1999,
-      image: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?q=80&w=800&auto=format&fit=crop',
-      rating: 4.7,
-      reviewsCount: 64,
-      badge: 'Raw Finish',
-      colors: ['#D2B48C', '#FFFFFF'],
-    },
-  ],
-  'oversized-drop-shoulder': [
-    {
-      id: 'o-1',
-      name: 'Botanical Sketch Organic Drop-Shoulder Tee',
-      category: 'Oversized & Drop-Shoulder',
-      price: 1399,
-      mrp: 1899,
-      image: 'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?q=80&w=800&auto=format&fit=crop',
-      rating: 4.8,
-      reviewsCount: 76,
-      badge: 'Organic',
-      colors: ['#F5F5DC', '#1C2833'],
-    },
-    {
-      id: 'o-2',
-      name: 'Relaxed Silhouette Drop-Shoulder Fit',
-      category: 'Oversized & Drop-Shoulder',
-      price: 1499,
-      mrp: 1999,
-      image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?q=80&w=800&auto=format&fit=crop',
-      rating: 5.0,
-      reviewsCount: 112,
-      badge: 'Relaxed Fit',
-      colors: ['#000000', '#D2B48C'],
-    },
-  ],
-  'minimal-graphic-tees': [
-    {
-      id: 'g-1',
-      name: 'Minimalist Mountain Line Graphic Tee',
-      category: 'Minimal Graphic Tees',
-      price: 1499,
-      mrp: 1999,
-      image: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?q=80&w=800&auto=format&fit=crop',
-      rating: 5.0,
-      reviewsCount: 98,
-      badge: 'Trending Art',
-      colors: ['#FFFFFF', '#D2B48C'],
-    },
-    {
-      id: 'g-2',
-      name: 'Monochrome Typography Screen Tee',
-      category: 'Minimal Graphic Tees',
-      price: 1349,
-      mrp: 1799,
-      image: 'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?q=80&w=800&auto=format&fit=crop',
-      rating: 4.9,
-      reviewsCount: 84,
-      badge: 'New Art',
-      colors: ['#000000', '#F5F5F0'],
-    },
-  ],
-  'hoodies-outerwear': [
-    {
-      id: 'hw-1',
-      name: 'French Terry Modular Zip Hoodie',
-      category: 'Hoodies & Outerwear',
-      price: 2499,
-      mrp: 3299,
-      image: 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=800&auto=format&fit=crop',
-      rating: 4.9,
-      reviewsCount: 156,
-      badge: 'Outerwear',
-      colors: ['#000000', '#3D3D3D'],
-    },
-  ],
-}
-
-const CATEGORY_NAMES: Record<string, { title: string; subtitle: string }> = {
-  'heavyweight-t-shirts': {
-    title: 'Heavyweight T-Shirts',
-    subtitle: 'High GSM structured tees designed with premium 100% organic cotton for long-lasting drape.',
-  },
-  'oversized-drop-shoulder': {
-    title: 'Oversized & Drop-Shoulder',
-    subtitle: 'Relaxed shoulder cuts and wide body proportions for an effortless streetwear aesthetic.',
-  },
-  'minimal-graphic-tees': {
-    title: 'Minimal Graphic Tees',
-    subtitle: 'Monochrome line prints and subtle typography created by independent studio artists.',
-  },
-  'hoodies-outerwear': {
-    title: 'Hoodies & Outerwear',
-    subtitle: 'Heavy French terry fleece and layerable crewnecks engineered for all seasons.',
-  },
-}
 
 export function CategoryProductsPage() {
   const { slug } = useParams<{ slug: string }>()
   const { addToCart } = useCart()
   const [selectedDrawerProductId, setSelectedDrawerProductId] = useState<string | null>(null)
 
-  const activeSlug = slug || 'heavyweight-t-shirts'
-  const products = ALL_CATEGORY_PRODUCTS[activeSlug] || ALL_CATEGORY_PRODUCTS['heavyweight-t-shirts']
-  const info = CATEGORY_NAMES[activeSlug] || {
-    title: 'Curated Collection',
-    subtitle: 'Exceptional modern garments tailored with heavy organic cottons and modern silhouettes.',
-  }
+  const { data: categoriesData, isLoading: categoriesLoading } = useCategories({ status: 'ACTIVE', limit: 100 })
+  const category = useMemo(
+    () => categoriesData?.items.find((c) => c.slug === slug),
+    [categoriesData, slug]
+  )
+
+  const { data: productsData, isLoading: productsLoading } = useProducts(
+    { category_id: category?.id, status: 'ACTIVE', limit: 100 },
+    Boolean(category)
+  )
+  const { cards } = useProductCards(productsData?.items)
+
+  const products: ProductItem[] = cards
 
   const handleAdd = (product: ProductItem) => {
     addToCart({
@@ -171,6 +41,9 @@ export function CategoryProductsPage() {
     })
   }
 
+  const isLoading = categoriesLoading || (Boolean(category) && productsLoading)
+  const notFound = !categoriesLoading && !category
+
   return (
     <div className="min-h-screen bg-white text-black flex flex-col justify-between">
       <div>
@@ -181,11 +54,20 @@ export function CategoryProductsPage() {
           <div className="kaira-container">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="space-y-1">
-                <h1 className="text-2xl sm:text-4xl font-black text-black tracking-tight">
-                  {info.title}
-                </h1>
+                <div className="flex items-center gap-3">
+                  <h1 className="text-2xl sm:text-4xl font-black text-black tracking-tight">
+                    {notFound ? 'Curated Collection' : category?.name || ''}
+                  </h1>
+                  {category?.badge && (
+                    <span className="rounded-full bg-black px-2.5 py-1 text-[11px] font-bold text-white">
+                      {category.badge}
+                    </span>
+                  )}
+                </div>
                 <p className="text-xs sm:text-sm text-black/65 font-medium max-w-2xl">
-                  {info.subtitle}
+                  {notFound
+                    ? 'This category could not be found. Explore our full collection instead.'
+                    : category?.description || 'Exceptional modern garments tailored with heavy organic cottons and modern silhouettes.'}
                 </p>
               </div>
             </div>
@@ -202,16 +84,28 @@ export function CategoryProductsPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-10">
-              {products.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  onAddToCart={handleAdd}
-                  onOpenDetail={(id) => setSelectedDrawerProductId(id)}
-                />
-              ))}
-            </div>
+            {isLoading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-10">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div key={i} className="aspect-[4/4.2] rounded-2xl bg-gray-100 animate-pulse" />
+                ))}
+              </div>
+            ) : products.length === 0 ? (
+              <div className="py-16 text-center text-sm font-semibold text-black/50">
+                No products found in this category yet.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-10">
+                {products.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    onAddToCart={handleAdd}
+                    onOpenDetail={(id) => setSelectedDrawerProductId(id)}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </section>
       </div>

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { Navbar } from '../components/Navbar'
 import { Footer } from '../components/Footer'
@@ -6,114 +6,19 @@ import { LiquidButton } from '../components/LiquidButton'
 import { formatCurrency } from '../utils/formatCurrency'
 import { useCart } from '../context/CartContext'
 import { useWishlist } from '../context/WishlistContext'
+import { useProductDetail, PLACEHOLDER_PRODUCT_IMAGE } from '../hooks/queries'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
   FavouriteIcon,
   PackageIcon,
   SecurityCheckIcon,
   RefreshIcon,
-  StarIcon,
   CheckmarkCircle02Icon,
 } from '@hugeicons/core-free-icons'
 
-interface ProductDetailData {
-  id: string
+interface ColorOption {
   name: string
-  subtitle: string
-  category: string
-  price: number
-  mrp: number
-  description: string
-  styleTip: string
-  materialCare: string[]
-  countryOfOrigin: string
-  manufacturedBy: string[]
-  details: string[]
-  images: string[]
-  sizes: string[]
-  colors: { name: string; hex: string }[]
-  badge?: string
-  rating: number
-  reviewsCount: number
-}
-
-const SAMPLE_PRODUCTS_DB: Record<string, ProductDetailData> = {
-  'prod-1': {
-    id: 'prod-1',
-    name: 'Hooded Shirt: Desert Vibe',
-    subtitle: 'Oversized Shirts',
-    category: 'Oversized Shirts',
-    price: 1999,
-    mrp: 2499,
-    badge: 'Top Seller',
-    rating: 4.9,
-    reviewsCount: 142,
-    description:
-      'This piece blends the casual cool of a shirt with the easy confidence of a hood, creating a vibe that feels young and modern. The relaxed shape makes it perfect for everything from coffee runs to casual nights out. It adds a little mystery without trying hard at all.',
-    styleTip: 'Layer over a basic tee and pair with tapered pants for a sharp relaxed look.',
-    materialCare: ['71% Cotton 29% Polyester', 'Machine Wash'],
-    countryOfOrigin: 'India (and proud)',
-    manufacturedBy: [
-      'The Souled Store Pvt. Ltd.',
-      '24, Tantia Jogani Industrial Premises',
-      'J.R. Boricha Marg, Lower Parel (E)',
-      'Mumbai - 400 011',
-      'connect@thesouledstore.com',
-      'Customer care no. +91 22-68493328',
-    ],
-    details: [
-      '71% Cotton 29% Polyester blend',
-      'Relaxed oversized shirt with integrated hood',
-      'Pre-shrunk fabric for long-lasting fit',
-      'Machine wash cold with like colors',
-    ],
-    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-    colors: [
-      { name: 'Desert Vibe', hex: '#D2B48C' },
-      { name: 'Pitch Black', hex: '#000000' },
-      { name: 'Off White', hex: '#F5F5F0' },
-    ],
-    images: [
-      'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?q=80&w=1200&auto=format&fit=crop',
-    ],
-  },
-  'prod-2': {
-    id: 'prod-2',
-    name: 'Minimalist Mountain Line Graphic Tee',
-    subtitle: 'Graphic Tees',
-    category: 'Minimal Graphic Tees',
-    price: 1499,
-    mrp: 1999,
-    badge: 'Trending',
-    rating: 5.0,
-    reviewsCount: 98,
-    description:
-      'Featuring custom studio artwork screen-printed with eco-friendly water-based ink on 220 GSM combed cotton. Lightweight feel with structured durability.',
-    styleTip: 'Pair with relaxed denim and low-top sneakers for an effortless day look.',
-    materialCare: ['100% Combed Cotton', 'Machine Wash Cold'],
-    countryOfOrigin: 'India (and proud)',
-    manufacturedBy: [
-      'The Souled Store Pvt. Ltd.',
-      'Lower Parel (E), Mumbai - 400 011',
-      'connect@thesouledstore.com',
-    ],
-    details: [
-      '100% Combed Cotton (220 GSM)',
-      'Water-based screen print artwork',
-      'Classic relaxed fit',
-    ],
-    sizes: ['M', 'L', 'XL'],
-    colors: [
-      { name: 'Pure White', hex: '#FFFFFF' },
-      { name: 'Desert Sand', hex: '#D2B48C' },
-    ],
-    images: [
-      'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?q=80&w=1200&auto=format&fit=crop',
-    ],
-  },
+  hex: string
 }
 
 export function ProductDetailPage() {
@@ -122,24 +27,98 @@ export function ProductDetailPage() {
   const { isInWishlist, toggleWishlist } = useWishlist()
   const [openAccordion, setOpenAccordion] = useState<string | null>('description')
 
-  // Fallback to prod-1 if id not found
-  const productKey = id && SAMPLE_PRODUCTS_DB[id] ? id : 'prod-1'
-  const product = SAMPLE_PRODUCTS_DB[productKey]
-  const isWishlisted = isInWishlist(product.id)
+  const { data: product, isLoading, isError } = useProductDetail(id)
 
-  const [selectedImage, setSelectedImage] = useState(product.images[0])
-  const [selectedSize, setSelectedSize] = useState(product.sizes[1] || product.sizes[0])
-  const [selectedColor, setSelectedColor] = useState(product.colors[0])
+  const images = useMemo(() => {
+    if (!product) return []
+    return [...product.images].sort((a, b) => a.sortOrder - b.sortOrder).map((img) => img.imageUrl)
+  }, [product])
+
+  const colors = useMemo<ColorOption[]>(() => {
+    if (!product) return []
+    const seen = new Map<string, ColorOption>()
+    product.variants.forEach((v) => {
+      if (v.color && !seen.has(v.color.id)) {
+        seen.set(v.color.id, { name: v.color.name, hex: v.color.hexCode })
+      }
+    })
+    return Array.from(seen.values())
+  }, [product])
+
+  const [selectedImage, setSelectedImage] = useState('')
+  const [selectedColor, setSelectedColor] = useState<ColorOption | null>(null)
+  const [selectedSize, setSelectedSize] = useState('')
   const [addedNotification, setAddedNotification] = useState(false)
 
+  useEffect(() => {
+    if (product) {
+      setSelectedImage(images[0] || PLACEHOLDER_PRODUCT_IMAGE)
+      setSelectedColor(colors[0] || null)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product])
+
+  const sizes = useMemo(() => {
+    if (!product) return []
+    const seen = new Map<string, { name: string; sortOrder: number }>()
+    product.variants
+      .filter((v) => !selectedColor || v.color?.hexCode === selectedColor.hex)
+      .forEach((v) => {
+        if (v.size && !seen.has(v.size.id)) {
+          seen.set(v.size.id, { name: v.size.name, sortOrder: v.size.sortOrder })
+        }
+      })
+    return Array.from(seen.values()).sort((a, b) => a.sortOrder - b.sortOrder).map((s) => s.name)
+  }, [product, selectedColor])
+
+  useEffect(() => {
+    setSelectedSize(sizes[0] || '')
+  }, [sizes])
+
+  const toggleAccordion = (key: string) => {
+    setOpenAccordion((prev) => (prev === key ? null : key))
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white text-black flex flex-col justify-between">
+        <Navbar />
+        <div className="kaira-container py-24 text-center text-sm font-semibold text-black/50">
+          Loading product…
+        </div>
+        <Footer />
+      </div>
+    )
+  }
+
+  if (isError || !product) {
+    return (
+      <div className="min-h-screen bg-white text-black flex flex-col justify-between">
+        <Navbar />
+        <div className="kaira-container py-24 text-center space-y-2">
+          <h1 className="text-2xl font-black">Product not found</h1>
+          <p className="text-sm text-black/50">This product may have been removed or is no longer available.</p>
+        </div>
+        <Footer />
+      </div>
+    )
+  }
+
+  const selectedVariant = product.variants.find(
+    (v) => v.color?.hexCode === selectedColor?.hex && v.size?.name === selectedSize
+  )
+  const effectivePrice = selectedVariant?.price ?? product.basePrice
+  const effectiveMrp = product.mrp
+
   const handleAddToCart = () => {
+    if (!selectedColor) return
     addToCart({
       productId: product.id,
       name: product.name,
-      subtitle: product.subtitle,
-      price: product.price,
-      mrp: product.mrp,
-      image: selectedImage || product.images[0],
+      subtitle: product.category?.name,
+      price: effectivePrice,
+      mrp: effectiveMrp,
+      image: selectedImage || images[0] || PLACEHOLDER_PRODUCT_IMAGE,
       size: selectedSize,
       color: selectedColor,
       quantity: 1,
@@ -148,9 +127,7 @@ export function ProductDetailPage() {
     setTimeout(() => setAddedNotification(false), 2500)
   }
 
-  const toggleAccordion = (key: string) => {
-    setOpenAccordion((prev) => (prev === key ? null : key))
-  }
+  const isWishlisted = isInWishlist(product.id)
 
   return (
     <div className="min-h-screen bg-white text-black flex flex-col justify-between">
@@ -161,12 +138,12 @@ export function ProductDetailPage() {
         <section className="py-6 lg:py-10">
           <div className="kaira-container">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 xl:gap-12 items-start">
-              
+
               {/* Left Column: Sticky Image Gallery (Tablet Landscape & Desktop Optimized) */}
               <div className="lg:col-span-7 lg:sticky lg:top-24 flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 h-auto lg:h-[calc(100vh-180px)] lg:max-h-[580px]">
                 {/* Thumbnails */}
                 <div className="flex sm:flex-col gap-2.5 sm:gap-3 overflow-x-auto sm:overflow-y-auto shrink-0 pr-1 max-h-full">
-                  {product.images.map((img, idx) => (
+                  {images.map((img, idx) => (
                     <button
                       key={idx}
                       type="button"
@@ -184,12 +161,6 @@ export function ProductDetailPage() {
 
                 {/* Main Image Container */}
                 <div className="relative flex-1 h-full min-h-[380px] sm:min-h-[460px] lg:min-h-0 overflow-hidden rounded-3xl bg-neutral-100 border border-black/10 shadow-sm">
-                  {product.badge && (
-                    <span className="absolute left-4 top-4 sm:left-5 sm:top-5 z-10 rounded-full bg-black px-3.5 py-1 sm:px-4 sm:py-1.5 text-[10px] sm:text-xs font-black text-white uppercase tracking-widest shadow-lg">
-                      {product.badge}
-                    </span>
-                  )}
-
                   <button
                     type="button"
                     onClick={() => toggleWishlist(product.id)}
@@ -200,8 +171,19 @@ export function ProductDetailPage() {
                     <HugeiconsIcon icon={FavouriteIcon} size={18} />
                   </button>
 
+                  {/* Pure Black Full-Width Badge Bar */}
+                  {product.badge && (
+                    <div className="absolute inset-x-0 bottom-0 z-10 pointer-events-none animate-badge-slide-up">
+                      <div className="pure-black-badge-bar w-full py-2 px-4 text-center shadow-md">
+                        <span className="text-xs sm:text-sm font-bold tracking-wide text-white">
+                          {product.badge}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
                   <img
-                    src={selectedImage}
+                    src={selectedImage || PLACEHOLDER_PRODUCT_IMAGE}
                     alt={product.name}
                     className="h-full w-full object-cover object-top transition-all duration-500"
                   />
@@ -212,15 +194,10 @@ export function ProductDetailPage() {
               <div className="lg:col-span-5 space-y-6">
                 {/* Meta Header */}
                 <div className="space-y-3 pb-4 border-b border-black/10">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
                     <span className="text-xs font-black uppercase tracking-widest text-black/50">
-                      {product.subtitle || product.category}
+                      {product.category?.name}
                     </span>
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-black">
-                      <HugeiconsIcon icon={StarIcon} size={14} className="text-amber-500 fill-amber-500" />
-                      <span className="font-black">{product.rating}</span>
-                      <span className="text-black/50 font-medium">({product.reviewsCount} reviews)</span>
-                    </div>
                   </div>
 
                   <h1 className="text-3xl sm:text-4xl font-black text-black tracking-tight leading-tight">
@@ -231,11 +208,11 @@ export function ProductDetailPage() {
                   <div className="space-y-0.5">
                     <div className="flex items-baseline gap-3">
                       <span className="text-3xl font-black text-black">
-                        {formatCurrency(product.price)}
+                        {formatCurrency(effectivePrice)}
                       </span>
-                      {product.mrp > product.price && (
+                      {effectiveMrp > effectivePrice && (
                         <span className="text-base font-bold text-black/40 line-through">
-                          {formatCurrency(product.mrp)}
+                          {formatCurrency(effectiveMrp)}
                         </span>
                       )}
                     </div>
@@ -246,51 +223,52 @@ export function ProductDetailPage() {
                 </div>
 
                 {/* Color Selector */}
-                <div className="space-y-2.5">
-                  <label className="text-xs font-extrabold uppercase tracking-wider text-black">
-                    Color: <span className="text-black/70 font-semibold">{selectedColor.name}</span>
-                  </label>
-                  <div className="flex items-center gap-3">
-                    {product.colors.map((color) => (
-                      <button
-                        key={color.name}
-                        type="button"
-                        onClick={() => setSelectedColor(color)}
-                        className={`relative h-9 w-9 rounded-full border-2 transition-all cursor-pointer ${
-                          selectedColor.name === color.name ? 'border-black scale-110 shadow-sm' : 'border-black/20 hover:scale-105'
-                        }`}
-                        style={{ backgroundColor: color.hex }}
-                        title={color.name}
-                      />
-                    ))}
+                {colors.length > 0 && (
+                  <div className="space-y-2.5">
+                    <label className="text-xs font-extrabold uppercase tracking-wider text-black">
+                      Color: <span className="text-black/70 font-semibold">{selectedColor?.name}</span>
+                    </label>
+                    <div className="flex items-center gap-3">
+                      {colors.map((color) => (
+                        <button
+                          key={color.name}
+                          type="button"
+                          onClick={() => setSelectedColor(color)}
+                          className={`relative h-9 w-9 rounded-full border-2 transition-all cursor-pointer ${
+                            selectedColor?.name === color.name ? 'border-black scale-110 shadow-sm' : 'border-black/20 hover:scale-105'
+                          }`}
+                          style={{ backgroundColor: color.hex }}
+                          title={color.name}
+                        />
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* Size Selector */}
-                <div className="space-y-2.5">
-                  <div className="flex items-center justify-between text-xs font-extrabold uppercase tracking-wider">
-                    <span>Select Size</span>
-                    <button type="button" className="text-black/60 underline hover:text-black cursor-pointer font-bold">
-                      Size Guide
-                    </button>
+                {sizes.length > 0 && (
+                  <div className="space-y-2.5">
+                    <div className="flex items-center justify-between text-xs font-extrabold uppercase tracking-wider">
+                      <span>Select Size</span>
+                    </div>
+                    <div className="grid grid-cols-5 gap-2.5">
+                      {sizes.map((size) => (
+                        <button
+                          key={size}
+                          type="button"
+                          onClick={() => setSelectedSize(size)}
+                          className={`py-3 rounded-xl border text-xs font-extrabold uppercase transition-all cursor-pointer ${
+                            selectedSize === size
+                              ? 'border-black bg-black text-white shadow-md'
+                              : 'border-black/20 bg-white text-black hover:border-black'
+                          }`}
+                        >
+                          {size}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                  <div className="grid grid-cols-5 gap-2.5">
-                    {product.sizes.map((size) => (
-                      <button
-                        key={size}
-                        type="button"
-                        onClick={() => setSelectedSize(size)}
-                        className={`py-3 rounded-xl border text-xs font-extrabold uppercase transition-all cursor-pointer ${
-                          selectedSize === size
-                            ? 'border-black bg-black text-white shadow-md'
-                            : 'border-black/20 bg-white text-black hover:border-black'
-                        }`}
-                      >
-                        {size}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                )}
 
                 {/* Add to Cart CTA */}
                 <div className="space-y-4 pt-2">
@@ -306,7 +284,7 @@ export function ProductDetailPage() {
                     variant="primary"
                     className="w-full !py-4 justify-between !text-base shadow-lg"
                   >
-                    <span>Add to Bag • {formatCurrency(product.price)}</span>
+                    <span>Add to Bag • {formatCurrency(effectivePrice)}</span>
                   </LiquidButton>
 
                   {/* High Visibility Value Badges - Bold 4-Grid Contrast & Clear Layout */}
@@ -327,7 +305,7 @@ export function ProductDetailPage() {
                       <div className="h-9 w-9 rounded-full bg-black text-white flex items-center justify-center shadow-xs">
                         <HugeiconsIcon icon={SecurityCheckIcon} size={18} />
                       </div>
-                      <span className="text-xs font-black text-black leading-tight">100% Organic Cotton</span>
+                      <span className="text-xs font-black text-black leading-tight">Quality Assured</span>
                     </div>
                     <div className="flex flex-col items-center justify-center gap-2 p-3 rounded-xl bg-black/5 border border-black/15 text-center transition-all hover:bg-black/10">
                       <div className="h-9 w-9 rounded-full bg-black text-white flex items-center justify-center shadow-xs">
@@ -341,7 +319,7 @@ export function ProductDetailPage() {
                 {/* Minimalist Border-Divided Accordions (No Card Backgrounds) with Smooth Animations */}
                 <div className="pt-6 border-t border-black/15">
                   <h3 className="text-xs font-black uppercase tracking-widest text-black/50 mb-2">
-                    Product Details & Care
+                    Product Details
                   </h3>
 
                   {/* Accordion 1: Product Description */}
@@ -360,66 +338,57 @@ export function ProductDetailPage() {
                       <div className="overflow-hidden">
                         <div className="space-y-4 pt-1">
                           <p className="text-sm text-black/80 font-medium leading-relaxed">
-                            {product.description}
+                            {product.description || 'No additional description available for this product yet.'}
                           </p>
-                          {product.styleTip && (
-                            <div className="rounded-xl bg-neutral-100 border-l-4 border-black p-3.5 space-y-1">
-                              <span className="text-[10px] font-black uppercase tracking-widest text-black/60 block">Style Tip</span>
-                              <p className="text-xs font-bold text-black leading-relaxed">{product.styleTip}</p>
-                            </div>
-                          )}
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Accordion 2: Material & Care */}
+                  {/* Accordion 2: Specifications & Availability */}
                   <div className="border-b border-black/10">
                     <button
                       type="button"
-                      onClick={() => toggleAccordion('material')}
+                      onClick={() => toggleAccordion('specs')}
                       className="w-full py-4 flex items-center justify-between font-black text-sm text-black uppercase tracking-wider text-left cursor-pointer group"
                     >
-                      <span className="group-hover:text-black/70 transition-colors">Material & Care</span>
-                      <span className={`text-xl font-bold text-black transition-transform duration-300 ${openAccordion === 'material' ? 'rotate-45' : 'rotate-0'}`}>
+                      <span className="group-hover:text-black/70 transition-colors">Specifications & Availability</span>
+                      <span className={`text-xl font-bold text-black transition-transform duration-300 ${openAccordion === 'specs' ? 'rotate-45' : 'rotate-0'}`}>
                         +
                       </span>
                     </button>
-                    <div className={`grid transition-all duration-300 ease-in-out ${openAccordion === 'material' ? 'grid-rows-[1fr] opacity-100 pb-5' : 'grid-rows-[0fr] opacity-0 pb-0'}`}>
+                    <div className={`grid transition-all duration-300 ease-in-out ${openAccordion === 'specs' ? 'grid-rows-[1fr] opacity-100 pb-5' : 'grid-rows-[0fr] opacity-0 pb-0'}`}>
                       <div className="overflow-hidden">
                         <div className="space-y-3 pt-1 text-sm text-black/80 font-bold">
-                          {product.materialCare?.map((item, i) => (
-                            <div key={i} className="flex items-center gap-2.5">
-                              <span className="h-1.5 w-1.5 rounded-full bg-black shrink-0" />
-                              <span>{item}</span>
-                            </div>
-                          ))}
-                          <div className="pt-3 text-xs font-bold text-black/60 border-t border-black/5 mt-2">
-                            Country of Origin: <span className="text-black font-black">{product.countryOfOrigin}</span>
+                          <div className="flex items-center gap-2.5">
+                            <span className="h-1.5 w-1.5 rounded-full bg-black shrink-0" />
+                            <span>Product Type: {product.productType}</span>
                           </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Accordion 3: Manufactured & Sold By */}
-                  <div className="border-b border-black/10">
-                    <button
-                      type="button"
-                      onClick={() => toggleAccordion('manufacturer')}
-                      className="w-full py-4 flex items-center justify-between font-black text-sm text-black uppercase tracking-wider text-left cursor-pointer group"
-                    >
-                      <span className="group-hover:text-black/70 transition-colors">Manufactured & Sold By</span>
-                      <span className={`text-xl font-bold text-black transition-transform duration-300 ${openAccordion === 'manufacturer' ? 'rotate-45' : 'rotate-0'}`}>
-                        +
-                      </span>
-                    </button>
-                    <div className={`grid transition-all duration-300 ease-in-out ${openAccordion === 'manufacturer' ? 'grid-rows-[1fr] opacity-100 pb-5' : 'grid-rows-[0fr] opacity-0 pb-0'}`}>
-                      <div className="overflow-hidden">
-                        <div className="space-y-1 pt-1 text-xs text-black/80 font-semibold leading-relaxed">
-                          {product.manufacturedBy?.map((line, i) => (
-                            <div key={i}>{line}</div>
-                          ))}
+                          <div className="flex items-center gap-2.5">
+                            <span className="h-1.5 w-1.5 rounded-full bg-black shrink-0" />
+                            <span>Category: {product.category?.name}</span>
+                          </div>
+                          {selectedVariant && (
+                            <>
+                              <div className="flex items-center gap-2.5">
+                                <span className="h-1.5 w-1.5 rounded-full bg-black shrink-0" />
+                                <span>SKU: {selectedVariant.sku}</span>
+                              </div>
+                              <div className="pt-3 text-xs font-bold text-black/60 border-t border-black/5 mt-2 flex items-center gap-2">
+                                <span>
+                                  {selectedVariant.stockQuantity > 0
+                                    ? `${selectedVariant.stockQuantity} in stock`
+                                    : 'Currently out of stock'}{' '}
+                                  for {selectedColor?.name} / {selectedSize}
+                                </span>
+                                {selectedVariant.badge && (
+                                  <span className="rounded-full bg-black px-2 py-0.5 text-[11px] font-bold text-white">
+                                    {selectedVariant.badge}
+                                  </span>
+                                )}
+                              </div>
+                            </>
+                          )}
                         </div>
                       </div>
                     </div>

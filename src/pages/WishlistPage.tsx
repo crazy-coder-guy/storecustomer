@@ -6,6 +6,7 @@ import { ProductCard, type ProductItem } from '../components/ProductCard'
 import { ProductDetailDrawer } from '../components/ProductDetailDrawer'
 import { useWishlist } from '../context/WishlistContext'
 import { useCart } from '../context/CartContext'
+import { useProductCardsByIds } from '../hooks/queries'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
   FavouriteIcon,
@@ -17,37 +18,27 @@ import {
 } from '@hugeicons/core-free-icons'
 
 export function WishlistPage() {
-  const { wishlistProducts, wishlistCount, clearWishlist } = useWishlist()
+  const { wishlistIds, wishlistCount, clearWishlist } = useWishlist()
   const { addToCart } = useCart()
   const [selectedDrawerProductId, setSelectedDrawerProductId] = useState<string | null>(null)
+  const { cards: wishlistProducts, isLoading } = useProductCardsByIds(wishlistIds)
 
   const handleAddProduct = (product: ProductItem) => {
     addToCart({
       productId: product.id,
       name: product.name,
+      subtitle: product.categoryName,
       price: product.price,
       mrp: product.mrp || product.price,
       size: 'M',
-      color: { name: 'Tone', hex: product.colors?.[0] || '#000000' },
+      color: { name: 'Default', hex: product.colors?.[0] || '#000000' },
       image: product.image,
       quantity: 1,
     })
   }
 
   const handleMoveAllToBag = () => {
-    wishlistProducts.forEach((product) => {
-      addToCart({
-        productId: product.id,
-        name: product.name,
-        subtitle: product.subtitle,
-        price: product.price,
-        mrp: product.mrp,
-        size: product.sizes[0] || 'M',
-        color: product.colors[0] || { name: 'Default', hex: '#000000' },
-        image: product.images[0],
-        quantity: 1,
-      })
-    })
+    wishlistProducts.forEach((product) => handleAddProduct(product))
     clearWishlist()
   }
 
@@ -71,7 +62,7 @@ export function WishlistPage() {
                 </div>
               </div>
 
-              {wishlistProducts.length > 0 && (
+              {wishlistIds.length > 0 && (
                 <div className="flex items-center gap-2.5">
                   <button
                     type="button"
@@ -97,7 +88,7 @@ export function WishlistPage() {
 
         {/* Content Container */}
         <div className="kaira-container pt-8 sm:pt-12">
-          {wishlistProducts.length === 0 ? (
+          {wishlistIds.length === 0 ? (
             /* Empty Wishlist State */
             <div className="py-20 text-center max-w-md mx-auto animate-fade-in">
               <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-neutral-100 text-black/40 mb-4">
@@ -117,32 +108,23 @@ export function WishlistPage() {
                 </Link>
               </div>
             </div>
+          ) : isLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-10">
+              {Array.from({ length: wishlistIds.length }).map((_, i) => (
+                <div key={i} className="aspect-[4/4.2] rounded-2xl bg-gray-100 animate-pulse" />
+              ))}
+            </div>
           ) : (
             /* Canonical ProductCard Grid matching Home & Category Pages */
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-10">
-              {wishlistProducts.map((p) => {
-                const productItem: ProductItem = {
-                  id: p.id,
-                  name: p.name,
-                  category: p.category,
-                  price: p.price,
-                  mrp: p.mrp,
-                  image: p.images[0],
-                  rating: p.rating,
-                  reviewsCount: p.reviewsCount,
-                  badge: p.badge,
-                  colors: p.colors.map((c) => c.hex),
-                }
-
-                return (
-                  <ProductCard
-                    key={p.id}
-                    product={productItem}
-                    onAddToCart={handleAddProduct}
-                    onOpenDetail={(id) => setSelectedDrawerProductId(id)}
-                  />
-                )
-              })}
+              {wishlistProducts.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onAddToCart={handleAddProduct}
+                  onOpenDetail={(id) => setSelectedDrawerProductId(id)}
+                />
+              ))}
             </div>
           )}
         </div>
