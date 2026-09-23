@@ -27,20 +27,20 @@
 
 /* Baseline: Small Mobile (< 380px, e.g. iPhone SE, compact Androids) */
 html {
-  font-size: 87.5%; /* 14px base: prevents text overflow on narrow viewports */
+  font-size: 93.75%; /* 15px base */
 }
 
 /* Medium & Standard Mobile (380px - 639px, e.g. iPhone 13/14/15/16, Galaxy S23) */
 @media (min-width: 380px) {
   html {
-    font-size: 93.75%; /* 15px base */
+    font-size: 100%; /* 16px standard base */
   }
 }
 
 /* Large Mobile / Phablet (640px - 767px) */
 @media (min-width: 640px) {
   html {
-    font-size: 96.875%; /* 15.5px base */
+    font-size: 100%; /* 16px base */
   }
 }
 
