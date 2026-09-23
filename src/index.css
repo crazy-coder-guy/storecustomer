@@ -11,8 +11,79 @@
   font-style: normal;
 }
 
+/* -------------------------------------------------------------
+   COMPREHENSIVE RESPONSIVE TYPOGRAPHY & SCALING SYSTEM
+   Calculated based on screen widths & device orientation:
+   1. Small Mobile (< 380px)
+   2. Standard/Medium Mobile (380px - 639px)
+   3. Large Mobile / Phablet (640px - 767px)
+   4. Tablet Portrait (768px - 1023px, portrait)
+   5. Tablet Landscape (768px - 1023px, landscape)
+   6. Small Laptop / MacBook 13"-14" (1024px - 1279px)
+   7. Medium Laptop / MacBook 15"-16" / FHD Monitors (1280px - 1535px)
+   8. Large Desktop / 1440p (1536px - 1919px)
+   9. Ultra-Wide / 2K / 4K Monitors (1920px+)
+   ------------------------------------------------------------- */
+
+/* Baseline: Small Mobile (< 380px, e.g. iPhone SE, compact Androids) */
 html {
-  font-size: 100%; /* Scales 1rem from 16px to 18px (25% zoom feel) */
+  font-size: 87.5%; /* 14px base: prevents text overflow on narrow viewports */
+}
+
+/* Medium & Standard Mobile (380px - 639px, e.g. iPhone 13/14/15/16, Galaxy S23) */
+@media (min-width: 380px) {
+  html {
+    font-size: 93.75%; /* 15px base */
+  }
+}
+
+/* Large Mobile / Phablet (640px - 767px) */
+@media (min-width: 640px) {
+  html {
+    font-size: 96.875%; /* 15.5px base */
+  }
+}
+
+/* Tablet Portrait (768px - 1023px in portrait orientation, e.g. iPad 10", iPad Air) */
+@media (min-width: 768px) and (orientation: portrait) {
+  html {
+    font-size: 97%; /* 15.5px base: keeps vertical layouts clean and readable */
+  }
+}
+
+/* Tablet Landscape (768px - 1023px in landscape orientation, e.g. iPad rotated) */
+@media (min-width: 768px) and (orientation: landscape) and (max-width: 1023px) {
+  html {
+    font-size: 93.75%; /* 15px base: leaves vertical headroom for hero & cards */
+  }
+}
+
+/* Small Laptop / Compact Display (1024px - 1279px, e.g. MacBook Air 13", iPad Pro 12.9" Landscape) */
+@media (min-width: 1024px) {
+  html {
+    font-size: 98%; /* ~15.7px base: ensures full hero fits gracefully above fold */
+  }
+}
+
+/* Medium Laptop / Standard FHD Monitor (1280px - 1535px, e.g. MacBook Pro 14"/16", 1080p display) */
+@media (min-width: 1280px) {
+  html {
+    font-size: 102%; /* ~16.3px base */
+  }
+}
+
+/* Large Desktop / QHD Display (1536px - 1919px) */
+@media (min-width: 1536px) {
+  html {
+    font-size: 108%; /* ~17.3px base */
+  }
+}
+
+/* Ultra-Wide / 4K / High-Res Desktop (1920px+) */
+@media (min-width: 1920px) {
+  html {
+    font-size: 114%; /* ~18.2px base: premium large screen proportion */
+  }
 }
 
 html,
@@ -41,15 +112,22 @@ body {
 
 @media (min-width: 640px) {
   .kaira-container {
-    padding-left: 3.5rem;
-    padding-right: 3.5rem;
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
   }
 }
 
 @media (min-width: 1024px) {
   .kaira-container {
-    padding-left: 5rem;
-    padding-right: 5rem;
+    padding-left: 3rem;
+    padding-right: 3rem;
+  }
+}
+
+@media (min-width: 1440px) {
+  .kaira-container {
+    padding-left: 4.5rem;
+    padding-right: 4.5rem;
   }
 }
 
