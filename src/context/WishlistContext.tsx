@@ -1,58 +1,86 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
+import { createContext, useContext, type ReactNode } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
+import { useAuth } from './AuthContext'
+import * as favoriteService from '../services/favorite.service'
+import { getErrorMessage } from '../services/api'
 
 interface WishlistContextType {
   wishlistIds: string[]
   wishlistCount: number
+  isLoading: boolean
   isInWishlist: (productId: string) => boolean
-  toggleWishlist: (productId: string) => void
-  addToWishlist: (productId: string) => void
+  toggleWishlist: (productId: string) => Promise<void>
+  addToWishlist: (productId: string) => Promise<void>
   removeFromWishlist: (productId: string) => void
   clearWishlist: () => void
 }
 
 const WishlistContext = createContext<WishlistContextType | undefined>(undefined)
 
-// Wishlist ids now refer to real product UUIDs from the backend, so there is
-// no meaningful hardcoded default set — it simply starts empty.
-const INITIAL_WISHLIST_IDS: string[] = []
-
 export function WishlistProvider({ children }: { children: ReactNode }) {
-  const [wishlistIds, setWishlistIds] = useState<string[]>(() => {
-    try {
-      const saved = localStorage.getItem('kaira_wishlist')
-      if (saved) return JSON.parse(saved)
-    } catch {
-      // fallback
-    }
-    return INITIAL_WISHLIST_IDS
+  const { user, ensureSignedIn } = useAuth()
+  const queryClient = useQueryClient()
+  const wishlistKey = ['favorites', user?.uid] as const
+
+  const { data, isLoading } = useQuery({
+    queryKey: wishlistKey,
+    queryFn: favoriteService.getFavorites,
+    enabled: Boolean(user),
   })
 
-  useEffect(() => {
+  const wishlistIds = data ?? []
+
+  const addMutation = useMutation({
+    mutationFn: (productId: string) => favoriteService.addFavorite(productId),
+    onSuccess: (updated) => queryClient.setQueryData(wishlistKey, updated),
+    onError: (err) => toast.error(getErrorMessage(err)),
+  })
+
+  const removeMutation = useMutation({
+    mutationFn: (productId: string) => favoriteService.removeFavorite(productId),
+    onSuccess: (updated) => queryClient.setQueryData(wishlistKey, updated),
+    onError: (err) => toast.error(getErrorMessage(err)),
+  })
+
+  const clearMutation = useMutation({
+    mutationFn: () => favoriteService.clearFavorites(),
+    onSuccess: (updated) => queryClient.setQueryData(wishlistKey, updated),
+    onError: (err) => toast.error(getErrorMessage(err)),
+  })
+
+  function isInWishlist(productId: string) {
+    return wishlistIds.includes(productId)
+  }
+
+  async function addToWishlist(productId: string) {
+    if (isInWishlist(productId)) return
     try {
-      localStorage.setItem('kaira_wishlist', JSON.stringify(wishlistIds))
+      await ensureSignedIn()
     } catch {
-      // ignore
+      toast('Sign in to save items to your wishlist')
+      return
     }
-  }, [wishlistIds])
-
-  const isInWishlist = (productId: string) => wishlistIds.includes(productId)
-
-  const addToWishlist = (productId: string) => {
-    setWishlistIds((prev) => (prev.includes(productId) ? prev : [...prev, productId]))
+    await addMutation.mutateAsync(productId)
+    queryClient.invalidateQueries({ queryKey: wishlistKey })
   }
 
-  const removeFromWishlist = (productId: string) => {
-    setWishlistIds((prev) => prev.filter((id) => id !== productId))
+  function removeFromWishlist(productId: string) {
+    if (!user) return
+    removeMutation.mutate(productId)
   }
 
-  const toggleWishlist = (productId: string) => {
-    setWishlistIds((prev) =>
-      prev.includes(productId) ? prev.filter((id) => id !== productId) : [...prev, productId]
-    )
+  async function toggleWishlist(productId: string) {
+    if (isInWishlist(productId)) {
+      removeFromWishlist(productId)
+    } else {
+      await addToWishlist(productId)
+    }
   }
 
-  const clearWishlist = () => {
-    setWishlistIds([])
+  function clearWishlist() {
+    if (!user) return
+    clearMutation.mutate()
   }
 
   return (
@@ -60,6 +88,7 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
       value={{
         wishlistIds,
         wishlistCount: wishlistIds.length,
+        isLoading,
         isInWishlist,
         toggleWishlist,
         addToWishlist,

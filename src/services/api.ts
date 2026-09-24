@@ -1,11 +1,24 @@
 import axios, { AxiosError } from 'axios'
 import type { ApiError } from '../types'
+import { auth } from '../lib/firebase'
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
+})
+
+// Attach the current Firebase ID token, if signed in, so authenticated
+// endpoints (e.g. /cart) work without every call site having to know about
+// auth. Signed-out requests are sent as-is; the backend rejects the ones
+// that actually require a token.
+api.interceptors.request.use(async (requestConfig) => {
+  if (auth.currentUser) {
+    const token = await auth.currentUser.getIdToken()
+    requestConfig.headers.Authorization = `Bearer ${token}`
+  }
+  return requestConfig
 })
 
 interface BackendSuccess<T> {

@@ -9,8 +9,11 @@ import {
   Image01Icon,
   ArrowRight01Icon,
   Cancel01Icon,
+  UserIcon,
 } from '@hugeicons/core-free-icons'
 import { KairaLogo } from './KairaLogo'
+import { AccountDrawer } from './AccountDrawer'
+import { useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
 import { useWishlist } from '../context/WishlistContext'
 import { useStorefrontSettings, useSearchProducts, PLACEHOLDER_PRODUCT_IMAGE } from '../hooks/queries'
@@ -33,6 +36,7 @@ interface NavbarProps {
 
 export function Navbar({ cartCount: propCartCount, wishlistCount: propWishlistCount, onOpenCart }: NavbarProps) {
   const navigate = useNavigate()
+  const { user } = useAuth()
   const { cartCount: contextCartCount } = useCart()
   const { wishlistCount: contextWishlistCount } = useWishlist()
   const cartCount = propCartCount !== undefined ? propCartCount : contextCartCount
@@ -44,6 +48,7 @@ export function Navbar({ cartCount: propCartCount, wishlistCount: propWishlistCo
   const [placeholderIndex, setPlaceholderIndex] = useState(0)
   const [isFading, setIsFading] = useState(false)
   const [isFocused, setIsFocused] = useState(false)
+  const [isAccountOpen, setIsAccountOpen] = useState(false)
   const searchContainerRef = useRef<HTMLDivElement>(null)
 
   // Debounce the query before hitting the API for live suggestions.
@@ -315,6 +320,23 @@ export function Navbar({ cartCount: propCartCount, wishlistCount: propWishlistCo
 
         {/* Right Section: Action Icons */}
         <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+          {/* Account Button (Opens slide-in Account Sidebar Drawer) */}
+          <button
+            type="button"
+            onClick={() => setIsAccountOpen(true)}
+            className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-black/15 text-xs font-black uppercase text-black hover:border-black hover:bg-black/5 transition-all cursor-pointer shadow-2xs"
+            title={user ? `Signed in as ${user.email}` : 'Sign In / Account'}
+            aria-label="Your account"
+          >
+            {user?.photoUrl ? (
+              <img src={user.photoUrl} alt="" className="h-full w-full object-cover" referrerPolicy="no-referrer" />
+            ) : user ? (
+              (user.name ?? user.email ?? '?').charAt(0)
+            ) : (
+              <HugeiconsIcon icon={UserIcon} size={16} className="text-black/70" />
+            )}
+          </button>
+
           {/* Search Button (Mobile view < 768px navigates directly to separate /search page) */}
           <Link
             to="/search"
@@ -373,6 +395,9 @@ export function Navbar({ cartCount: propCartCount, wishlistCount: propWishlistCo
           )}
         </div>
       </div>
+
+      {/* Slide-In Account Sidebar Drawer */}
+      <AccountDrawer isOpen={isAccountOpen} onClose={() => setIsAccountOpen(false)} />
     </header>
   )
 }

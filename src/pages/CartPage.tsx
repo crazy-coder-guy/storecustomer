@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Navbar } from '../components/Navbar'
 import { Footer } from '../components/Footer'
 import { LiquidButton } from '../components/LiquidButton'
 import { ProductDetailDrawer } from '../components/ProductDetailDrawer'
 import { useCart } from '../context/CartContext'
 import { formatCurrency } from '../utils/formatCurrency'
+import { PLACEHOLDER_PRODUCT_IMAGE } from '../hooks/queries'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
   Delete02Icon,
@@ -13,10 +14,10 @@ import {
   SecurityCheckIcon,
   PackageIcon,
   RefreshIcon,
-  CheckmarkCircle02Icon,
 } from '@hugeicons/core-free-icons'
 
 export function CartPage() {
+  const navigate = useNavigate()
   const {
     items,
     cartCount,
@@ -29,43 +30,7 @@ export function CartPage() {
     clearCart,
   } = useCart()
 
-  const [checkoutSuccess, setCheckoutSuccess] = useState(false)
   const [selectedDrawerProductId, setSelectedDrawerProductId] = useState<string | null>(null)
-
-  if (checkoutSuccess) {
-    return (
-      <div className="min-h-screen bg-white text-black flex flex-col justify-between">
-        <Navbar />
-        <main className="flex-1 flex items-center justify-center py-20 px-4">
-          <div className="max-w-md w-full text-center space-y-6 animate-fade-in-up">
-            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 shadow-sm">
-              <HugeiconsIcon icon={CheckmarkCircle02Icon} size={42} strokeWidth={2.4} />
-            </div>
-            <div className="space-y-2">
-              <h1 className="text-3xl font-black tracking-tight text-black">Order Placed Successfully!</h1>
-              <p className="text-sm text-black/60 font-medium">
-                Thank you for shopping with Kaira. An order confirmation has been dispatched.
-              </p>
-            </div>
-            <div className="rounded-2xl border border-black/10 bg-neutral-50 p-5 text-left text-xs space-y-2">
-              <div className="flex justify-between font-bold">
-                <span className="text-black/60">Estimated Delivery</span>
-                <span>3 - 5 Business Days</span>
-              </div>
-              <div className="flex justify-between font-bold">
-                <span className="text-black/60">Payment Method</span>
-                <span>Cash on Delivery / UPI</span>
-              </div>
-            </div>
-            <LiquidButton href="/" variant="primary" className="w-full justify-center">
-              Continue Shopping
-            </LiquidButton>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    )
-  }
 
   return (
     <div className="min-h-screen bg-white text-black flex flex-col justify-between">
@@ -131,7 +96,7 @@ export function CartPage() {
                           className="relative h-24 w-20 sm:h-28 sm:w-24 shrink-0 overflow-hidden rounded-2xl bg-neutral-100 border border-black/10 block group"
                         >
                           <img
-                            src={item.image}
+                            src={item.image ?? PLACEHOLDER_PRODUCT_IMAGE}
                             alt={item.name}
                             className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
                           />
@@ -289,10 +254,7 @@ export function CartPage() {
                     {/* Checkout Button */}
                     <div className="pt-2">
                       <LiquidButton
-                        onClick={() => {
-                          setCheckoutSuccess(true)
-                          clearCart()
-                        }}
+                        onClick={() => navigate('/checkout')}
                         variant="primary"
                         className="w-full justify-center"
                       >

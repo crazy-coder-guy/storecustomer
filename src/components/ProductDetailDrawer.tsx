@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
+import { createPortal } from 'react-dom'
 import { Link } from 'react-router-dom'
 import { formatCurrency } from '../utils/formatCurrency'
 import { useProductDetail, PLACEHOLDER_PRODUCT_IMAGE } from '../hooks/queries'
@@ -105,28 +106,22 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
   const effectivePrice = selectedVariant?.price ?? product.basePrice
   const effectiveMrp = product.mrp
 
-  const handleQuickAdd = () => {
-    if (!selectedColor) return
-    addToCart({
-      productId: product.id,
-      name: product.name,
-      subtitle: product.category?.name,
-      price: effectivePrice,
-      mrp: effectiveMrp,
-      image: selectedImage || images[0] || PLACEHOLDER_PRODUCT_IMAGE,
-      size: selectedSize,
-      color: selectedColor,
-      quantity: 1,
-    })
-    setAddedSuccess(true)
-    setTimeout(() => setAddedSuccess(false), 2200)
+  const handleQuickAdd = async () => {
+    if (!selectedVariant) return
+    try {
+      await addToCart(selectedVariant.id, 1)
+      setAddedSuccess(true)
+      setTimeout(() => setAddedSuccess(false), 2200)
+    } catch {
+      // addToCart already surfaces a toast on failure
+    }
   }
 
   const discountPercent = effectiveMrp > effectivePrice
     ? Math.round(((effectiveMrp - effectivePrice) / effectiveMrp) * 100)
     : 0
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 overflow-hidden">
       {/* Backdrop */}
       <div
@@ -389,6 +384,7 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
 
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

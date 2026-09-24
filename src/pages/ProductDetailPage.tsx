@@ -110,21 +110,15 @@ export function ProductDetailPage() {
   const effectivePrice = selectedVariant?.price ?? product.basePrice
   const effectiveMrp = product.mrp
 
-  const handleAddToCart = () => {
-    if (!selectedColor) return
-    addToCart({
-      productId: product.id,
-      name: product.name,
-      subtitle: product.category?.name,
-      price: effectivePrice,
-      mrp: effectiveMrp,
-      image: selectedImage || images[0] || PLACEHOLDER_PRODUCT_IMAGE,
-      size: selectedSize,
-      color: selectedColor,
-      quantity: 1,
-    })
-    setAddedNotification(true)
-    setTimeout(() => setAddedNotification(false), 2500)
+  const handleAddToCart = async () => {
+    if (!selectedVariant) return
+    try {
+      await addToCart(selectedVariant.id, 1)
+      setAddedNotification(true)
+      setTimeout(() => setAddedNotification(false), 2500)
+    } catch {
+      // addToCart already surfaces a toast on failure
+    }
   }
 
   const isWishlisted = isInWishlist(product.id)

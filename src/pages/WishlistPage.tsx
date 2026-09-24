@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { toast } from 'sonner'
 import { Navbar } from '../components/Navbar'
 import { Footer } from '../components/Footer'
 import { ProductCard, type ProductItem } from '../components/ProductCard'
@@ -7,6 +8,8 @@ import { ProductDetailDrawer } from '../components/ProductDetailDrawer'
 import { useWishlist } from '../context/WishlistContext'
 import { useCart } from '../context/CartContext'
 import { useProductCardsByIds } from '../hooks/queries'
+import { resolveDefaultVariantId } from '../services/product.service'
+import { getErrorMessage } from '../services/api'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
   FavouriteIcon,
@@ -23,22 +26,24 @@ export function WishlistPage() {
   const [selectedDrawerProductId, setSelectedDrawerProductId] = useState<string | null>(null)
   const { cards: wishlistProducts, isLoading } = useProductCardsByIds(wishlistIds)
 
-  const handleAddProduct = (product: ProductItem) => {
-    addToCart({
-      productId: product.id,
-      name: product.name,
-      subtitle: product.categoryName,
-      price: product.price,
-      mrp: product.mrp || product.price,
-      size: 'M',
-      color: { name: 'Default', hex: product.colors?.[0] || '#000000' },
-      image: product.image,
-      quantity: 1,
-    })
+  const handleAddProduct = async (product: ProductItem) => {
+    let variantId: string
+    try {
+      variantId = await resolveDefaultVariantId(product.id)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : getErrorMessage(err))
+      return
+    }
+    // addToCart already surfaces its own toast on failure.
+    await addToCart(variantId, 1).catch(() => {})
   }
 
-  const handleMoveAllToBag = () => {
-    wishlistProducts.forEach((product) => handleAddProduct(product))
+  const handleMoveAllToBag = async () => {
+    // Sequential, not Promise.all/forEach — addToCart shares one in-flight
+    // sign-in popup, but only if calls actually wait their turn.
+    for (const product of wishlistProducts) {
+      await handleAddProduct(product)
+    }
     clearWishlist()
   }
 

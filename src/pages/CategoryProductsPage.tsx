@@ -1,11 +1,14 @@
 import { useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
+import { toast } from 'sonner'
 import { Navbar } from '../components/Navbar'
 import { Footer } from '../components/Footer'
 import { ProductCard, type ProductItem } from '../components/ProductCard'
 import { ProductDetailDrawer } from '../components/ProductDetailDrawer'
 import { useCart } from '../context/CartContext'
 import { useCategories, useProductCards, useProducts } from '../hooks/queries'
+import { resolveDefaultVariantId } from '../services/product.service'
+import { getErrorMessage } from '../services/api'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { FilterIcon } from '@hugeicons/core-free-icons'
 
@@ -28,17 +31,16 @@ export function CategoryProductsPage() {
 
   const products: ProductItem[] = cards
 
-  const handleAdd = (product: ProductItem) => {
-    addToCart({
-      productId: product.id,
-      name: product.name,
-      price: product.price,
-      mrp: product.mrp || product.price,
-      image: product.image,
-      size: 'M',
-      color: { name: 'Tone', hex: product.colors?.[0] || '#000000' },
-      quantity: 1,
-    })
+  const handleAdd = async (product: ProductItem) => {
+    let variantId: string
+    try {
+      variantId = await resolveDefaultVariantId(product.id)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : getErrorMessage(err))
+      return
+    }
+    // addToCart already surfaces its own toast on failure.
+    await addToCart(variantId, 1).catch(() => {})
   }
 
   const isLoading = categoriesLoading || (Boolean(category) && productsLoading)

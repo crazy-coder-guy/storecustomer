@@ -1,8 +1,11 @@
 import { useState } from 'react'
+import { toast } from 'sonner'
 import { ProductCard, type ProductItem } from './ProductCard'
 import { useCart } from '../context/CartContext'
 import { ProductDetailDrawer } from './ProductDetailDrawer'
 import { useFeaturedProducts, PLACEHOLDER_PRODUCT_IMAGE } from '../hooks/queries'
+import { resolveDefaultVariantId } from '../services/product.service'
+import { getErrorMessage } from '../services/api'
 
 interface TopSellingSectionProps {
   onAddToCart?: (product: ProductItem) => void
@@ -27,21 +30,20 @@ export function TopSellingSection({ onAddToCart }: TopSellingSectionProps) {
     }
   })
 
-  const handleAdd = (product: ProductItem) => {
+  const handleAdd = async (product: ProductItem) => {
     if (onAddToCart) {
       onAddToCart(product)
-    } else {
-      addToCart({
-        productId: product.id,
-        name: product.name,
-        price: product.price,
-        mrp: product.mrp || product.price,
-        image: product.image,
-        size: 'M',
-        color: { name: 'Classic Tone', hex: product.colors?.[0] || '#000000' },
-        quantity: 1,
-      })
+      return
     }
+    let variantId: string
+    try {
+      variantId = await resolveDefaultVariantId(product.id)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : getErrorMessage(err))
+      return
+    }
+    // addToCart already surfaces its own toast on failure.
+    await addToCart(variantId, 1).catch(() => {})
   }
 
   if (isError) return null

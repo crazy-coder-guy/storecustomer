@@ -1,51 +1,67 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
+import { createContext, useContext, type ReactNode } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
+import { useAuth } from './AuthContext'
+import * as cartService from '../services/cart.service'
+import { getErrorMessage } from '../services/api'
+import type { CartItemResponse } from '../types'
 
-export interface CartItem {
-  id: string
-  productId: string
-  name: string
-  subtitle?: string
-  price: number
-  mrp: number
-  image: string
-  size: string
-  color: { name: string; hex: string }
-  quantity: number
-}
+export type CartItem = CartItemResponse
 
 interface CartContextType {
   items: CartItem[]
+  isLoading: boolean
   cartCount: number
   subtotal: number
   totalDiscount: number
   deliveryFee: number
   finalTotal: number
-  addToCart: (item: Omit<CartItem, 'id'>) => void
-  removeFromCart: (id: string) => void
-  updateQuantity: (id: string, qty: number) => void
+  addToCart: (variantId: string, quantity?: number) => Promise<void>
+  removeFromCart: (itemId: string) => void
+  updateQuantity: (itemId: string, qty: number) => void
   clearCart: () => void
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>(() => {
-    try {
-      const saved = localStorage.getItem('kaira_cart')
-      if (saved) return JSON.parse(saved)
-    } catch {
-      // fallback
-    }
-    return []
+  const { user, ensureSignedIn } = useAuth()
+  const queryClient = useQueryClient()
+  const cartKey = ['cart', user?.uid] as const
+
+  const { data, isLoading } = useQuery({
+    queryKey: cartKey,
+    queryFn: cartService.getCart,
+    enabled: Boolean(user),
   })
 
-  useEffect(() => {
-    try {
-      localStorage.setItem('kaira_cart', JSON.stringify(items))
-    } catch {
-      // ignore
-    }
-  }, [items])
+  const items = data ?? []
+
+  const addMutation = useMutation({
+    mutationFn: ({ variantId, quantity }: { variantId: string; quantity: number }) =>
+      cartService.addCartItem(variantId, quantity),
+    onSuccess: (updated) => queryClient.setQueryData(cartKey, updated),
+    onError: (err) => toast.error(getErrorMessage(err)),
+  })
+
+  const updateMutation = useMutation({
+    mutationFn: ({ itemId, quantity }: { itemId: string; quantity: number }) =>
+      cartService.updateCartItem(itemId, quantity),
+    onSuccess: (updated) => queryClient.setQueryData(cartKey, updated),
+    onError: (err) => toast.error(getErrorMessage(err)),
+  })
+
+  const removeMutation = useMutation({
+    mutationFn: (itemId: string) => cartService.removeCartItem(itemId),
+    onSuccess: (updated) => queryClient.setQueryData(cartKey, updated),
+    onError: (err) => toast.error(getErrorMessage(err)),
+  })
+
+  const clearMutation = useMutation({
+    mutationFn: () => cartService.clearCart(),
+    onSuccess: (updated) => queryClient.setQueryData(cartKey, updated),
+    onError: (err) => toast.error(getErrorMessage(err)),
+  })
 
   const cartCount = items.reduce((sum, item) => sum + item.quantity, 0)
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
@@ -54,51 +70,35 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const deliveryFee = items.length === 0 ? 0 : 19
   const finalTotal = subtotal + deliveryFee
 
-  const addToCart = (newItem: Omit<CartItem, 'id'>) => {
-    setItems((prev) => {
-      const existingIdx = prev.findIndex(
-        (i) =>
-          i.productId === newItem.productId &&
-          i.size === newItem.size &&
-          i.color.name === newItem.color.name
-      )
-      if (existingIdx > -1) {
-        const copy = [...prev]
-        copy[existingIdx].quantity += newItem.quantity
-        return copy
-      }
-      return [
-        ...prev,
-        {
-          ...newItem,
-          id: `${newItem.productId}-${newItem.size}-${newItem.color.name}-${Date.now()}`,
-        },
-      ]
-    })
-  }
-
-  const removeFromCart = (id: string) => {
-    setItems((prev) => prev.filter((item) => item.id !== id))
-  }
-
-  const updateQuantity = (id: string, qty: number) => {
-    if (qty <= 0) {
-      removeFromCart(id)
+  async function addToCart(variantId: string, quantity = 1) {
+    try {
+      await ensureSignedIn()
+    } catch {
+      toast('Sign in to add items to your cart')
       return
     }
-    setItems((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, quantity: qty } : item))
-    )
+    await addMutation.mutateAsync({ variantId, quantity })
+    queryClient.invalidateQueries({ queryKey: cartKey })
   }
 
-  const clearCart = () => {
-    setItems([])
+  function removeFromCart(itemId: string) {
+    removeMutation.mutate(itemId)
+  }
+
+  function updateQuantity(itemId: string, qty: number) {
+    updateMutation.mutate({ itemId, quantity: qty })
+  }
+
+  function clearCart() {
+    if (!user) return
+    clearMutation.mutate()
   }
 
   return (
     <CartContext.Provider
       value={{
         items,
+        isLoading,
         cartCount,
         subtotal,
         totalDiscount,

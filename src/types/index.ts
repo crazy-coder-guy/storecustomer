@@ -108,3 +108,72 @@ export interface FeaturedProduct {
   createdAt: string
   product: Product & { category: Category; images: ProductImage[] }
 }
+
+export type OrderStatus = 'PENDING' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED'
+export type PaymentStatus = 'PAID' | 'UNPAID' | 'REFUNDED'
+
+export interface CreateOrderInput {
+  customerName: string
+  customerEmail: string
+  customerPhone: string
+  shippingAddress: string
+  items: { variantId: string; quantity: number }[]
+}
+
+export interface OrderItemResponse {
+  id: string
+  productImageUrl: string | null
+  productName: string
+  colorName: string
+  colorHex: string
+  sizeName: string
+  sizeCode: string
+  quantity: number
+  unitPrice: number
+}
+
+export interface Order {
+  id: string
+  orderNumber: string
+  customerId: string
+  customerName: string
+  customerEmail: string
+  customerPhone: string
+  status: OrderStatus
+  paymentStatus: PaymentStatus
+  totalAmount: number
+  itemsCount: number
+  items: OrderItemResponse[]
+  shippingAddress: string
+  createdAt: string
+}
+
+export interface RazorpayOrderResponse {
+  razorpayOrderId: string
+  amount: number
+  currency: string
+  keyId: string
+  orderId: string
+  orderNumber: string
+}
+
+export interface VerifyPaymentInput {
+  razorpayOrderId: string
+  razorpayPaymentId: string
+  razorpaySignature: string
+}
+
+export interface CartItemResponse {
+  id: string
+  variantId: string
+  productId: string
+  name: string
+  subtitle: string
+  price: number
+  mrp: number
+  image: string | null
+  size: string
+  color: { name: string; hex: string }
+  quantity: number
+  stockQuantity: number
+}

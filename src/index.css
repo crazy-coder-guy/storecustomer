@@ -141,7 +141,19 @@ body {
   display: none;
 }
 
-/* Premium Page Entrance Keyframes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.25s ease-out both;
+}
+
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -284,4 +296,20 @@ body {
 
 .animate-dropdown-in {
   animation: dropdownFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* -------------------------------------------------------------
+   SIDEBAR DRAWER SLIDE-IN (Right to Left)
+   ------------------------------------------------------------- */
+@keyframes drawerSlideInRight {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(0%);
+  }
+}
+
+.animate-drawer-slide-in {
+  animation: drawerSlideInRight 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
 }

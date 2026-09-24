@@ -8,6 +8,8 @@ interface LiquidButtonProps {
   href?: string
   variant?: 'primary' | 'outline'
   className?: string
+  type?: 'button' | 'submit'
+  disabled?: boolean
 }
 
 export function LiquidButton({
@@ -16,6 +18,8 @@ export function LiquidButton({
   href,
   variant = 'primary',
   className = '',
+  type = 'button',
+  disabled = false,
 }: LiquidButtonProps) {
   const isPrimary = variant === 'primary'
 
@@ -68,7 +72,12 @@ export function LiquidButton({
   }
 
   return (
-    <button type="button" onClick={onClick} className={baseClasses}>
+    <button
+      type={type}
+      onClick={onClick}
+      disabled={disabled}
+      className={`${baseClasses} disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:shadow-sm`}
+    >
       {content}
     </button>
   )
