@@ -61,7 +61,7 @@ export function ProductDetailPage() {
   const [selectedImage, setSelectedImage] = useState('')
   const [selectedColor, setSelectedColor] = useState<ColorOption | null>(null)
   const [selectedSize, setSelectedSize] = useState('')
-  const [addedNotification, setAddedNotification] = useState(false)
+  const [isAddingToCart, setIsAddingToCart] = useState(false)
 
   // Each color can have its own photoshoot; images not tagged to a specific
   // color are shared/generic and shown regardless of the selected color. If
@@ -210,13 +210,14 @@ export function ProductDetailPage() {
       if (cartEntry) removeFromCart(cartEntry.id)
       return
     }
-    if (!selectedVariant) return
+    if (!selectedVariant || isAddingToCart) return
+    setIsAddingToCart(true)
     try {
       await addToCart(selectedVariant.id, 1)
-      setAddedNotification(true)
-      setTimeout(() => setAddedNotification(false), 2500)
     } catch {
       // addToCart already surfaces a toast on failure
+    } finally {
+      setIsAddingToCart(false)
     }
   }
 
@@ -234,23 +235,32 @@ export function ProductDetailPage() {
 
               {/* Left Column: Sticky Image Gallery (Tablet Landscape & Desktop Optimized) */}
               <div className="lg:col-span-7 lg:sticky lg:top-24 flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 h-auto lg:h-[calc(100vh-180px)] lg:max-h-[580px]">
-                {/* Thumbnails */}
-                <div className="flex sm:flex-col gap-2.5 sm:gap-3 overflow-x-auto sm:overflow-y-auto shrink-0 pr-1 max-h-full">
-                  {images.map((img, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => setSelectedImage(img)}
-                      className={`relative h-16 w-16 sm:h-20 sm:w-20 lg:h-24 lg:w-24 overflow-hidden rounded-2xl border-2 transition-all cursor-pointer shrink-0 ${
-                        selectedImage === img
-                          ? 'border-black shadow-md scale-105'
-                          : 'border-transparent opacity-60 hover:opacity-100'
-                      }`}
-                    >
-                      <img src={img} alt={`Thumbnail ${idx}`} className="h-full w-full object-cover" />
-                    </button>
-                  ))}
-                </div>
+                {/* Thumbnails: added p-1.5 to prevent border/ring clipping on left/top/bottom */}
+                {images.length > 1 && (
+                  <div className="flex sm:flex-col gap-2.5 sm:gap-3 overflow-x-auto sm:overflow-y-auto shrink-0 p-1.5 max-h-full scrollbar-none">
+                    {images.map((img, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setSelectedImage(img)}
+                        className={`relative h-16 w-16 sm:h-20 sm:w-20 lg:h-22 lg:w-22 overflow-hidden rounded-2xl transition-all duration-200 cursor-pointer shrink-0 bg-neutral-100 ${
+                          selectedImage === img
+                            ? 'ring-2 ring-black ring-offset-2 shadow-md'
+                            : 'border border-black/15 opacity-60 hover:opacity-100 hover:border-black/40'
+                        }`}
+                      >
+                        <img
+                          src={img}
+                          alt={`Thumbnail ${idx}`}
+                          className="h-full w-full object-cover object-top"
+                          onError={(e) => {
+                            e.currentTarget.src = PLACEHOLDER_PRODUCT_IMAGE
+                          }}
+                        />
+                      </button>
+                    ))}
+                  </div>
+                )}
 
                 {/* Main Image Container */}
                 <div className="relative flex-1 h-full min-h-[380px] sm:min-h-[460px] lg:min-h-0 overflow-hidden rounded-3xl bg-neutral-100 border border-black/10 shadow-sm">
@@ -258,10 +268,10 @@ export function ProductDetailPage() {
                     type="button"
                     onClick={() => toggleWishlist(product.id)}
                     className={`absolute right-4 top-4 sm:right-5 sm:top-5 z-10 flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full bg-white/95 backdrop-blur-md transition-all cursor-pointer hover:scale-110 shadow-md ${
-                      isWishlisted ? 'text-red-500 fill-red-500' : 'text-black/80 hover:text-black'
+                      isWishlisted ? 'heart-active text-red-500 fill-red-500' : 'text-black/80 hover:text-black'
                     }`}
                   >
-                    <HugeiconsIcon icon={FavouriteIcon} size={18} />
+                    <HugeiconsIcon icon={FavouriteIcon} size={18} fill={isWishlisted ? 'currentColor' : 'none'} />
                   </button>
 
                   {/* Pure Black Full-Width Badge Bar */}
@@ -366,20 +376,14 @@ export function ProductDetailPage() {
 
                 {/* Add to Cart CTA */}
                 <div className="space-y-4 pt-2">
-                  {addedNotification && (
-                    <div className="flex items-center justify-center gap-2 rounded-xl bg-emerald-50 border border-emerald-200 py-3 text-xs font-extrabold text-emerald-800 animate-fade-in-up">
-                      <HugeiconsIcon icon={CheckmarkCircle02Icon} size={16} />
-                      <span>Added to your Bag!</span>
-                    </div>
-                  )}
-
                   <LiquidButton
                     onClick={handleAddToCart}
                     variant={isInCart ? 'outline' : 'primary'}
+                    isLoading={isAddingToCart}
                     className="w-full !py-4 justify-between !text-base shadow-lg"
                   >
                     <span>
-                      {isInCart ? '✓ Already in Bag' : 'Add to Bag'} • {formatCurrency(effectivePrice)}
+                      {isAddingToCart ? 'Adding…' : isInCart ? '✓ Already in Bag' : 'Add to Bag'} • {formatCurrency(effectivePrice)}
                     </span>
                   </LiquidButton>
 

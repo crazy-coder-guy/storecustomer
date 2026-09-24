@@ -415,3 +415,19 @@ body {
 .animate-pill-float-up {
   animation: pillFloatUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
+
+/* -------------------------------------------------------------
+   SOLID RED FILLED HEART (Wishlist Active State)
+   ------------------------------------------------------------- */
+.heart-active svg,
+button.heart-active svg {
+  color: #ef4444 !important;
+  fill: #ef4444 !important;
+  stroke: #ef4444 !important;
+}
+
+.heart-active svg path,
+button.heart-active svg path {
+  fill: #ef4444 !important;
+  stroke: #ef4444 !important;
+}

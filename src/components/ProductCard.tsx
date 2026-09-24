@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { FavouriteIcon, ArrowRight01Icon, CheckmarkCircle02Icon } from '@hugeicons/core-free-icons'
@@ -10,22 +11,29 @@ export type ProductItem = ProductCardData
 
 interface ProductCardProps {
   product: ProductItem
-  onAddToCart?: (product: ProductItem) => void
+  onAddToCart?: (product: ProductItem) => void | Promise<void>
   onOpenDetail?: (productId: string) => void
 }
 
 export function ProductCard({ product, onAddToCart, onOpenDetail }: ProductCardProps) {
   const { isInWishlist, toggleWishlist } = useWishlist()
   const { items: cartItems, removeFromCart } = useCart()
+  const [isAdding, setIsAdding] = useState(false)
   const isWishlisted = isInWishlist(product.id)
   const cartEntries = cartItems.filter((item) => item.productId === product.id)
   const isInCart = cartEntries.length > 0
 
-  function handleBagButtonClick() {
+  async function handleBagButtonClick() {
+    if (isAdding) return
     if (isInCart) {
       cartEntries.forEach((item) => removeFromCart(item.id))
-    } else {
-      onAddToCart?.(product)
+      return
+    }
+    setIsAdding(true)
+    try {
+      await onAddToCart?.(product)
+    } finally {
+      setIsAdding(false)
     }
   }
 
@@ -53,12 +61,12 @@ export function ProductCard({ product, onAddToCart, onOpenDetail }: ProductCardP
             toggleWishlist(product.id)
           }}
           className={`absolute right-2 top-2 sm:right-3 sm:top-3 z-10 flex h-7 w-7 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-white/90 backdrop-blur-md transition-all duration-300 cursor-pointer hover:scale-105 shadow-sm ${
-            isWishlisted ? 'text-red-500 fill-red-500' : 'text-black/70 hover:text-black'
+            isWishlisted ? 'heart-active text-red-500 fill-red-500' : 'text-black/70 hover:text-black'
           }`}
           aria-label="Add to Wishlist"
         >
-          <HugeiconsIcon icon={FavouriteIcon} size={14} className="sm:hidden" />
-          <HugeiconsIcon icon={FavouriteIcon} size={16} className="hidden sm:block" />
+          <HugeiconsIcon icon={FavouriteIcon} size={14} className="sm:hidden" fill={isWishlisted ? 'currentColor' : 'none'} />
+          <HugeiconsIcon icon={FavouriteIcon} size={16} className="hidden sm:block" fill={isWishlisted ? 'currentColor' : 'none'} />
         </button>
 
         {/* Product Image */}
@@ -119,19 +127,32 @@ export function ProductCard({ product, onAddToCart, onOpenDetail }: ProductCardP
         <div className="pt-1 sm:pt-2">
           <button
             type="button"
+            disabled={isAdding}
             onClick={(e) => {
               e.stopPropagation()
               handleBagButtonClick()
             }}
             aria-label={isInCart ? 'Remove from Bag' : 'Add to Bag'}
-            className={`group/btn tap-press relative flex w-full items-center justify-between overflow-hidden rounded-2xl border px-3 sm:px-6 py-2 sm:py-3 transition-all duration-300 hover:shadow-lg cursor-pointer ${
-              isInCart ? 'border-black bg-white' : 'border-black bg-black'
-            }`}
+            aria-busy={isAdding}
+            className={`group/btn tap-press relative flex w-full items-center justify-between overflow-hidden rounded-2xl border px-3 sm:px-6 py-2 sm:py-3 transition-all duration-300 hover:shadow-lg ${
+              isAdding ? 'cursor-wait' : 'cursor-pointer'
+            } ${isInCart ? 'border-black bg-white' : 'border-black bg-black'}`}
           >
-            {/* Liquid Fill Overlay */}
-            {!isInCart && (
+            {/* Liquid Fill Overlay (hover-only affordance, paused while adding) */}
+            {!isInCart && !isAdding && (
               <span className="absolute inset-0 translate-y-full rounded-2xl bg-white transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover/btn:translate-y-0" />
             )}
+
+            {/* Waiting-for-backend fill: slides left → right while the add
+                request is in flight, so the shopper sees progress instead of
+                the button just sitting there for however long the request
+                takes. Eases toward (not all the way to) full so it never
+                looks "stuck" waiting on a slow response, then the button
+                flips to the real "Added" state the instant it resolves. */}
+            <span
+              className="absolute inset-y-0 left-0 bg-white/25 rounded-2xl transition-[width] ease-out"
+              style={{ width: isAdding ? '92%' : '0%', transitionDuration: isAdding ? '1600ms' : '0ms' }}
+            />
 
             {/* Button Content */}
             <div className="relative z-10 flex items-center justify-between w-full">
@@ -140,15 +161,21 @@ export function ProductCard({ product, onAddToCart, onOpenDetail }: ProductCardP
                   isInCart ? 'text-black' : 'text-white group-hover/btn:text-black group-hover/btn:-translate-x-1'
                 }`}
               >
-                {isInCart ? '✓ Added' : 'Add to Bag'}
+                {isAdding ? 'Adding…' : isInCart ? '✓ Added' : 'Add to Bag'}
               </span>
               <span
                 className={`flex h-6 w-6 sm:h-8 sm:w-8 items-center justify-center rounded-full transition-all duration-300 ${
                   isInCart ? 'bg-black text-white' : 'bg-white text-black group-hover/btn:bg-black group-hover/btn:text-white'
                 }`}
               >
-                <HugeiconsIcon icon={isInCart ? CheckmarkCircle02Icon : ArrowRight01Icon} size={13} strokeWidth={2.4} className="sm:hidden" />
-                <HugeiconsIcon icon={isInCart ? CheckmarkCircle02Icon : ArrowRight01Icon} size={16} strokeWidth={2.4} className="hidden sm:block" />
+                {isAdding ? (
+                  <span className="h-3 w-3 sm:h-3.5 sm:w-3.5 rounded-full border-2 border-black/20 border-t-black animate-spin" />
+                ) : (
+                  <>
+                    <HugeiconsIcon icon={isInCart ? CheckmarkCircle02Icon : ArrowRight01Icon} size={13} strokeWidth={2.4} className="sm:hidden" />
+                    <HugeiconsIcon icon={isInCart ? CheckmarkCircle02Icon : ArrowRight01Icon} size={16} strokeWidth={2.4} className="hidden sm:block" />
+                  </>
+                )}
               </span>
             </div>
           </button>

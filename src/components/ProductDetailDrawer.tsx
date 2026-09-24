@@ -33,6 +33,7 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
   const [selectedSize, setSelectedSize] = useState<string>('')
   const [selectedColor, setSelectedColor] = useState<ColorOption | null>(null)
   const [addedSuccess, setAddedSuccess] = useState(false)
+  const [isAdding, setIsAdding] = useState(false)
   const [activeTab, setActiveTab] = useState<'details' | 'care' | 'origin'>('details')
 
   const colors = useMemo<ColorOption[]>(() => {
@@ -125,13 +126,16 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
       if (cartEntry) removeFromCart(cartEntry.id)
       return
     }
-    if (!selectedVariant) return
+    if (!selectedVariant || isAdding) return
+    setIsAdding(true)
     try {
       await addToCart(selectedVariant.id, 1)
       setAddedSuccess(true)
       setTimeout(() => setAddedSuccess(false), 2200)
     } catch {
       // addToCart already surfaces a toast on failure
+    } finally {
+      setIsAdding(false)
     }
   }
 
@@ -378,21 +382,28 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
           <div className="border-t border-black/10 bg-white p-4 sm:p-5 flex items-center gap-3">
             <button
               type="button"
+              disabled={isAdding}
+              aria-busy={isAdding}
               onClick={handleQuickAdd}
-              className={`flex-1 group relative flex items-center justify-between overflow-hidden rounded-2xl border px-6 py-3 transition-all duration-300 shadow-sm hover:shadow-md cursor-pointer tap-press ${
-                addedSuccess || isInCart ? 'border-black bg-white' : 'border-black bg-black'
-              }`}
+              className={`flex-1 group relative flex items-center justify-between overflow-hidden rounded-2xl border px-6 py-3 transition-all duration-300 shadow-sm hover:shadow-md tap-press ${
+                isAdding ? 'cursor-wait' : 'cursor-pointer'
+              } ${addedSuccess || isInCart ? 'border-black bg-white' : 'border-black bg-black'}`}
             >
-              {!(addedSuccess || isInCart) && (
+              {!(addedSuccess || isInCart || isAdding) && (
                 <span className="absolute inset-0 translate-y-full rounded-2xl bg-white transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:translate-y-0" />
               )}
+              {/* Waiting-for-backend fill */}
+              <span
+                className="absolute inset-y-0 left-0 bg-white/25 rounded-2xl transition-[width] ease-out"
+                style={{ width: isAdding ? '92%' : '0%', transitionDuration: isAdding ? '1600ms' : '0ms' }}
+              />
               <div className="relative z-10 flex items-center justify-between w-full">
                 <span
                   className={`font-extrabold text-xs sm:text-sm uppercase tracking-wider transition-all duration-300 ${
                     addedSuccess || isInCart ? 'text-black' : 'text-white group-hover:text-black group-hover:-translate-x-1'
                   }`}
                 >
-                  {addedSuccess ? '✓ Added To Bag' : isInCart ? '✓ Already in Bag' : 'Add to Bag'}
+                  {isAdding ? 'Adding…' : addedSuccess ? '✓ Added To Bag' : isInCart ? '✓ Already in Bag' : 'Add to Bag'}
                 </span>
                 <span
                   className={`flex h-7 w-7 items-center justify-center rounded-full transition-all duration-300 ${
@@ -401,11 +412,15 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
                       : 'bg-white text-black group-hover:bg-black group-hover:text-white'
                   }`}
                 >
-                  <HugeiconsIcon
-                    icon={addedSuccess || isInCart ? CheckmarkCircle02Icon : ArrowRight01Icon}
-                    size={16}
-                    strokeWidth={2.4}
-                  />
+                  {isAdding ? (
+                    <span className="h-3.5 w-3.5 rounded-full border-2 border-current/25 border-t-current animate-spin" />
+                  ) : (
+                    <HugeiconsIcon
+                      icon={addedSuccess || isInCart ? CheckmarkCircle02Icon : ArrowRight01Icon}
+                      size={16}
+                      strokeWidth={2.4}
+                    />
+                  )}
                 </span>
               </div>
             </button>
