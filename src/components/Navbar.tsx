@@ -39,7 +39,7 @@ export function Navbar({ cartCount: propCartCount, wishlistCount: propWishlistCo
   const navigate = useNavigate()
   const { user } = useAuth()
   const { cartCount: contextCartCount } = useCart()
-  const { wishlistCount: contextWishlistCount, openWishlist } = useWishlist()
+  const { wishlistCount: contextWishlistCount } = useWishlist()
   const cartCount = propCartCount !== undefined ? propCartCount : contextCartCount
   const wishlistCount = propWishlistCount !== undefined ? propWishlistCount : contextWishlistCount
   const { data: settings } = useStorefrontSettings()
