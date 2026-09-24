@@ -10,15 +10,22 @@ export function HapticFeedback() {
   useEffect(() => {
     if (typeof navigator === 'undefined' || typeof navigator.vibrate !== 'function') return
 
-    function handlePointerDown(e: PointerEvent) {
-      if (e.pointerType !== 'touch') return
+    // Trigger vibration only when an explicit click/tap action is confirmed
+    // (never on hover, touch contact, or swipe/scroll contact).
+    function handleClick(e: MouseEvent) {
       const target = e.target as Element | null
-      if (!target?.closest('button:not(:disabled), .tap-press, a')) return
-      navigator.vibrate(8)
+      const buttonOrLink = target?.closest('button:not(:disabled), .tap-press, a[href]')
+      if (!buttonOrLink) return
+
+      try {
+        navigator.vibrate(10)
+      } catch {
+        // Ignore devices that block vibration
+      }
     }
 
-    document.addEventListener('pointerdown', handlePointerDown, { passive: true })
-    return () => document.removeEventListener('pointerdown', handlePointerDown)
+    document.addEventListener('click', handleClick, { capture: true })
+    return () => document.removeEventListener('click', handleClick, { capture: true })
   }, [])
 
   return null

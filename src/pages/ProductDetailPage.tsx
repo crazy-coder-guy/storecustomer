@@ -18,6 +18,7 @@ import {
 } from '@hugeicons/core-free-icons'
 
 interface ColorOption {
+  id: string
   name: string
   hex: string
 }
@@ -30,17 +31,12 @@ export function ProductDetailPage() {
 
   const { data: product, isLoading, isError } = useProductDetail(id)
 
-  const images = useMemo(() => {
-    if (!product) return []
-    return [...product.images].sort((a, b) => a.sortOrder - b.sortOrder).map((img) => img.imageUrl)
-  }, [product])
-
   const colors = useMemo<ColorOption[]>(() => {
     if (!product) return []
     const seen = new Map<string, ColorOption>()
     product.variants.forEach((v) => {
       if (v.color && !seen.has(v.color.id)) {
-        seen.set(v.color.id, { name: v.color.name, hex: v.color.hexCode })
+        seen.set(v.color.id, { id: v.color.id, name: v.color.name, hex: v.color.hexCode })
       }
     })
     return Array.from(seen.values())
@@ -51,13 +47,30 @@ export function ProductDetailPage() {
   const [selectedSize, setSelectedSize] = useState('')
   const [addedNotification, setAddedNotification] = useState(false)
 
+  // Each color can have its own photoshoot; images not tagged to a specific
+  // color are shared/generic and shown regardless of the selected color. If
+  // a color has no images of its own yet, fall back to the generic set (or
+  // everything) so the gallery is never empty.
+  const images = useMemo(() => {
+    if (!product) return []
+    const sorted = [...product.images].sort((a, b) => a.sortOrder - b.sortOrder)
+    if (!selectedColor) return sorted.map((img) => img.imageUrl)
+    const forColor = sorted.filter((img) => img.colorId === selectedColor.id)
+    const generic = sorted.filter((img) => !img.colorId)
+    const pool = forColor.length > 0 ? [...forColor, ...generic] : generic.length > 0 ? generic : sorted
+    return pool.map((img) => img.imageUrl)
+  }, [product, selectedColor])
+
   useEffect(() => {
     if (product) {
-      setSelectedImage(images[0] || PLACEHOLDER_PRODUCT_IMAGE)
-      setSelectedColor(colors[0] || null)
+      setSelectedColor((prev) => prev ?? colors[0] ?? null)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product])
+
+  useEffect(() => {
+    setSelectedImage(images[0] || PLACEHOLDER_PRODUCT_IMAGE)
+  }, [images])
 
   const sizes = useMemo(() => {
     if (!product) return []

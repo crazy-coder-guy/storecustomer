@@ -66,6 +66,8 @@ export type ImageType = 'PRODUCT' | 'MODEL' | 'LIFESTYLE'
 export interface ProductImage {
   id: string
   productId: string
+  colorId: string | null
+  color: Color | null
   imageUrl: string
   imageType: ImageType
   sortOrder: number
