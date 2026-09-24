@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { FavouriteIcon, ArrowRight01Icon, CheckmarkCircle02Icon } from '@hugeicons/core-free-icons'
+import { FavouriteIcon, ArrowRight01Icon, MinusSignIcon, Add01Icon } from '@hugeicons/core-free-icons'
 import { formatCurrency } from '../utils/formatCurrency'
 import { useWishlist } from '../context/WishlistContext'
 import { useCart } from '../context/CartContext'
@@ -17,18 +17,19 @@ interface ProductCardProps {
 
 export function ProductCard({ product, onAddToCart, onOpenDetail }: ProductCardProps) {
   const { isInWishlist, toggleWishlist } = useWishlist()
-  const { items: cartItems, removeFromCart } = useCart()
+  const { items: cartItems, removeFromCart, updateQuantity } = useCart()
   const [isAdding, setIsAdding] = useState(false)
   const isWishlisted = isInWishlist(product.id)
   const cartEntries = cartItems.filter((item) => item.productId === product.id)
   const isInCart = cartEntries.length > 0
+  // Quick-add always resolves the same default variant, so there's normally
+  // exactly one cart line for this product here — that's the one the
+  // stepper controls. (If the shopper separately added another color/size
+  // from the product page too, this just controls the first of those lines.)
+  const primaryCartEntry = cartEntries[0]
 
-  async function handleBagButtonClick() {
+  async function handleAddClick() {
     if (isAdding) return
-    if (isInCart) {
-      cartEntries.forEach((item) => removeFromCart(item.id))
-      return
-    }
     setIsAdding(true)
     try {
       await onAddToCart?.(product)
@@ -37,15 +38,30 @@ export function ProductCard({ product, onAddToCart, onOpenDetail }: ProductCardP
     }
   }
 
+  function handleIncrement() {
+    if (!primaryCartEntry) return
+    if (primaryCartEntry.quantity >= primaryCartEntry.stockQuantity) return
+    updateQuantity(primaryCartEntry.id, primaryCartEntry.quantity + 1)
+  }
+
+  function handleDecrement() {
+    if (!primaryCartEntry) return
+    if (primaryCartEntry.quantity <= 1) {
+      removeFromCart(primaryCartEntry.id)
+    } else {
+      updateQuantity(primaryCartEntry.id, primaryCartEntry.quantity - 1)
+    }
+  }
+
   return (
     <div className="group relative flex flex-col space-y-2 sm:space-y-3 cursor-pointer select-none">
       {/* Product Image Container */}
       <Link to={`/product/${product.id}`} className="relative aspect-[4/4.2] w-full overflow-hidden rounded-xl sm:rounded-2xl bg-gray-100 block">
-        {/* Pure Black Full-Width Badge Bar */}
+        {/* Pure Black Corner Badge */}
         {product.badge && (
-          <div className="absolute inset-x-0 bottom-0 z-10 pointer-events-none animate-badge-slide-up">
-            <div className="pure-black-badge-bar w-full py-1 sm:py-1.5 px-2 sm:px-3 text-center shadow-md">
-              <span className="text-[9px] sm:text-xs font-bold tracking-wide text-white line-clamp-1">
+          <div className="absolute left-2 top-2 sm:left-3 sm:top-3 z-10 pointer-events-none animate-badge-slide-up">
+            <div className="pure-black-badge-bar rounded-2xl py-1 sm:py-1.5 px-2.5 sm:px-3 shadow-md">
+              <span className="text-[9px] sm:text-xs font-bold tracking-wide text-white line-clamp-1 whitespace-nowrap">
                 {product.badge}
               </span>
             </div>
@@ -123,62 +139,91 @@ export function ProductCard({ product, onAddToCart, onOpenDetail }: ProductCardP
           </div>
         </div>
 
-        {/* Separate Liquid Add to Bag Button */}
+        {/* Separate Liquid Add to Bag Button — crossfades into a qty stepper
+            once in cart. Both stay mounted, absolutely stacked in a
+            fixed-height slot, and swap via opacity so it's a smooth
+            crossfade instead of an instant swap. */}
         <div className="pt-1 sm:pt-2">
-          <button
-            type="button"
-            disabled={isAdding}
-            onClick={(e) => {
-              e.stopPropagation()
-              handleBagButtonClick()
-            }}
-            aria-label={isInCart ? 'Remove from Bag' : 'Add to Bag'}
-            aria-busy={isAdding}
-            className={`group/btn tap-press relative flex w-full items-center justify-between overflow-hidden rounded-2xl border px-3 sm:px-6 py-2 sm:py-3 transition-all duration-300 hover:shadow-lg ${
-              isAdding ? 'cursor-wait' : 'cursor-pointer'
-            } ${isInCart ? 'border-black bg-white' : 'border-black bg-black'}`}
-          >
-            {/* Liquid Fill Overlay (hover-only affordance, paused while adding) */}
-            {!isInCart && !isAdding && (
-              <span className="absolute inset-0 translate-y-full rounded-2xl bg-white transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover/btn:translate-y-0" />
-            )}
-
-            {/* Waiting-for-backend fill: slides left → right while the add
-                request is in flight, so the shopper sees progress instead of
-                the button just sitting there for however long the request
-                takes. Eases toward (not all the way to) full so it never
-                looks "stuck" waiting on a slow response, then the button
-                flips to the real "Added" state the instant it resolves. */}
-            <span
-              className="absolute inset-y-0 left-0 bg-white/25 rounded-2xl transition-[width] ease-out"
-              style={{ width: isAdding ? '92%' : '0%', transitionDuration: isAdding ? '1600ms' : '0ms' }}
-            />
-
-            {/* Button Content */}
-            <div className="relative z-10 flex items-center justify-between w-full">
-              <span
-                className={`font-extrabold text-[10px] sm:text-sm uppercase tracking-wider transition-all duration-300 ${
-                  isInCart ? 'text-black' : 'text-white group-hover/btn:text-black group-hover/btn:-translate-x-1'
-                }`}
-              >
-                {isAdding ? 'Adding…' : isInCart ? '✓ Added' : 'Add to Bag'}
-              </span>
-              <span
-                className={`flex h-6 w-6 sm:h-8 sm:w-8 items-center justify-center rounded-full transition-all duration-300 ${
-                  isInCart ? 'bg-black text-white' : 'bg-white text-black group-hover/btn:bg-black group-hover/btn:text-white'
-                }`}
-              >
-                {isAdding ? (
-                  <span className="h-3 w-3 sm:h-3.5 sm:w-3.5 rounded-full border-2 border-black/20 border-t-black animate-spin" />
-                ) : (
-                  <>
-                    <HugeiconsIcon icon={isInCart ? CheckmarkCircle02Icon : ArrowRight01Icon} size={13} strokeWidth={2.4} className="sm:hidden" />
-                    <HugeiconsIcon icon={isInCart ? CheckmarkCircle02Icon : ArrowRight01Icon} size={16} strokeWidth={2.4} className="hidden sm:block" />
-                  </>
-                )}
-              </span>
+          <div className="relative h-9 sm:h-11">
+            {/* Qty Stepper */}
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className={`absolute inset-0 flex items-center justify-between rounded-2xl border border-black bg-white px-2 sm:px-3 transition-opacity duration-300 ease-out ${
+                isInCart ? 'opacity-100' : 'opacity-0 pointer-events-none'
+              }`}
+            >
+              {primaryCartEntry && (
+                <>
+                  <button
+                    type="button"
+                    onClick={handleDecrement}
+                    aria-label={primaryCartEntry.quantity <= 1 ? 'Remove from Bag' : 'Decrease quantity'}
+                    className="tap-press flex h-7 w-7 sm:h-9 sm:w-9 items-center justify-center rounded-full text-black hover:bg-black/5 transition-colors cursor-pointer"
+                  >
+                    <HugeiconsIcon icon={MinusSignIcon} size={14} strokeWidth={2.4} />
+                  </button>
+                  <span className="font-extrabold text-sm sm:text-base text-black">{primaryCartEntry.quantity}</span>
+                  <button
+                    type="button"
+                    onClick={handleIncrement}
+                    disabled={primaryCartEntry.quantity >= primaryCartEntry.stockQuantity}
+                    aria-label="Increase quantity"
+                    className="tap-press flex h-7 w-7 sm:h-9 sm:w-9 items-center justify-center rounded-full text-black hover:bg-black/5 transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                  >
+                    <HugeiconsIcon icon={Add01Icon} size={14} strokeWidth={2.4} />
+                  </button>
+                </>
+              )}
             </div>
-          </button>
+
+            {/* Add to Bag Button */}
+            <button
+              type="button"
+              disabled={isAdding || isInCart}
+              onClick={(e) => {
+                e.stopPropagation()
+                handleAddClick()
+              }}
+              aria-label="Add to Bag"
+              aria-busy={isAdding}
+              className={`group/btn tap-press absolute inset-0 flex items-center justify-between overflow-hidden rounded-2xl border border-black bg-black px-3 sm:px-6 transition-opacity duration-300 ease-out hover:shadow-lg ${
+                isInCart ? 'opacity-0 pointer-events-none' : 'opacity-100'
+              } ${isAdding ? 'cursor-wait' : 'cursor-pointer'}`}
+            >
+              {/* Liquid Fill Overlay (hover-only affordance, paused while adding) */}
+              {!isAdding && (
+                <span className="absolute inset-0 translate-y-full rounded-2xl bg-white transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover/btn:translate-y-0" />
+              )}
+
+              {/* Waiting-for-backend fill: slides left → right while the add
+                  request is in flight, so the shopper sees progress instead of
+                  the button just sitting there for however long the request
+                  takes. Eases toward (not all the way to) full so it never
+                  looks "stuck" waiting on a slow response, then the button
+                  flips to the real "Added" state the instant it resolves. */}
+              <span
+                className="absolute inset-y-0 left-0 bg-white/25 rounded-2xl transition-[width] ease-out"
+                style={{ width: isAdding ? '92%' : '0%', transitionDuration: isAdding ? '1600ms' : '0ms' }}
+              />
+
+              {/* Button Content */}
+              <div className="relative z-10 flex items-center justify-between w-full">
+                <span className="font-extrabold text-[10px] sm:text-sm uppercase tracking-wider text-white transition-all duration-300 group-hover/btn:text-black group-hover/btn:-translate-x-1">
+                  {isAdding ? 'Adding…' : 'Add to Bag'}
+                </span>
+                <span className="flex h-6 w-6 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-white text-black transition-all duration-300 group-hover/btn:bg-black group-hover/btn:text-white">
+                  {isAdding ? (
+                    <span className="h-3 w-3 sm:h-3.5 sm:w-3.5 rounded-full border-2 border-black/20 border-t-black animate-spin" />
+                  ) : (
+                    <>
+                      <HugeiconsIcon icon={ArrowRight01Icon} size={13} strokeWidth={2.4} className="sm:hidden" />
+                      <HugeiconsIcon icon={ArrowRight01Icon} size={16} strokeWidth={2.4} className="hidden sm:block" />
+                    </>
+                  )}
+                </span>
+              </div>
+            </button>
+          </div>
         </div>
       </div>
     </div>

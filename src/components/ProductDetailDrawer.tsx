@@ -183,11 +183,11 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
             <div className="flex items-center gap-3">
               {/* Main Image View - Fills width without empty gaps */}
               <div className="relative aspect-[4/3] sm:aspect-[4/3] flex-1 overflow-hidden rounded-2xl bg-neutral-100 border border-black/10">
-                {/* Pure Black Full-Width Badge Bar */}
+                {/* Pure Black Corner Badge */}
                 {product.badge && (
-                  <div className="absolute inset-x-0 bottom-0 z-10 pointer-events-none animate-badge-slide-up">
-                    <div className="pure-black-badge-bar w-full py-1.5 px-3 text-center shadow-md">
-                      <span className="text-[11px] sm:text-xs font-bold tracking-wide text-white">
+                  <div className="absolute left-3 top-3 z-10 pointer-events-none animate-badge-slide-up">
+                    <div className="pure-black-badge-bar rounded-2xl py-1.5 px-3 shadow-md">
+                      <span className="text-[11px] sm:text-xs font-bold tracking-wide text-white whitespace-nowrap">
                         {product.badge}
                       </span>
                     </div>

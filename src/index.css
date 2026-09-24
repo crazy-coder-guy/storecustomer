@@ -319,28 +319,29 @@ body {
 }
 
 /* -------------------------------------------------------------
-   FULL-WIDTH PURE BLACK BADGE BAR
-   Bold, minimalist, opaque pure black bar with clean slide-up
+   PURE BLACK CORNER BADGE
+   Bold, minimalist, opaque pure black pill anchored top-left of
+   the product image, with a clean pop-in.
    ------------------------------------------------------------- */
-@keyframes badgeSlideUp {
+@keyframes badgeCornerIn {
   0% {
-    transform: translateY(100%);
+    transform: scale(0.6);
     opacity: 0;
   }
   100% {
-    transform: translateY(0%);
+    transform: scale(1);
     opacity: 1;
   }
 }
 
 .animate-badge-slide-up {
-  animation: badgeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: badgeCornerIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .pure-black-badge-bar {
   background-color: #000000;
   color: #ffffff;
-  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   text-transform: none !important;
 }
 

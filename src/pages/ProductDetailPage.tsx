@@ -274,11 +274,11 @@ export function ProductDetailPage() {
                     <HugeiconsIcon icon={FavouriteIcon} size={18} fill={isWishlisted ? 'currentColor' : 'none'} />
                   </button>
 
-                  {/* Pure Black Full-Width Badge Bar */}
+                  {/* Pure Black Corner Badge */}
                   {product.badge && (
-                    <div className="absolute inset-x-0 bottom-0 z-10 pointer-events-none animate-badge-slide-up">
-                      <div className="pure-black-badge-bar w-full py-2 px-4 text-center shadow-md">
-                        <span className="text-xs sm:text-sm font-bold tracking-wide text-white">
+                    <div className="absolute left-4 top-4 sm:left-5 sm:top-5 z-10 pointer-events-none animate-badge-slide-up">
+                      <div className="pure-black-badge-bar rounded-2xl py-1.5 px-3.5 shadow-md">
+                        <span className="text-xs sm:text-sm font-bold tracking-wide text-white whitespace-nowrap">
                           {product.badge}
                         </span>
                       </div>
