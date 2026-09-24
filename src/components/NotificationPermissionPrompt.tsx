@@ -36,7 +36,7 @@ export function NotificationPermissionPrompt() {
   if (!isVisible) return null
 
   return createPortal(
-    <div className="fixed bottom-20 sm:bottom-6 inset-x-3 sm:inset-x-auto sm:right-6 sm:left-auto z-[990] flex justify-center sm:justify-end animate-pill-float-up pointer-events-none">
+    <div className="fixed bottom-3 sm:bottom-6 inset-x-3 sm:inset-x-auto sm:right-6 sm:left-auto z-[990] flex justify-center sm:justify-end animate-pill-float-up pointer-events-none pb-[env(safe-area-inset-bottom,0px)]">
       <div className="pointer-events-auto w-full max-w-[380px] bg-neutral-950 text-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-4 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.65),0_0_0_1px_rgba(255,255,255,0.12)] border border-white/10 relative overflow-hidden backdrop-blur-2xl">
         {/* Subtle decorative glow */}
         <div className="pointer-events-none absolute -top-12 -right-12 h-32 w-32 rounded-full bg-white/5 blur-2xl" />
