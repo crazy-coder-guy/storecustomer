@@ -39,7 +39,7 @@ export function Navbar({ cartCount: propCartCount, wishlistCount: propWishlistCo
   const navigate = useNavigate()
   const { user } = useAuth()
   const { cartCount: contextCartCount } = useCart()
-  const { wishlistCount: contextWishlistCount } = useWishlist()
+  const { wishlistCount: contextWishlistCount, openWishlist } = useWishlist()
   const cartCount = propCartCount !== undefined ? propCartCount : contextCartCount
   const wishlistCount = propWishlistCount !== undefined ? propWishlistCount : contextWishlistCount
   const { data: settings } = useStorefrontSettings()
@@ -363,11 +363,11 @@ export function Navbar({ cartCount: propCartCount, wishlistCount: propWishlistCo
             <HugeiconsIcon icon={Search01Icon} size={22} />
           </Link>
 
-          {/* Wishlist Button */}
+          {/* Favourites / Wishlist Link */}
           <Link
             to="/wishlist"
             className="tap-press relative p-1.5 sm:p-2 text-black/80 hover:text-black hover:bg-black/5 rounded-full transition-colors cursor-pointer"
-            aria-label="Wishlist"
+            aria-label="Favourites"
           >
             <HugeiconsIcon icon={FavouriteIcon} size={22} />
             {wishlistCount > 0 && (
