@@ -21,11 +21,13 @@ import { ReturnsPage } from './pages/ReturnsPage'
 import { SizeGuidePage } from './pages/SizeGuidePage'
 import { ContactPage } from './pages/ContactPage'
 import { GoogleOneTapPrompt } from './components/GoogleOneTapPrompt'
+import { SmoothScroll } from './components/SmoothScroll'
 
 export function App() {
   return (
     <AuthProvider>
       <CartProvider>
+        <SmoothScroll />
         <WishlistProvider>
           <BrowserRouter>
             <Routes>
