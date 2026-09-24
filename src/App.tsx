@@ -21,6 +21,7 @@ import { ReturnsPage } from './pages/ReturnsPage'
 import { SizeGuidePage } from './pages/SizeGuidePage'
 import { ContactPage } from './pages/ContactPage'
 import { GoogleOneTapPrompt } from './components/GoogleOneTapPrompt'
+import { NotificationPermissionPrompt } from './components/NotificationPermissionPrompt'
 import { ScrollManager } from './components/ScrollManager'
 import { HapticFeedback } from './components/HapticFeedback'
 
@@ -55,6 +56,7 @@ export function App() {
           </BrowserRouter>
         </WishlistProvider>
         <GoogleOneTapPrompt />
+        <NotificationPermissionPrompt />
         <Toaster position="top-center" />
       </CartProvider>
     </AuthProvider>
