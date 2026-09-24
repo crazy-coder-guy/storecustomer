@@ -313,3 +313,23 @@ body {
 .animate-drawer-slide-in {
   animation: drawerSlideInRight 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
+
+/* -------------------------------------------------------------
+   BUTTERY SMOOTH FLOAT-IN (Google One-Tap Prompt Entrance)
+   ------------------------------------------------------------- */
+@keyframes butterFloatIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-16px) scale(0.97);
+    filter: blur(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+.animate-butter-slide {
+  animation: butterFloatIn 0.5s cubic-bezier(0.19, 1, 0.22, 1) both;
+}

@@ -20,6 +20,7 @@ import { ShippingInfoPage } from './pages/ShippingInfoPage'
 import { ReturnsPage } from './pages/ReturnsPage'
 import { SizeGuidePage } from './pages/SizeGuidePage'
 import { ContactPage } from './pages/ContactPage'
+import { GoogleOneTapPrompt } from './components/GoogleOneTapPrompt'
 
 export function App() {
   return (
@@ -49,6 +50,7 @@ export function App() {
             </Routes>
           </BrowserRouter>
         </WishlistProvider>
+        <GoogleOneTapPrompt />
         <Toaster position="top-center" />
       </CartProvider>
     </AuthProvider>
