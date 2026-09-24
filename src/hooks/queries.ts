@@ -1,6 +1,14 @@
 import { useQuery } from '@tanstack/react-query'
-import { getProduct, listProducts, type ListProductsParams } from '../services/product.service'
+import {
+  getProduct,
+  listProducts,
+  listStorefrontProducts,
+  type ListProductsParams,
+  type ListStorefrontProductsParams,
+} from '../services/product.service'
 import { listCategories } from '../services/category.service'
+import { listColors } from '../services/color.service'
+import { listSizes } from '../services/size.service'
 import { getStorefrontSettings, listFeaturedProducts } from '../services/storefront.service'
 import { searchProducts } from '../services/search.service'
 import type { ProductListItem } from '../types'
@@ -53,6 +61,30 @@ export function useProducts(params: ListProductsParams, enabled = true) {
     queryFn: () => listProducts(params),
     enabled,
     staleTime: 30 * 1000,
+  })
+}
+
+export function useStorefrontProducts(params: ListStorefrontProductsParams) {
+  return useQuery({
+    queryKey: ['storefront-products', params],
+    queryFn: () => listStorefrontProducts(params),
+    staleTime: 30 * 1000,
+  })
+}
+
+export function useColors() {
+  return useQuery({
+    queryKey: ['colors'],
+    queryFn: () => listColors({ status: 'ACTIVE', limit: 100 }),
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+export function useSizes() {
+  return useQuery({
+    queryKey: ['sizes'],
+    queryFn: () => listSizes({ status: 'ACTIVE', limit: 100 }),
+    staleTime: 5 * 60 * 1000,
   })
 }
 

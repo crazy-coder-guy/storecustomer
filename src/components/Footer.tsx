@@ -67,11 +67,11 @@ export function Footer() {
         {/* Bottom Legal & Copyright Bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-white/45 gap-4 font-medium">
           <div className="flex items-center gap-4">
-            <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
+            <Link to="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link>
             <span>•</span>
-            <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
+            <Link to="/terms-of-service" className="hover:text-white transition-colors">Terms of Service</Link>
             <span>•</span>
-            <a href="#" className="hover:text-white transition-colors">Security</a>
+            <Link to="/security" className="hover:text-white transition-colors">Security</Link>
           </div>
           <div>
             © {new Date().getFullYear()} Kaira Apparel Inc. All rights reserved.

@@ -26,6 +26,21 @@ interface ColorOption {
   hex: string
 }
 
+const FIT_LABELS: Record<string, string> = {
+  REGULAR: 'Regular Fit',
+  SLIM: 'Slim Fit',
+  OVERSIZED: 'Oversized Fit',
+  RELAXED: 'Relaxed Fit',
+}
+
+const NECK_LABELS: Record<string, string> = {
+  CREW: 'Crew Neck',
+  ROUND: 'Round Neck',
+  POLO: 'Polo Collar',
+  V_NECK: 'V-Neck',
+  MOCK: 'Mock Neck',
+}
+
 export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetailDrawerProps) {
   const { items: cartItems, addToCart, removeFromCart } = useCart()
   const { data: product } = useProductDetail(productId ?? undefined)
@@ -34,7 +49,6 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
   const [selectedColor, setSelectedColor] = useState<ColorOption | null>(null)
   const [addedSuccess, setAddedSuccess] = useState(false)
   const [isAdding, setIsAdding] = useState(false)
-  const [activeTab, setActiveTab] = useState<'details' | 'care' | 'origin'>('details')
 
   const colors = useMemo<ColorOption[]>(() => {
     if (!product) return []
@@ -311,53 +325,22 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
               </p>
             </div>
 
-            {/* Specs Segmented Tabs */}
+            {/* Key Details */}
             <div className="space-y-3 pt-2">
-              <div className="flex border-b border-black/10 text-xs font-black uppercase tracking-wider">
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('details')}
-                  className={`pb-2 mr-5 transition-colors cursor-pointer border-b-2 -mb-px ${
-                    activeTab === 'details' ? 'border-black text-black' : 'border-transparent text-black/40 hover:text-black'
-                  }`}
-                >
-                  Key Details
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('care')}
-                  className={`pb-2 transition-colors cursor-pointer border-b-2 -mb-px ${
-                    activeTab === 'care' ? 'border-black text-black' : 'border-transparent text-black/40 hover:text-black'
-                  }`}
-                >
-                  Availability
-                </button>
-              </div>
+              <h3 className="text-xs font-black uppercase tracking-wider text-black/60 border-b border-black/10 pb-2">
+                Key Details
+              </h3>
 
-              {activeTab === 'details' && (
-                <ul className="space-y-1.5 text-xs text-black/70 font-medium list-disc list-inside">
-                  <li>Category: {product.category?.name}</li>
-                  <li>Product Type: {product.productType}</li>
-                  {selectedVariant && <li>SKU: {selectedVariant.sku}</li>}
-                </ul>
-              )}
-
-              {activeTab === 'care' && (
-                <div className="space-y-1 text-xs text-black/70 font-medium">
-                  {selectedVariant ? (
-                    <p>
-                      <strong className="text-black">
-                        {selectedVariant.stockQuantity > 0
-                          ? `${selectedVariant.stockQuantity} in stock`
-                          : 'Out of stock'}
-                      </strong>{' '}
-                      for {selectedColor?.name} / {selectedSize}
-                    </p>
-                  ) : (
-                    <p>Select a color and size to see availability.</p>
-                  )}
-                </div>
-              )}
+              <ul className="space-y-1.5 text-xs text-black/70 font-medium list-disc list-inside">
+                <li>Category: {product.category?.name}</li>
+                <li>Product Type: {product.productType}</li>
+                {product.fit && <li>Fit: {FIT_LABELS[product.fit] ?? product.fit}</li>}
+                {product.neckType && <li>Neck Type: {NECK_LABELS[product.neckType] ?? product.neckType}</li>}
+                {product.fabric && <li>Fabric: {product.fabric}</li>}
+                {product.gsm != null && <li>Fabric Weight: {product.gsm} GSM</li>}
+                {product.biowash && <li>Bio-Washed Fabric (pre-shrunk, soft feel)</li>}
+                {selectedVariant && <li>SKU: {selectedVariant.sku}</li>}
+              </ul>
             </div>
 
             {/* Trust Mini-bar */}

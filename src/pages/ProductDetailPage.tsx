@@ -386,34 +386,6 @@ export function ProductDetailPage() {
                       {isAddingToCart ? 'Adding…' : isInCart ? '✓ Already in Bag' : 'Add to Bag'} • {formatCurrency(effectivePrice)}
                     </span>
                   </LiquidButton>
-
-                  {/* High Visibility Value Badges - Bold 4-Grid Contrast & Clear Layout */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-4">
-                    <div className="flex flex-col items-center justify-center gap-2 p-3 rounded-xl bg-black/5 border border-black/15 text-center transition-all hover:bg-black/10">
-                      <div className="h-9 w-9 rounded-full bg-black text-white flex items-center justify-center shadow-xs">
-                        <HugeiconsIcon icon={PackageIcon} size={18} />
-                      </div>
-                      <span className="text-xs font-black text-black leading-tight">Free Express Shipping</span>
-                    </div>
-                    <div className="flex flex-col items-center justify-center gap-2 p-3 rounded-xl bg-black/5 border border-black/15 text-center transition-all hover:bg-black/10">
-                      <div className="h-9 w-9 rounded-full bg-black text-white flex items-center justify-center shadow-xs">
-                        <HugeiconsIcon icon={RefreshIcon} size={18} />
-                      </div>
-                      <span className="text-xs font-black text-black leading-tight">7-Day Easy Returns</span>
-                    </div>
-                    <div className="flex flex-col items-center justify-center gap-2 p-3 rounded-xl bg-black/5 border border-black/15 text-center transition-all hover:bg-black/10">
-                      <div className="h-9 w-9 rounded-full bg-black text-white flex items-center justify-center shadow-xs">
-                        <HugeiconsIcon icon={SecurityCheckIcon} size={18} />
-                      </div>
-                      <span className="text-xs font-black text-black leading-tight">Quality Assured</span>
-                    </div>
-                    <div className="flex flex-col items-center justify-center gap-2 p-3 rounded-xl bg-black/5 border border-black/15 text-center transition-all hover:bg-black/10">
-                      <div className="h-9 w-9 rounded-full bg-black text-white flex items-center justify-center shadow-xs">
-                        <HugeiconsIcon icon={CheckmarkCircle02Icon} size={18} />
-                      </div>
-                      <span className="text-xs font-black text-black leading-tight">Cash on Delivery</span>
-                    </div>
-                  </div>
                 </div>
 
                 {/* Minimalist Border-Divided Accordions (No Card Backgrounds) with Smooth Animations */}
@@ -498,9 +470,128 @@ export function ProductDetailPage() {
             </div>
           </div>
         </section>
+
+        {/* Full Width Detailed Value & Assurance Features Section */}
+        <section className="w-full border-t border-b border-black/10 bg-neutral-50/70 py-10 lg:py-14 my-8">
+          <div className="kaira-container">
+            <div className="text-center max-w-xl mx-auto mb-8 sm:mb-12">
+              <span className="text-xs font-black uppercase tracking-widest text-black/50">Our Guarantees</span>
+              <h3 className="text-2xl sm:text-3xl font-black text-black tracking-tight mt-1">
+                How Shopping With Us Works
+              </h3>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-8 lg:divide-x lg:divide-black/10">
+              {/* Feature 1: Express Shipping */}
+              <div className="space-y-4 lg:px-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-black text-white flex items-center justify-center shrink-0 shadow-xs">
+                    <HugeiconsIcon icon={PackageIcon} size={20} />
+                  </div>
+                  <h4 className="text-sm font-black text-black tracking-wide leading-tight">
+                    Free Express Shipping
+                  </h4>
+                </div>
+                <ul className="space-y-2 text-xs text-black/70 font-medium">
+                  <li className="flex items-start gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-black shrink-0 mt-1.5" />
+                    <span>Dispatched within 24 hours of order confirmation</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-black shrink-0 mt-1.5" />
+                    <span>Swift doorstep delivery in 2-4 business days nationwide</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-black shrink-0 mt-1.5" />
+                    <span>Real-time SMS & WhatsApp order tracking updates</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Feature 2: Easy Returns */}
+              <div className="space-y-4 lg:px-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-black text-white flex items-center justify-center shrink-0 shadow-xs">
+                    <HugeiconsIcon icon={RefreshIcon} size={20} />
+                  </div>
+                  <h4 className="text-sm font-black text-black tracking-wide leading-tight">
+                    7-Day Easy Returns
+                  </h4>
+                </div>
+                <ul className="space-y-2 text-xs text-black/70 font-medium">
+                  <li className="flex items-start gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-black shrink-0 mt-1.5" />
+                    <span>7 days hassle-free return & size exchange window</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-black shrink-0 mt-1.5" />
+                    <span>Reverse doorstep pickup scheduled right at your home</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-black shrink-0 mt-1.5" />
+                    <span>Instant replacement dispatch or fast refund credit</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Feature 3: Quality Assured */}
+              <div className="space-y-4 lg:px-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-black text-white flex items-center justify-center shrink-0 shadow-xs">
+                    <HugeiconsIcon icon={SecurityCheckIcon} size={20} />
+                  </div>
+                  <h4 className="text-sm font-black text-black tracking-wide leading-tight">
+                    Quality Assured
+                  </h4>
+                </div>
+                <ul className="space-y-2 text-xs text-black/70 font-medium">
+                  <li className="flex items-start gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-black shrink-0 mt-1.5" />
+                    <span>100% premium combed cotton & heavyweight fabric</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-black shrink-0 mt-1.5" />
+                    <span>Biowashed & pre-shrunk to prevent fading and shrinkage</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-black shrink-0 mt-1.5" />
+                    <span>Multi-point quality check performed before shipping</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Feature 4: Cash on Delivery */}
+              <div className="space-y-4 lg:px-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-black text-white flex items-center justify-center shrink-0 shadow-xs">
+                    <HugeiconsIcon icon={CheckmarkCircle02Icon} size={20} />
+                  </div>
+                  <h4 className="text-sm font-black text-black tracking-wide leading-tight">
+                    Cash on Delivery
+                  </h4>
+                </div>
+                <ul className="space-y-2 text-xs text-black/70 font-medium">
+                  <li className="flex items-start gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-black shrink-0 mt-1.5" />
+                    <span>Pay easily via Cash, UPI, or Card upon delivery</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-black shrink-0 mt-1.5" />
+                    <span>Zero extra fees or hidden convenience charges</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-black shrink-0 mt-1.5" />
+                    <span>Available across 25,000+ PIN codes across India</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
 
       <Footer />
     </div>
   )
 }
+

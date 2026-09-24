@@ -1,4 +1,4 @@
-import { createContext, useContext, type ReactNode } from 'react'
+import { createContext, useContext, useState, type ReactNode } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { useAuth } from './AuthContext'
@@ -9,6 +9,9 @@ interface WishlistContextType {
   wishlistIds: string[]
   wishlistCount: number
   isLoading: boolean
+  isWishlistOpen: boolean
+  openWishlist: () => void
+  closeWishlist: () => void
   isInWishlist: (productId: string) => boolean
   toggleWishlist: (productId: string) => Promise<void>
   addToWishlist: (productId: string) => Promise<void>
@@ -22,6 +25,10 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
   const { user, ensureSignedIn } = useAuth()
   const queryClient = useQueryClient()
   const wishlistKey = ['favorites', user?.uid] as const
+  const [isWishlistOpen, setIsWishlistOpen] = useState(false)
+
+  const openWishlist = () => setIsWishlistOpen(true)
+  const closeWishlist = () => setIsWishlistOpen(false)
 
   const { data, isLoading } = useQuery({
     queryKey: wishlistKey,
@@ -89,6 +96,9 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
         wishlistIds,
         wishlistCount: wishlistIds.length,
         isLoading,
+        isWishlistOpen,
+        openWishlist,
+        closeWishlist,
         isInWishlist,
         toggleWishlist,
         addToWishlist,

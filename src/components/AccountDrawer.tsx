@@ -123,7 +123,7 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
       {/* Drawer Container (Slides in from Right, Full Height) */}
       <div className="fixed inset-y-0 right-0 z-10 flex h-full max-h-screen max-w-full pl-6 sm:pl-10">
         <div className="w-screen max-w-md bg-white shadow-2xl flex flex-col h-full max-h-screen animate-drawer-slide-in">
-          
+
           {/* Header */}
           <div className="shrink-0 flex items-center justify-between border-b border-black/10 px-6 py-4.5 bg-white/95 backdrop-blur-md sticky top-0 z-10">
             <div className="flex items-center gap-2.5">

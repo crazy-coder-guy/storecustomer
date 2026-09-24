@@ -13,9 +13,11 @@ interface ProductCardProps {
   product: ProductItem
   onAddToCart?: (product: ProductItem) => void | Promise<void>
   onOpenDetail?: (productId: string) => void
+  /** Shorter image + tighter spacing for dense catalog grids (e.g. All Products). */
+  compact?: boolean
 }
 
-export function ProductCard({ product, onAddToCart, onOpenDetail }: ProductCardProps) {
+export function ProductCard({ product, onAddToCart, onOpenDetail, compact = false }: ProductCardProps) {
   const { isInWishlist, toggleWishlist } = useWishlist()
   const { items: cartItems, removeFromCart, updateQuantity } = useCart()
   const [isAdding, setIsAdding] = useState(false)
@@ -56,7 +58,12 @@ export function ProductCard({ product, onAddToCart, onOpenDetail }: ProductCardP
   return (
     <div className="group relative flex flex-col space-y-2 sm:space-y-3 cursor-pointer select-none">
       {/* Product Image Container */}
-      <Link to={`/product/${product.id}`} className="relative aspect-[4/4.2] w-full overflow-hidden rounded-xl sm:rounded-2xl bg-gray-100 block">
+      <Link
+        to={`/product/${product.id}`}
+        className={`relative w-full overflow-hidden rounded-xl sm:rounded-2xl bg-gray-100 block ${
+          compact ? 'aspect-[4/3.4]' : 'aspect-[4/4.2]'
+        }`}
+      >
         {/* Pure Black Corner Badge */}
         {product.badge && (
           <div className="absolute left-2 top-2 sm:left-3 sm:top-3 z-10 pointer-events-none animate-badge-slide-up">
@@ -117,20 +124,26 @@ export function ProductCard({ product, onAddToCart, onOpenDetail }: ProductCardP
               onClick={() => onOpenDetail(product.id)}
               className="block text-left group-hover:text-black/70 transition-colors line-clamp-1 mt-0.5 sm:mt-1 cursor-pointer w-full"
             >
-              <h3 className="text-sm sm:text-xl font-extrabold text-black">
+              <h3 className={`font-extrabold text-black ${compact ? 'text-sm sm:text-base' : 'text-sm sm:text-xl'}`}>
                 {product.name}
               </h3>
             </button>
           ) : (
             <Link to={`/product/${product.id}`} className="block">
-              <h3 className="text-sm sm:text-xl font-extrabold text-black group-hover:text-black/70 transition-colors line-clamp-1 mt-0.5 sm:mt-1">
+              <h3
+                className={`font-extrabold text-black group-hover:text-black/70 transition-colors line-clamp-1 mt-0.5 sm:mt-1 ${
+                  compact ? 'text-sm sm:text-base' : 'text-sm sm:text-xl'
+                }`}
+              >
                 {product.name}
               </h3>
             </Link>
           )}
 
           <div className="flex items-baseline gap-1.5 sm:gap-2.5 pt-0.5 sm:pt-1">
-            <span className="text-sm sm:text-xl font-black text-black">{formatCurrency(product.price)}</span>
+            <span className={`font-black text-black ${compact ? 'text-sm sm:text-base' : 'text-sm sm:text-xl'}`}>
+              {formatCurrency(product.price)}
+            </span>
             {product.mrp && product.mrp > product.price && (
               <span className="text-[11px] sm:text-sm font-semibold text-black/40 line-through">
                 {formatCurrency(product.mrp)}

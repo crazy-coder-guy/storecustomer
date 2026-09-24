@@ -3,16 +3,19 @@ import { createPortal } from 'react-dom'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Cancel01Icon, ArrowRight01Icon } from '@hugeicons/core-free-icons'
 import { useAuth } from '../context/AuthContext'
+import { usePromptSlot } from '../context/PromptSlotContext'
 
 export function GoogleOneTapPrompt() {
   const { user, isLoading, signInWithGoogle } = useAuth()
-  const [isVisible, setIsVisible] = useState(false)
+  const { isActive, activePrompt, claim, release } = usePromptSlot('google')
+  const [wantsToShow, setWantsToShow] = useState(false)
   const [isSigningIn, setIsSigningIn] = useState(false)
 
   useEffect(() => {
     // If auth is still checking or user is already signed in, don't show
     if (isLoading || user) {
-      setIsVisible(false)
+      setWantsToShow(false)
+      release()
       return
     }
 
@@ -24,14 +27,23 @@ export function GoogleOneTapPrompt() {
 
     // Delay prompt slightly (1.2s) so page finishes initial mount smoothly
     const timer = setTimeout(() => {
-      setIsVisible(true)
+      setWantsToShow(true)
     }, 1200)
 
     return () => clearTimeout(timer)
   }, [user, isLoading])
 
+  // Google sign-in gets priority over other floating prompts (e.g. push
+  // notifications) — claim the shared slot as soon as it wants to show.
+  useEffect(() => {
+    if (wantsToShow) claim()
+  }, [wantsToShow, activePrompt, claim])
+
+  useEffect(() => () => release(), [release])
+
   const handleDismiss = () => {
-    setIsVisible(false)
+    setWantsToShow(false)
+    release()
     sessionStorage.setItem('kaira_google_onetap_dismissed', 'true')
   }
 
@@ -39,13 +51,16 @@ export function GoogleOneTapPrompt() {
     setIsSigningIn(true)
     try {
       await signInWithGoogle()
-      setIsVisible(false)
+      setWantsToShow(false)
+      release()
     } catch {
       // User closed popup or cancelled
     } finally {
       setIsSigningIn(false)
     }
   }
+
+  const isVisible = wantsToShow && isActive
 
   if (!isVisible || user) return null
 

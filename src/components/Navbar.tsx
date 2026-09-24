@@ -198,11 +198,10 @@ export function Navbar({ cartCount: propCartCount, wishlistCount: propWishlistCo
         <div ref={searchContainerRef} className="hidden md:flex flex-1 max-w-md lg:max-w-xl mx-4 relative">
           <form
             onSubmit={handleSearchSubmit}
-            className={`relative flex items-center w-full rounded-2xl border bg-neutral-100 transition-all duration-300 ${
-              isFocused
+            className={`relative flex items-center w-full rounded-2xl border bg-neutral-100 transition-all duration-300 ${isFocused
                 ? 'border-black bg-white ring-2 ring-black/5 shadow-sm'
                 : 'border-black/15 hover:border-black/30'
-            }`}
+              }`}
           >
             <div className="absolute left-4 top-1/2 -translate-y-1/2 text-black/50 pointer-events-none">
               <HugeiconsIcon icon={Search01Icon} size={18} />
@@ -221,11 +220,10 @@ export function Navbar({ cartCount: propCartCount, wishlistCount: propWishlistCo
             {!searchQuery && (
               <div className="pointer-events-none absolute left-11 top-1/2 -translate-y-1/2 overflow-hidden h-5 flex items-center">
                 <span
-                  className={`text-xs sm:text-sm font-semibold text-black/45 transition-all duration-300 ease-out whitespace-nowrap ${
-                    isFading
+                  className={`text-xs sm:text-sm font-semibold text-black/45 transition-all duration-300 ease-out whitespace-nowrap ${isFading
                       ? '-translate-y-3 opacity-0'
                       : 'translate-y-0 opacity-100'
-                  }`}
+                    }`}
                 >
                   {SEARCH_SUGGESTIONS[placeholderIndex]}
                 </span>

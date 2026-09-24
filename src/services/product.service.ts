@@ -12,6 +12,22 @@ export interface ListProductsParams {
   ids?: string[]
 }
 
+export interface ListStorefrontProductsParams {
+  search?: string
+  category_id?: string[]
+  color_id?: string[]
+  size_id?: string[]
+  fit?: string[]
+  neck_type?: string[]
+  min_price?: number
+  max_price?: number
+  in_stock?: boolean
+  sortBy?: string
+  sortOrder?: 'asc' | 'desc'
+  page?: number
+  limit?: number
+}
+
 function coerceProduct<T extends Product>(product: T): T {
   return {
     ...product,
@@ -34,6 +50,25 @@ export async function listProducts(params: ListProductsParams) {
   const { ids, ...rest } = params
   const query = { ...rest, ...(ids && ids.length > 0 ? { ids: ids.join(',') } : {}) }
   const { data } = await api.get<PaginatedResponse<ProductListItem>>('/products', { params: query })
+  return { ...data, items: data.items.map(coerceProduct) }
+}
+
+/**
+ * Public "All Products" listing (/storefront/products) — always ACTIVE-only
+ * server-side, with the full filter set a shopper-facing sidebar needs.
+ * Array params are joined as comma lists, matching how the backend parses them.
+ */
+export async function listStorefrontProducts(params: ListStorefrontProductsParams) {
+  const { category_id, color_id, size_id, fit, neck_type, ...rest } = params
+  const query = {
+    ...rest,
+    ...(category_id && category_id.length > 0 ? { category_id: category_id.join(',') } : {}),
+    ...(color_id && color_id.length > 0 ? { color_id: color_id.join(',') } : {}),
+    ...(size_id && size_id.length > 0 ? { size_id: size_id.join(',') } : {}),
+    ...(fit && fit.length > 0 ? { fit: fit.join(',') } : {}),
+    ...(neck_type && neck_type.length > 0 ? { neck_type: neck_type.join(',') } : {}),
+  }
+  const { data } = await api.get<PaginatedResponse<ProductListItem>>('/storefront/products', { params: query })
   return { ...data, items: data.items.map(coerceProduct) }
 }
 
