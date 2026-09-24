@@ -26,7 +26,7 @@ interface ColorOption {
 }
 
 export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetailDrawerProps) {
-  const { addToCart } = useCart()
+  const { items: cartItems, addToCart, removeFromCart } = useCart()
   const { data: product } = useProductDetail(productId ?? undefined)
   const [selectedImage, setSelectedImage] = useState<string>('')
   const [selectedSize, setSelectedSize] = useState<string>('')
@@ -53,15 +53,15 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
 
   const sizes = useMemo(() => {
     if (!product) return []
-    const seen = new Map<string, { name: string; sortOrder: number }>()
+    const seen = new Map<string, { code: string; sortOrder: number }>()
     product.variants
       .filter((v) => !selectedColor || v.color?.hexCode === selectedColor.hex)
       .forEach((v) => {
         if (v.size && !seen.has(v.size.id)) {
-          seen.set(v.size.id, { name: v.size.name, sortOrder: v.size.sortOrder })
+          seen.set(v.size.id, { code: v.size.code, sortOrder: v.size.sortOrder })
         }
       })
-    return Array.from(seen.values()).sort((a, b) => a.sortOrder - b.sortOrder).map((s) => s.name)
+    return Array.from(seen.values()).sort((a, b) => a.sortOrder - b.sortOrder).map((s) => s.code)
   }, [product, selectedColor])
 
   useEffect(() => {
@@ -101,12 +101,18 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
   if (!isOpen || !product) return null
 
   const selectedVariant = product.variants.find(
-    (v) => v.color?.hexCode === selectedColor?.hex && v.size?.name === selectedSize
+    (v) => v.color?.hexCode === selectedColor?.hex && v.size?.code === selectedSize
   )
   const effectivePrice = selectedVariant?.price ?? product.basePrice
   const effectiveMrp = product.mrp
+  const cartEntry = cartItems.find((item) => item.variantId === selectedVariant?.id)
+  const isInCart = Boolean(cartEntry)
 
   const handleQuickAdd = async () => {
+    if (isInCart) {
+      if (cartEntry) removeFromCart(cartEntry.id)
+      return
+    }
     if (!selectedVariant) return
     try {
       await addToCart(selectedVariant.id, 1)
@@ -360,15 +366,33 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
             <button
               type="button"
               onClick={handleQuickAdd}
-              className="flex-1 group relative flex items-center justify-between overflow-hidden rounded-full border border-black bg-black px-6 py-3 transition-all duration-300 shadow-sm hover:shadow-md cursor-pointer"
+              className={`flex-1 group relative flex items-center justify-between overflow-hidden rounded-full border px-6 py-3 transition-all duration-300 shadow-sm hover:shadow-md cursor-pointer tap-press ${
+                addedSuccess || isInCart ? 'border-black bg-white' : 'border-black bg-black'
+              }`}
             >
-              <span className="absolute inset-0 translate-y-full rounded-full bg-white transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:translate-y-0" />
+              {!(addedSuccess || isInCart) && (
+                <span className="absolute inset-0 translate-y-full rounded-full bg-white transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:translate-y-0" />
+              )}
               <div className="relative z-10 flex items-center justify-between w-full">
-                <span className="font-extrabold text-xs sm:text-sm uppercase tracking-wider text-white transition-all duration-300 group-hover:text-black">
-                  {addedSuccess ? '✓ Added To Bag' : 'Add to Bag'}
+                <span
+                  className={`font-extrabold text-xs sm:text-sm uppercase tracking-wider transition-all duration-300 ${
+                    addedSuccess || isInCart ? 'text-black' : 'text-white group-hover:text-black group-hover:-translate-x-1'
+                  }`}
+                >
+                  {addedSuccess ? '✓ Added To Bag' : isInCart ? '✓ Already in Bag' : 'Add to Bag'}
                 </span>
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-black transition-all duration-300 group-hover:bg-black group-hover:text-white">
-                  <HugeiconsIcon icon={addedSuccess ? CheckmarkCircle02Icon : ArrowRight01Icon} size={16} strokeWidth={2.4} />
+                <span
+                  className={`flex h-7 w-7 items-center justify-center rounded-full transition-all duration-300 ${
+                    addedSuccess || isInCart
+                      ? 'bg-black text-white'
+                      : 'bg-white text-black group-hover:bg-black group-hover:text-white'
+                  }`}
+                >
+                  <HugeiconsIcon
+                    icon={addedSuccess || isInCart ? CheckmarkCircle02Icon : ArrowRight01Icon}
+                    size={16}
+                    strokeWidth={2.4}
+                  />
                 </span>
               </div>
             </button>

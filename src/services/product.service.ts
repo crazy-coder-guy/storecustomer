@@ -1,5 +1,5 @@
 import { api } from './api'
-import type { PaginatedResponse, Product, ProductDetail, ProductStatus } from '../types'
+import type { PaginatedResponse, Product, ProductDetail, ProductListItem, ProductStatus } from '../types'
 
 export interface ListProductsParams {
   search?: string
@@ -9,6 +9,7 @@ export interface ListProductsParams {
   sortOrder?: 'asc' | 'desc'
   page?: number
   limit?: number
+  ids?: string[]
 }
 
 function coerceProduct<T extends Product>(product: T): T {
@@ -30,7 +31,9 @@ function coerceProductDetail(product: ProductDetail): ProductDetail {
 }
 
 export async function listProducts(params: ListProductsParams) {
-  const { data } = await api.get<PaginatedResponse<Product>>('/products', { params })
+  const { ids, ...rest } = params
+  const query = { ...rest, ...(ids && ids.length > 0 ? { ids: ids.join(',') } : {}) }
+  const { data } = await api.get<PaginatedResponse<ProductListItem>>('/products', { params: query })
   return { ...data, items: data.items.map(coerceProduct) }
 }
 

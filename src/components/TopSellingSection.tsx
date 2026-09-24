@@ -70,15 +70,15 @@ export function TopSellingSection({ onAddToCart }: TopSellingSectionProps) {
           </a>
         </Reveal>
 
-        {/* Product Cards Grid */}
+        {/* Product Cards Grid: 2 columns on mobile, 2 on tablet, 4 on desktop */}
         {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-10">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="aspect-[4/4.2] rounded-2xl bg-gray-100 animate-pulse" />
+              <div key={i} className="aspect-[4/4.2] rounded-xl sm:rounded-2xl bg-gray-100 animate-pulse" />
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-10">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
             {products.map((product, idx) => (
               <Reveal key={product.id} delay={(idx % 4) * 90} strength="soft">
                 <ProductCard

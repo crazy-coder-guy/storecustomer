@@ -24,7 +24,7 @@ interface ColorOption {
 
 export function ProductDetailPage() {
   const { id } = useParams<{ id: string }>()
-  const { addToCart } = useCart()
+  const { items: cartItems, addToCart, removeFromCart } = useCart()
   const { isInWishlist, toggleWishlist } = useWishlist()
   const [openAccordion, setOpenAccordion] = useState<string | null>('description')
 
@@ -61,15 +61,15 @@ export function ProductDetailPage() {
 
   const sizes = useMemo(() => {
     if (!product) return []
-    const seen = new Map<string, { name: string; sortOrder: number }>()
+    const seen = new Map<string, { code: string; sortOrder: number }>()
     product.variants
       .filter((v) => !selectedColor || v.color?.hexCode === selectedColor.hex)
       .forEach((v) => {
         if (v.size && !seen.has(v.size.id)) {
-          seen.set(v.size.id, { name: v.size.name, sortOrder: v.size.sortOrder })
+          seen.set(v.size.id, { code: v.size.code, sortOrder: v.size.sortOrder })
         }
       })
-    return Array.from(seen.values()).sort((a, b) => a.sortOrder - b.sortOrder).map((s) => s.name)
+    return Array.from(seen.values()).sort((a, b) => a.sortOrder - b.sortOrder).map((s) => s.code)
   }, [product, selectedColor])
 
   useEffect(() => {
@@ -155,12 +155,18 @@ export function ProductDetailPage() {
   }
 
   const selectedVariant = product.variants.find(
-    (v) => v.color?.hexCode === selectedColor?.hex && v.size?.name === selectedSize
+    (v) => v.color?.hexCode === selectedColor?.hex && v.size?.code === selectedSize
   )
   const effectivePrice = selectedVariant?.price ?? product.basePrice
   const effectiveMrp = product.mrp
+  const cartEntry = cartItems.find((item) => item.variantId === selectedVariant?.id)
+  const isInCart = Boolean(cartEntry)
 
   const handleAddToCart = async () => {
+    if (isInCart) {
+      if (cartEntry) removeFromCart(cartEntry.id)
+      return
+    }
     if (!selectedVariant) return
     try {
       await addToCart(selectedVariant.id, 1)
@@ -325,10 +331,12 @@ export function ProductDetailPage() {
 
                   <LiquidButton
                     onClick={handleAddToCart}
-                    variant="primary"
+                    variant={isInCart ? 'outline' : 'primary'}
                     className="w-full !py-4 justify-between !text-base shadow-lg"
                   >
-                    <span>Add to Bag • {formatCurrency(effectivePrice)}</span>
+                    <span>
+                      {isInCart ? '✓ Already in Bag' : 'Add to Bag'} • {formatCurrency(effectivePrice)}
+                    </span>
                   </LiquidButton>
 
                   {/* High Visibility Value Badges - Bold 4-Grid Contrast & Clear Layout */}

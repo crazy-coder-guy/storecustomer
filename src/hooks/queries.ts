@@ -1,9 +1,9 @@
-import { useQueries, useQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { getProduct, listProducts, type ListProductsParams } from '../services/product.service'
 import { listCategories } from '../services/category.service'
 import { getStorefrontSettings, listFeaturedProducts } from '../services/storefront.service'
 import { searchProducts } from '../services/search.service'
-import type { Product } from '../types'
+import type { ProductListItem } from '../types'
 
 // A tiny inline gray placeholder, used only when a product genuinely has no images yet.
 export const PLACEHOLDER_PRODUCT_IMAGE =
@@ -79,92 +79,58 @@ export function useProductDetail(id: string | undefined) {
   })
 }
 
-/**
- * The list products endpoint intentionally omits images/variants, so product
- * grids (category, search, wishlist) fetch each product's detail to obtain a
- * thumbnail image and the color swatches. The catalog is small, so this is a
- * small number of parallel requests rather than true N+1 pagination.
- */
-export function useProductCards(products: Product[] | undefined): {
-  cards: ProductCardData[]
-  isLoading: boolean
-} {
-  const list = products ?? []
-  const results = useQueries({
-    queries: list.map((p) => ({
-      queryKey: ['product', p.id],
-      queryFn: () => getProduct(p.id),
-      staleTime: 30 * 1000,
-    })),
-  })
+function toProductCardData(p: ProductListItem): ProductCardData {
+  const images = [...p.images].sort((a, b) => a.sortOrder - b.sortOrder)
+  const primary = images.find((img) => img.isPrimary) ?? images[0]
+  const colors = p.colors.map((c) => c.hexCode)
 
-  const cards: ProductCardData[] = list.map((p, idx) => {
-    const detail = results[idx]?.data
-    const images = detail?.images ?? []
-    const primary = images.find((img) => img.isPrimary) ?? images[0]
-    const colors = detail
-      ? Array.from(
-        new Set(
-          detail.variants
-            .map((v) => v.color?.hexCode)
-            .filter((hex): hex is string => Boolean(hex))
-        )
-      )
-      : undefined
-
-    return {
-      id: p.id,
-      name: p.name,
-      categoryName: detail?.category?.name ?? '',
-      price: p.basePrice,
-      mrp: p.mrp,
-      image: primary?.imageUrl ?? PLACEHOLDER_PRODUCT_IMAGE,
-      colors,
-      badge: p.badge ?? detail?.badge ?? null,
-    }
-  })
-
-  return { cards, isLoading: results.length > 0 && results.some((r) => r.isLoading) }
+  return {
+    id: p.id,
+    name: p.name,
+    categoryName: p.category?.name ?? '',
+    price: p.basePrice,
+    mrp: p.mrp,
+    image: primary?.imageUrl ?? PLACEHOLDER_PRODUCT_IMAGE,
+    colors,
+    badge: p.badge,
+  }
 }
 
 /**
- * Wishlist/localStorage only stores product ids, so this resolves each id to
- * a real product card by fetching its detail from the API.
+ * The list-products endpoint already includes each product's images and
+ * variant colors (see ProductListItem), so cards render straight from the
+ * list response with zero extra requests — no per-card detail fetch just to
+ * show a thumbnail and swatches for products the shopper hasn't opened.
+ */
+export function useProductCards(products: ProductListItem[] | undefined): {
+  cards: ProductCardData[]
+  isLoading: boolean
+} {
+  const cards = (products ?? []).map(toProductCardData)
+  return { cards, isLoading: false }
+}
+
+/**
+ * Wishlist/localStorage only stores product ids. Resolves them to real
+ * product cards with a single batched `/products?ids=...` request instead of
+ * one detail call per id.
  */
 export function useProductCardsByIds(ids: string[]): {
   cards: ProductCardData[]
   isLoading: boolean
 } {
-  const results = useQueries({
-    queries: ids.map((id) => ({
-      queryKey: ['product', id],
-      queryFn: () => getProduct(id),
-      staleTime: 30 * 1000,
-      retry: false,
-    })),
+  const { data, isLoading } = useQuery({
+    queryKey: ['products', 'by-ids', ids],
+    queryFn: () => listProducts({ ids, limit: ids.length }),
+    enabled: ids.length > 0,
+    staleTime: 30 * 1000,
   })
 
-  const cards: ProductCardData[] = ids
-    .map((_id, idx): ProductCardData | null => {
-      const detail = results[idx]?.data
-      if (!detail) return null
-      const images = [...detail.images].sort((a, b) => a.sortOrder - b.sortOrder)
-      const primary = images.find((img) => img.isPrimary) ?? images[0]
-      const colors = Array.from(
-        new Set(detail.variants.map((v) => v.color?.hexCode).filter((hex): hex is string => Boolean(hex)))
-      )
-      return {
-        id: detail.id,
-        name: detail.name,
-        categoryName: detail.category?.name ?? '',
-        price: detail.basePrice,
-        mrp: detail.mrp,
-        image: primary?.imageUrl ?? PLACEHOLDER_PRODUCT_IMAGE,
-        colors,
-        badge: detail.badge,
-      }
-    })
-    .filter((c): c is ProductCardData => c !== null)
+  const byId = new Map((data?.items ?? []).map((p) => [p.id, p]))
+  const cards = ids
+    .map((id) => byId.get(id))
+    .filter((p): p is ProductListItem => Boolean(p))
+    .map(toProductCardData)
 
-  return { cards, isLoading: results.length > 0 && results.some((r) => r.isLoading) }
+  return { cards, isLoading: ids.length > 0 && isLoading }
 }

@@ -1,14 +1,20 @@
 @import 'tailwindcss';
 
-html.lenis,
-html.lenis body {
-  height: auto;
+/* Tactile press feedback for every clickable action — a quick scale-down on
+   press so buttons feel physically pressed, not just visually hovered.
+   Applied globally to native <button>s, and via .tap-press to Link/anchor-
+   based buttons (LiquidButton, nav icons) that aren't a real <button> tag. */
+button:not(:disabled),
+.tap-press {
+  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Scroll reveal — rise + fade only (transform/opacity are compositor-only,
-   so this stays smooth alongside Lenis's rAF loop). Avoid animating `filter`
-   here: blur forces a repaint every frame and was the source of scroll jank
-   when several cards revealed at once. */
+button:not(:disabled):active,
+.tap-press:active {
+  transform: scale(0.96);
+}
+
+/* Scroll reveal — rise + fade only */
 .reveal {
   opacity: 0;
   transform: translateY(28px) scale(0.985);
@@ -25,18 +31,6 @@ html.lenis body {
 .reveal.is-visible {
   opacity: 1;
   transform: translateY(0) scale(1);
-}
-
-.lenis.lenis-smooth {
-  scroll-behavior: auto;
-}
-
-.lenis.lenis-smooth [data-lenis-prevent] {
-  overscroll-behavior: contain;
-}
-
-.lenis.lenis-stopped {
-  overflow: hidden;
 }
 
 :root {

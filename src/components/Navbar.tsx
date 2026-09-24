@@ -335,7 +335,7 @@ export function Navbar({ cartCount: propCartCount, wishlistCount: propWishlistCo
           {/* Search Button (Mobile view < 768px navigates directly to separate /search page) */}
           <Link
             to="/search"
-            className="p-1.5 sm:p-2 text-black/80 hover:text-black hover:bg-black/5 rounded-full transition-colors md:hidden cursor-pointer"
+            className="tap-press p-1.5 sm:p-2 text-black/80 hover:text-black hover:bg-black/5 rounded-full transition-colors md:hidden cursor-pointer"
             aria-label="Search"
           >
             <HugeiconsIcon icon={Search01Icon} size={22} />
@@ -344,7 +344,7 @@ export function Navbar({ cartCount: propCartCount, wishlistCount: propWishlistCo
           {/* Wishlist Button */}
           <Link
             to="/wishlist"
-            className="relative p-1.5 sm:p-2 text-black/80 hover:text-black hover:bg-black/5 rounded-full transition-colors cursor-pointer"
+            className="tap-press relative p-1.5 sm:p-2 text-black/80 hover:text-black hover:bg-black/5 rounded-full transition-colors cursor-pointer"
             aria-label="Wishlist"
           >
             <HugeiconsIcon icon={FavouriteIcon} size={22} />
@@ -375,7 +375,7 @@ export function Navbar({ cartCount: propCartCount, wishlistCount: propWishlistCo
           ) : (
             <Link
               to="/cart"
-              className="group relative flex items-center gap-1.5 overflow-hidden rounded-full border border-black/15 bg-black px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs font-black text-white transition-all duration-300 cursor-pointer shadow-xs select-none ml-1"
+              className="group tap-press relative flex items-center gap-1.5 overflow-hidden rounded-full border border-black/15 bg-black px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs font-black text-white transition-all duration-300 cursor-pointer shadow-xs select-none ml-1"
               aria-label="Shopping Cart"
             >
               <span className="absolute inset-0 translate-y-full rounded-full bg-white transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:translate-y-0" />

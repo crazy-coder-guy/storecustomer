@@ -93,6 +93,19 @@ export interface ProductDetail extends Product {
   variants: ProductVariant[]
 }
 
+/**
+ * The list-products endpoint already includes images and a deduped set of
+ * variant colors alongside each product (see backend product.service.ts) —
+ * grid views should read straight from this instead of firing a per-card
+ * detail request for data that's already here.
+ */
+export interface ProductListItem extends Product {
+  category: Category | null
+  images: ProductImage[]
+  colors: Color[]
+  sizes: Size[]
+}
+
 export interface StorefrontSettings {
   id: string
   announcementText: string
