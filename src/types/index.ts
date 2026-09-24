@@ -46,6 +46,9 @@ export interface Color {
   status: EntityStatus
 }
 
+export type ProductFit = 'REGULAR' | 'SLIM' | 'OVERSIZED' | 'RELAXED'
+export type NeckType = 'CREW' | 'V_NECK' | 'POLO' | 'ROUND' | 'MOCK'
+
 export interface Product {
   id: string
   name: string
@@ -59,6 +62,11 @@ export interface Product {
   status: ProductStatus
   createdAt: string
   updatedAt: string
+  gsm: number | null
+  fabric: string | null
+  fit: ProductFit | null
+  neckType: NeckType | null
+  biowash: boolean
 }
 
 export type ImageType = 'PRODUCT' | 'MODEL' | 'LIFESTYLE'

@@ -6,6 +6,7 @@ import {
   Search01Icon,
   FavouriteIcon,
   ArrowLeft01Icon,
+  Home01Icon,
   Image01Icon,
   ArrowRight01Icon,
   Cancel01Icon,
@@ -139,22 +140,45 @@ export function Navbar({ cartCount: propCartCount, wishlistCount: propWishlistCo
       </div>
 
       <div className="kaira-container flex items-center justify-between py-3 sm:py-4 gap-4">
-        {/* Left Section: Brand Logo on Home, or Circular Back Button on Inside Pages */}
-        <div className="flex items-center shrink-0">
+        {/* Left Section: Brand Logo on Home, or Back + Home Buttons on Inside Pages */}
+        <div className="flex items-center gap-2 shrink-0">
           {isInsidePage ? (
-            <button
-              type="button"
-              onClick={handleBack}
-              className="group flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full border border-black/15 bg-neutral-100 text-black hover:bg-black hover:text-white active:scale-95 transition-all duration-200 cursor-pointer shadow-2xs"
-              aria-label="Go Back"
-              title="Go Back"
-            >
-              <HugeiconsIcon
-                icon={ArrowLeft01Icon}
-                size={22}
-                className="transition-transform duration-200 group-hover:-translate-x-0.5"
-              />
-            </button>
+            <>
+              <button
+                type="button"
+                onClick={handleBack}
+                className="group flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full border border-black/15 bg-neutral-100 text-black hover:bg-black hover:text-white active:scale-95 transition-all duration-200 cursor-pointer shadow-2xs"
+                aria-label="Go Back"
+                title="Go Back"
+              >
+                <HugeiconsIcon
+                  icon={ArrowLeft01Icon}
+                  size={22}
+                  className="transition-transform duration-200 group-hover:-translate-x-0.5"
+                />
+              </button>
+              {/* Fixed-size placeholder reserves the collapsed footprint in the
+                  flex row; the Link inside is absolutely positioned so its
+                  hover-expansion overlaps forward instead of pushing the
+                  search bar over. */}
+              <div className="relative h-10 w-10 sm:h-11 sm:w-11 shrink-0">
+                <Link
+                  to="/"
+                  className="group absolute left-0 top-0 z-20 flex h-10 sm:h-11 items-center overflow-hidden rounded-full border border-black/15 bg-neutral-100 px-2.5 sm:px-[13px] text-black hover:bg-black hover:text-white active:scale-95 transition-all duration-300 ease-out cursor-pointer shadow-2xs"
+                  aria-label="Go to Home"
+                  title="Go to Home"
+                >
+                  <HugeiconsIcon
+                    icon={Home01Icon}
+                    size={20}
+                    className="shrink-0 transition-transform duration-200 group-hover:scale-110"
+                  />
+                  <span className="max-w-0 group-hover:max-w-[60px] group-hover:ml-1.5 overflow-hidden whitespace-nowrap text-xs sm:text-sm font-bold tracking-wide transition-all duration-300 ease-out">
+                    Home
+                  </span>
+                </Link>
+              </div>
+            </>
           ) : (
             <Link
               to="/"

@@ -190,9 +190,10 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
                   </div>
                 )}
                 <img
+                  key={selectedImage}
                   src={selectedImage || PLACEHOLDER_PRODUCT_IMAGE}
                   alt={product.name}
-                  className="h-full w-full object-cover object-top transition-all duration-300"
+                  className="h-full w-full object-cover object-top animate-image-fade-in"
                 />
               </div>
 

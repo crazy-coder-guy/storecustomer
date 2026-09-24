@@ -16,11 +16,27 @@ import {
   RefreshIcon,
   CheckmarkCircle02Icon,
 } from '@hugeicons/core-free-icons'
+import type { NeckType, ProductFit } from '../types'
 
 interface ColorOption {
   id: string
   name: string
   hex: string
+}
+
+const NECK_TYPE_LABELS: Record<NeckType, string> = {
+  CREW: 'Crew Neck',
+  V_NECK: 'V-Neck',
+  POLO: 'Polo',
+  ROUND: 'Round Neck',
+  MOCK: 'Mock Neck',
+}
+
+const FIT_LABELS: Record<ProductFit, string> = {
+  REGULAR: 'Regular',
+  SLIM: 'Slim',
+  OVERSIZED: 'Oversized',
+  RELAXED: 'Relaxed',
 }
 
 export function ProductDetailPage() {
@@ -71,6 +87,20 @@ export function ProductDetailPage() {
   useEffect(() => {
     setSelectedImage(images[0] || PLACEHOLDER_PRODUCT_IMAGE)
   }, [images])
+
+  // Auto-advance the gallery like a carousel when the shopper hasn't picked
+  // a thumbnail themselves in a while. Re-runs (and so resets the 7s clock)
+  // on every selectedImage change, whether that came from this timer or a
+  // manual click, and stops on its own once there's only one image.
+  useEffect(() => {
+    if (images.length <= 1) return
+    const timer = setTimeout(() => {
+      const currentIndex = images.indexOf(selectedImage)
+      const nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % images.length
+      setSelectedImage(images[nextIndex])
+    }, 7000)
+    return () => clearTimeout(timer)
+  }, [selectedImage, images])
 
   const sizes = useMemo(() => {
     if (!product) return []
@@ -246,9 +276,10 @@ export function ProductDetailPage() {
                   )}
 
                   <img
+                    key={selectedImage}
                     src={selectedImage || PLACEHOLDER_PRODUCT_IMAGE}
                     alt={product.name}
-                    className="h-full w-full object-cover object-top transition-all duration-500"
+                    className="h-full w-full object-cover object-top animate-image-fade-in"
                   />
                 </div>
               </div>
@@ -425,35 +456,34 @@ export function ProductDetailPage() {
                     <div className={`grid transition-all duration-300 ease-in-out ${openAccordion === 'specs' ? 'grid-rows-[1fr] opacity-100 pb-5' : 'grid-rows-[0fr] opacity-0 pb-0'}`}>
                       <div className="overflow-hidden">
                         <div className="space-y-3 pt-1 text-sm text-black/80 font-bold">
-                          <div className="flex items-center gap-2.5">
-                            <span className="h-1.5 w-1.5 rounded-full bg-black shrink-0" />
-                            <span>Product Type: {product.productType}</span>
-                          </div>
-                          <div className="flex items-center gap-2.5">
-                            <span className="h-1.5 w-1.5 rounded-full bg-black shrink-0" />
-                            <span>Category: {product.category?.name}</span>
-                          </div>
-                          {selectedVariant && (
-                            <>
-                              <div className="flex items-center gap-2.5">
-                                <span className="h-1.5 w-1.5 rounded-full bg-black shrink-0" />
-                                <span>SKU: {selectedVariant.sku}</span>
-                              </div>
-                              <div className="pt-3 text-xs font-bold text-black/60 border-t border-black/5 mt-2 flex items-center gap-2">
-                                <span>
-                                  {selectedVariant.stockQuantity > 0
-                                    ? `${selectedVariant.stockQuantity} in stock`
-                                    : 'Currently out of stock'}{' '}
-                                  for {selectedColor?.name} / {selectedSize}
-                                </span>
-                                {selectedVariant.badge && (
-                                  <span className="rounded-full bg-black px-2 py-0.5 text-[11px] font-bold text-white">
-                                    {selectedVariant.badge}
-                                  </span>
-                                )}
-                              </div>
-                            </>
+                          {product.neckType && (
+                            <div className="flex items-center gap-2.5">
+                              <span className="h-1.5 w-1.5 rounded-full bg-black shrink-0" />
+                              <span>Neck Type: {NECK_TYPE_LABELS[product.neckType]}</span>
+                            </div>
                           )}
+                          {product.gsm != null && (
+                            <div className="flex items-center gap-2.5">
+                              <span className="h-1.5 w-1.5 rounded-full bg-black shrink-0" />
+                              <span>Fabric Weight: {product.gsm} GSM</span>
+                            </div>
+                          )}
+                          {product.fit && (
+                            <div className="flex items-center gap-2.5">
+                              <span className="h-1.5 w-1.5 rounded-full bg-black shrink-0" />
+                              <span>Fit: {FIT_LABELS[product.fit]}</span>
+                            </div>
+                          )}
+                          {product.fabric && (
+                            <div className="flex items-center gap-2.5">
+                              <span className="h-1.5 w-1.5 rounded-full bg-black shrink-0" />
+                              <span>Fabric: {product.fabric}</span>
+                            </div>
+                          )}
+                          <div className="flex items-center gap-2.5">
+                            <span className="h-1.5 w-1.5 rounded-full bg-black shrink-0" />
+                            <span>Biowash: {product.biowash ? 'Yes' : 'No'}</span>
+                          </div>
                         </div>
                       </div>
                     </div>
