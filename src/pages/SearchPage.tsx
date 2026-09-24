@@ -87,7 +87,7 @@ export function SearchPage() {
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="w-full rounded-full border border-black/15 bg-neutral-100 py-2.5 pl-10 pr-9 text-sm font-semibold text-black placeholder-transparent focus:border-black focus:bg-white focus:outline-none transition-all"
+              className="w-full rounded-2xl border border-black/15 bg-neutral-100 py-2.5 pl-10 pr-9 text-sm font-semibold text-black placeholder-transparent focus:border-black focus:bg-white focus:outline-none transition-all"
             />
             <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-black/50 pointer-events-none">
               <HugeiconsIcon icon={Search01Icon} size={18} />
@@ -152,7 +152,7 @@ export function SearchPage() {
                     key={item}
                     type="button"
                     onClick={() => setQuery(item)}
-                    className="rounded-full border border-black/10 bg-white px-3.5 py-1.5 text-xs font-bold text-black/80 hover:border-black hover:text-black active:scale-95 transition-all shadow-2xs cursor-pointer"
+                    className="rounded-2xl border border-black/10 bg-white px-3.5 py-1.5 text-xs font-bold text-black/80 hover:border-black hover:text-black active:scale-95 transition-all shadow-2xs cursor-pointer"
                   >
                     {item}
                   </button>
@@ -193,7 +193,7 @@ export function SearchPage() {
                       key={tag}
                       type="button"
                       onClick={() => setQuery(tag)}
-                      className="rounded-full border border-black/15 bg-white px-3 py-1 text-xs font-bold text-black/80 hover:border-black"
+                      className="rounded-2xl border border-black/15 bg-white px-3 py-1 text-xs font-bold text-black/80 hover:border-black"
                     >
                       {tag}
                     </button>
@@ -216,7 +216,7 @@ export function SearchPage() {
                     >
                       <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-neutral-100 border border-black/5">
                         {product.badge && (
-                          <span className="absolute left-1.5 top-1.5 z-10 rounded-full bg-black px-2 py-0.5 text-[9px] font-bold text-white tracking-normal shadow-xs">
+                          <span className="absolute left-1.5 top-1.5 z-10 rounded-2xl bg-black px-2 py-0.5 text-[9px] font-bold text-white tracking-normal shadow-xs">
                             {product.badge}
                           </span>
                         )}

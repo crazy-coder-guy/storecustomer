@@ -41,7 +41,7 @@ export function ReturnsPage() {
         {/* Editorial Split Hero */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 pb-12 border-b border-black/10">
           <div className="lg:col-span-6 space-y-4">
-            <div className="inline-flex items-center gap-2 rounded-full border border-black/15 bg-white px-3.5 py-1 text-xs font-semibold text-black">
+            <div className="inline-flex items-center gap-2 rounded-2xl border border-black/15 bg-white px-3.5 py-1 text-xs font-semibold text-black">
               <span>Hassle-Free Policy</span>
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-black leading-[1.08]">
@@ -68,7 +68,7 @@ export function ReturnsPage() {
                 <button
                   type="button"
                   onClick={() => setInitiated(false)}
-                  className="rounded-full bg-black px-6 py-2.5 text-xs font-black uppercase tracking-wider text-white hover:bg-neutral-800 transition-colors cursor-pointer"
+                  className="rounded-2xl bg-black px-6 py-2.5 text-xs font-black uppercase tracking-wider text-white hover:bg-neutral-800 transition-colors cursor-pointer"
                 >
                   Submit Another
                 </button>
@@ -108,7 +108,7 @@ export function ReturnsPage() {
                 <div className="pt-2">
                   <button
                     type="submit"
-                    className="w-full sm:w-auto rounded-full bg-black px-8 py-3.5 text-xs font-black uppercase tracking-wider text-white hover:bg-neutral-800 active:scale-95 transition-all cursor-pointer shadow-md"
+                    className="w-full sm:w-auto rounded-2xl bg-black px-8 py-3.5 text-xs font-black uppercase tracking-wider text-white hover:bg-neutral-800 active:scale-95 transition-all cursor-pointer shadow-md"
                   >
                     Request Doorstep Pickup
                   </button>

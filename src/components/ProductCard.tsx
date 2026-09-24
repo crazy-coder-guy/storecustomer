@@ -124,13 +124,13 @@ export function ProductCard({ product, onAddToCart, onOpenDetail }: ProductCardP
               handleBagButtonClick()
             }}
             aria-label={isInCart ? 'Remove from Bag' : 'Add to Bag'}
-            className={`group/btn tap-press relative flex w-full items-center justify-between overflow-hidden rounded-full border px-3 sm:px-6 py-2 sm:py-3 transition-all duration-300 hover:shadow-lg cursor-pointer ${
+            className={`group/btn tap-press relative flex w-full items-center justify-between overflow-hidden rounded-2xl border px-3 sm:px-6 py-2 sm:py-3 transition-all duration-300 hover:shadow-lg cursor-pointer ${
               isInCart ? 'border-black bg-white' : 'border-black bg-black'
             }`}
           >
             {/* Liquid Fill Overlay */}
             {!isInCart && (
-              <span className="absolute inset-0 translate-y-full rounded-full bg-white transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover/btn:translate-y-0" />
+              <span className="absolute inset-0 translate-y-full rounded-2xl bg-white transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover/btn:translate-y-0" />
             )}
 
             {/* Button Content */}

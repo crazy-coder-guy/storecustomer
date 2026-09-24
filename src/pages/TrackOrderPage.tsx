@@ -75,7 +75,7 @@ export function TrackOrderPage() {
         {/* Editorial Split Hero */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 pb-12 border-b border-black/10">
           <div className="lg:col-span-6 space-y-4">
-            <div className="inline-flex items-center gap-2 rounded-full border border-black/15 bg-white px-3.5 py-1 text-xs font-semibold text-black">
+            <div className="inline-flex items-center gap-2 rounded-2xl border border-black/15 bg-white px-3.5 py-1 text-xs font-semibold text-black">
               <span>Real-Time Logistics</span>
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-black leading-[1.08]">
@@ -126,7 +126,7 @@ export function TrackOrderPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full sm:w-auto rounded-full bg-black px-8 py-3.5 text-xs font-black uppercase tracking-wider text-white hover:bg-neutral-800 active:scale-95 transition-all cursor-pointer shadow-md inline-flex items-center justify-center gap-2"
+                  className="w-full sm:w-auto rounded-2xl bg-black px-8 py-3.5 text-xs font-black uppercase tracking-wider text-white hover:bg-neutral-800 active:scale-95 transition-all cursor-pointer shadow-md inline-flex items-center justify-center gap-2"
                 >
                   {loading ? (
                     <span>Checking Records...</span>
@@ -150,7 +150,7 @@ export function TrackOrderPage() {
                 <span className="text-xs font-extrabold uppercase tracking-widest text-black/40 block">Shipment Status</span>
                 <h3 className="text-3xl font-black text-black tracking-tight mt-1">{orderNumber || 'KR-94812'}</h3>
               </div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-black bg-black px-4 py-1.5 text-xs font-bold text-white">
+              <div className="inline-flex items-center gap-2 rounded-2xl border border-black bg-black px-4 py-1.5 text-xs font-bold text-white">
                 <span className="h-2 w-2 rounded-full bg-white animate-pulse" />
                 <span>In Transit • On Schedule</span>
               </div>

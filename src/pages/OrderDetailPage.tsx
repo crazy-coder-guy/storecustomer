@@ -111,7 +111,7 @@ export function OrderDetailPage() {
                       <Skeleton className="h-9 w-56 rounded" />
                       <Skeleton className="h-7 w-32 rounded" />
                     </div>
-                    <Skeleton className="h-8 w-40 rounded-full" />
+                    <Skeleton className="h-8 w-40 rounded-2xl" />
                   </div>
                   <div className="pt-6 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
                     {Array.from({ length: 4 }).map((_, i) => (
@@ -209,7 +209,7 @@ export function OrderDetailPage() {
                     <div className="flex flex-wrap items-center gap-2.5">
                       {statusMeta && (
                         <span
-                          className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-xs font-bold ${statusMeta.badgeClass}`}
+                          className={`inline-flex items-center gap-1.5 rounded-2xl border px-4 py-1.5 text-xs font-bold ${statusMeta.badgeClass}`}
                         >
                           <span className={`h-2 w-2 rounded-full ${statusMeta.dotClass}`} />
                           <HugeiconsIcon icon={statusMeta.icon} size={14} />
@@ -218,7 +218,7 @@ export function OrderDetailPage() {
                       )}
 
                       <span
-                        className={`rounded-full px-3.5 py-1 text-xs font-extrabold uppercase tracking-wider ${
+                        className={`rounded-2xl px-3.5 py-1 text-xs font-extrabold uppercase tracking-wider ${
                           order.paymentStatus === 'PAID'
                             ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/50'
                             : 'bg-amber-50 text-amber-700 border border-amber-200/50'

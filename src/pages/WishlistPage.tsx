@@ -72,7 +72,7 @@ export function WishlistPage() {
                   <button
                     type="button"
                     onClick={handleMoveAllToBag}
-                    className="flex items-center gap-1.5 rounded-full bg-black px-5 py-2.5 text-xs font-black uppercase tracking-wider text-white hover:bg-neutral-800 transition-all cursor-pointer shadow-xs active:scale-95"
+                    className="flex items-center gap-1.5 rounded-2xl bg-black px-5 py-2.5 text-xs font-black uppercase tracking-wider text-white hover:bg-neutral-800 transition-all cursor-pointer shadow-xs active:scale-95"
                   >
                     <HugeiconsIcon icon={ShoppingBag01Icon} size={15} />
                     <span>Move All to Bag</span>
@@ -80,7 +80,7 @@ export function WishlistPage() {
                   <button
                     type="button"
                     onClick={clearWishlist}
-                    className="flex items-center gap-1 rounded-full border border-black/15 bg-white px-4 py-2.5 text-xs font-extrabold uppercase tracking-wider text-black/70 hover:text-black hover:border-black transition-all cursor-pointer shadow-2xs"
+                    className="flex items-center gap-1 rounded-2xl border border-black/15 bg-white px-4 py-2.5 text-xs font-extrabold uppercase tracking-wider text-black/70 hover:text-black hover:border-black transition-all cursor-pointer shadow-2xs"
                   >
                     <HugeiconsIcon icon={Delete02Icon} size={14} />
                     <span>Clear</span>
@@ -106,7 +106,7 @@ export function WishlistPage() {
               <div className="mt-6">
                 <Link
                   to="/"
-                  className="inline-flex items-center gap-2 rounded-full bg-black px-7 py-3.5 text-xs font-black uppercase tracking-wider text-white hover:bg-neutral-800 transition-all shadow-md active:scale-95"
+                  className="inline-flex items-center gap-2 rounded-2xl bg-black px-7 py-3.5 text-xs font-black uppercase tracking-wider text-white hover:bg-neutral-800 transition-all shadow-md active:scale-95"
                 >
                   <span>Explore Collection</span>
                   <HugeiconsIcon icon={ArrowRight01Icon} size={16} />

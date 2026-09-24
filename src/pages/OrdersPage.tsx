@@ -226,7 +226,7 @@ export function OrdersPage() {
                       >
                         <span>{tab.label}</span>
                         <span
-                          className={`rounded-full px-1.5 py-0.2 text-[10px] font-black ${
+                          className={`rounded-2xl px-1.5 py-0.2 text-[10px] font-black ${
                             activeTab === tab.id ? 'bg-white/20 text-white' : 'bg-black/10 text-black/70'
                           }`}
                         >
@@ -272,7 +272,7 @@ export function OrdersPage() {
                   <div key={i} className="py-6 space-y-4 animate-pulse">
                     <div className="flex justify-between items-center">
                       <div className="h-4 w-48 rounded bg-neutral-100" />
-                      <div className="h-6 w-24 rounded-full bg-neutral-100" />
+                      <div className="h-6 w-24 rounded-2xl bg-neutral-100" />
                     </div>
                     <div className="h-20 rounded-xl bg-neutral-50" />
                   </div>
@@ -296,7 +296,7 @@ export function OrdersPage() {
                   type="button"
                   onClick={handleSignIn}
                   disabled={isSigningIn}
-                  className="mx-auto inline-flex items-center justify-center gap-3 rounded-full bg-black px-7 py-3.5 text-xs sm:text-sm font-bold text-white shadow-md hover:bg-neutral-800 transition-all cursor-pointer disabled:opacity-60 active:scale-95"
+                  className="mx-auto inline-flex items-center justify-center gap-3 rounded-2xl bg-black px-7 py-3.5 text-xs sm:text-sm font-bold text-white shadow-md hover:bg-neutral-800 transition-all cursor-pointer disabled:opacity-60 active:scale-95"
                 >
                   <HugeiconsIcon icon={GoogleIcon} size={18} />
                   <span>{isSigningIn ? 'Connecting to Google…' : 'Sign In with Google'}</span>
@@ -317,7 +317,7 @@ export function OrdersPage() {
                 <button
                   type="button"
                   onClick={() => refetch()}
-                  className="inline-flex items-center gap-2 rounded-full border border-black bg-black px-5 py-2.5 text-xs font-bold text-white hover:bg-neutral-800 transition-all cursor-pointer"
+                  className="inline-flex items-center gap-2 rounded-2xl border border-black bg-black px-5 py-2.5 text-xs font-bold text-white hover:bg-neutral-800 transition-all cursor-pointer"
                 >
                   <span>Try Again</span>
                 </button>
@@ -408,7 +408,7 @@ export function OrdersPage() {
                             {/* Status Badges */}
                             <div className="flex items-center gap-2">
                               <span
-                                className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-bold tracking-wide ${statusMeta.badgeClass}`}
+                                className={`inline-flex items-center gap-1.5 rounded-2xl border px-3 py-1 text-xs font-bold tracking-wide ${statusMeta.badgeClass}`}
                               >
                                 <span className={`h-1.5 w-1.5 rounded-full ${statusMeta.dotClass}`} />
                                 <HugeiconsIcon icon={statusMeta.icon} size={14} />
@@ -416,7 +416,7 @@ export function OrdersPage() {
                               </span>
 
                               <span
-                                className={`rounded-full px-2.5 py-0.5 text-xs font-extrabold uppercase tracking-wider ${
+                                className={`rounded-2xl px-2.5 py-0.5 text-xs font-extrabold uppercase tracking-wider ${
                                   order.paymentStatus === 'PAID'
                                     ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/50'
                                     : 'bg-amber-50 text-amber-700 border border-amber-200/50'
@@ -490,7 +490,7 @@ export function OrdersPage() {
                               <button
                                 type="button"
                                 onClick={(e) => handleDownloadInvoice(e, order)}
-                                className="inline-flex items-center gap-1.5 rounded-full border border-black/15 bg-white px-3.5 py-1.5 text-xs font-bold text-black hover:border-black hover:bg-black hover:text-white transition-all cursor-pointer active:scale-95"
+                                className="inline-flex items-center gap-1.5 rounded-2xl border border-black/15 bg-white px-3.5 py-1.5 text-xs font-bold text-black hover:border-black hover:bg-black hover:text-white transition-all cursor-pointer active:scale-95"
                                 title="Download Order Invoice"
                               >
                                 <HugeiconsIcon icon={Download01Icon} size={14} />
@@ -499,7 +499,7 @@ export function OrdersPage() {
 
                               <Link
                                 to={`/track-order?orderNumber=${encodeURIComponent(order.orderNumber)}`}
-                                className="inline-flex items-center gap-1.5 rounded-full border border-black/15 bg-white hover:bg-black/5 px-3.5 py-1.5 text-xs font-bold text-black transition-colors"
+                                className="inline-flex items-center gap-1.5 rounded-2xl border border-black/15 bg-white hover:bg-black/5 px-3.5 py-1.5 text-xs font-bold text-black transition-colors"
                               >
                                 <HugeiconsIcon icon={DeliveryTruck01Icon} size={14} />
                                 <span>Track</span>
@@ -507,7 +507,7 @@ export function OrdersPage() {
 
                               <Link
                                 to={`/orders/${order.id}`}
-                                className="inline-flex items-center gap-1.5 rounded-full bg-black hover:bg-neutral-800 text-white px-4 py-1.5 text-xs font-bold transition-all"
+                                className="inline-flex items-center gap-1.5 rounded-2xl bg-black hover:bg-neutral-800 text-white px-4 py-1.5 text-xs font-bold transition-all"
                               >
                                 <span>Order Details</span>
                                 <HugeiconsIcon icon={ArrowRight01Icon} size={13} />

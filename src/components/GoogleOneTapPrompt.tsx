@@ -57,7 +57,7 @@ export function GoogleOneTapPrompt() {
           - Single-line Google One-Tap trigger with dismiss cross
           ======================================================== */}
       <div className="sm:hidden fixed bottom-5 inset-x-4 z-[990] flex justify-center animate-pill-float-up pointer-events-none">
-        <div className="pointer-events-auto w-full max-w-sm flex items-center justify-between gap-3 bg-black/95 backdrop-blur-xl text-white rounded-full p-2 pl-2.5 pr-3 shadow-[0_16px_36px_rgba(0,0,0,0.3),0_0_0_1px_rgba(255,255,255,0.1)] border border-white/10 active:scale-[0.98] transition-transform">
+        <div className="pointer-events-auto w-full max-w-sm flex items-center justify-between gap-3 bg-black/95 backdrop-blur-xl text-white rounded-2xl p-2 pl-2.5 pr-3 shadow-[0_16px_36px_rgba(0,0,0,0.3),0_0_0_1px_rgba(255,255,255,0.1)] border border-white/10 active:scale-[0.98] transition-transform">
           {/* Tap-to-sign-in main area */}
           <button
             type="button"
@@ -185,7 +185,7 @@ export function GoogleOneTapPrompt() {
           type="button"
           onClick={handleSignIn}
           disabled={isSigningIn}
-          className="group relative w-full flex items-center justify-between rounded-full bg-black hover:bg-neutral-800 text-white px-5 py-3 text-xs sm:text-sm font-bold transition-all duration-300 shadow-sm hover:shadow-md cursor-pointer disabled:opacity-60 active:scale-[0.98]"
+          className="group relative w-full flex items-center justify-between rounded-2xl bg-black hover:bg-neutral-800 text-white px-5 py-3 text-xs sm:text-sm font-bold transition-all duration-300 shadow-sm hover:shadow-md cursor-pointer disabled:opacity-60 active:scale-[0.98]"
         >
           <div className="flex items-center gap-2.5">
             <div className="h-5 w-5 rounded-full bg-white flex items-center justify-center shrink-0">

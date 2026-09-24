@@ -164,7 +164,7 @@ export function Navbar({ cartCount: propCartCount, wishlistCount: propWishlistCo
               <div className="relative h-10 w-10 sm:h-11 sm:w-11 shrink-0">
                 <Link
                   to="/"
-                  className="group absolute left-0 top-0 z-20 flex h-10 sm:h-11 items-center overflow-hidden rounded-full border border-black/15 bg-neutral-100 px-2.5 sm:px-[13px] text-black hover:bg-black hover:text-white active:scale-95 transition-all duration-300 ease-out cursor-pointer shadow-2xs"
+                  className="group absolute left-0 top-0 z-20 flex h-10 sm:h-11 items-center overflow-hidden rounded-full hover:rounded-2xl border border-black/15 bg-neutral-100 px-2.5 sm:px-[13px] text-black hover:bg-black hover:text-white active:scale-95 transition-all duration-300 ease-out cursor-pointer shadow-2xs"
                   aria-label="Go to Home"
                   title="Go to Home"
                 >
@@ -198,7 +198,7 @@ export function Navbar({ cartCount: propCartCount, wishlistCount: propWishlistCo
         <div ref={searchContainerRef} className="hidden md:flex flex-1 max-w-md lg:max-w-xl mx-4 relative">
           <form
             onSubmit={handleSearchSubmit}
-            className={`relative flex items-center w-full rounded-full border bg-neutral-100 transition-all duration-300 ${
+            className={`relative flex items-center w-full rounded-2xl border bg-neutral-100 transition-all duration-300 ${
               isFocused
                 ? 'border-black bg-white ring-2 ring-black/5 shadow-sm'
                 : 'border-black/15 hover:border-black/30'
@@ -312,7 +312,7 @@ export function Navbar({ cartCount: propCartCount, wishlistCount: propWishlistCo
                                   {product.name}
                                 </p>
                                 {product.badge && (
-                                  <span className="shrink-0 px-2 py-0.5 rounded-full bg-black text-[10px] font-bold text-white tracking-normal leading-tight">
+                                  <span className="shrink-0 px-2 py-0.5 rounded-2xl bg-black text-[10px] font-bold text-white tracking-normal leading-tight">
                                     {product.badge}
                                   </span>
                                 )}
@@ -384,10 +384,10 @@ export function Navbar({ cartCount: propCartCount, wishlistCount: propWishlistCo
             <button
               type="button"
               onClick={onOpenCart}
-              className="group relative flex items-center gap-1.5 overflow-hidden rounded-full border border-black/15 bg-black px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs font-black text-white transition-all duration-300 cursor-pointer shadow-xs select-none ml-1"
+              className="group relative flex items-center gap-1.5 overflow-hidden rounded-2xl border border-black/15 bg-black px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs font-black text-white transition-all duration-300 cursor-pointer shadow-xs select-none ml-1"
               aria-label="Shopping Cart"
             >
-              <span className="absolute inset-0 translate-y-full rounded-full bg-white transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:translate-y-0" />
+              <span className="absolute inset-0 translate-y-full rounded-2xl bg-white transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:translate-y-0" />
               <div className="relative z-10 flex items-center gap-1.5">
                 <HugeiconsIcon icon={ShoppingBag01Icon} size={18} className="transition-colors duration-300 group-hover:text-black" />
                 <span className="hidden sm:inline font-black transition-colors duration-300 group-hover:text-black">Bag</span>
@@ -399,10 +399,10 @@ export function Navbar({ cartCount: propCartCount, wishlistCount: propWishlistCo
           ) : (
             <Link
               to="/cart"
-              className="group tap-press relative flex items-center gap-1.5 overflow-hidden rounded-full border border-black/15 bg-black px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs font-black text-white transition-all duration-300 cursor-pointer shadow-xs select-none ml-1"
+              className="group tap-press relative flex items-center gap-1.5 overflow-hidden rounded-2xl border border-black/15 bg-black px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs font-black text-white transition-all duration-300 cursor-pointer shadow-xs select-none ml-1"
               aria-label="Shopping Cart"
             >
-              <span className="absolute inset-0 translate-y-full rounded-full bg-white transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:translate-y-0" />
+              <span className="absolute inset-0 translate-y-full rounded-2xl bg-white transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:translate-y-0" />
               <div className="relative z-10 flex items-center gap-1.5">
                 <HugeiconsIcon icon={ShoppingBag01Icon} size={18} className="transition-colors duration-300 group-hover:text-black" />
                 <span className="hidden sm:inline font-black transition-colors duration-300 group-hover:text-black">Bag</span>

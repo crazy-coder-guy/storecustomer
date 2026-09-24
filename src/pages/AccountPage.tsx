@@ -60,7 +60,7 @@ export function AccountPage() {
                     <Skeleton key={i} className="h-24 rounded-2xl" />
                   ))}
                 </div>
-                <Skeleton className="h-12 w-full rounded-full" />
+                <Skeleton className="h-12 w-full rounded-2xl" />
               </div>
             ) : !user ? (
               /* Signed-out state */
@@ -78,7 +78,7 @@ export function AccountPage() {
                   type="button"
                   onClick={handleSignIn}
                   disabled={isSigningIn}
-                  className="mx-auto flex items-center gap-2.5 rounded-full border border-black/15 bg-white px-6 py-3 text-sm font-bold text-black shadow-xs hover:border-black transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
+                  className="mx-auto flex items-center gap-2.5 rounded-2xl border border-black/15 bg-white px-6 py-3 text-sm font-bold text-black shadow-xs hover:border-black transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   <HugeiconsIcon icon={GoogleIcon} size={18} />
                   {isSigningIn ? 'Signing in…' : 'Sign in with Google'}
@@ -137,7 +137,7 @@ export function AccountPage() {
                   type="button"
                   onClick={handleSignOut}
                   disabled={isSigningOut}
-                  className="w-full flex items-center justify-center gap-2 rounded-full border border-black/15 bg-white px-6 py-3 text-sm font-bold text-black hover:border-red-400 hover:text-red-500 transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
+                  className="w-full flex items-center justify-center gap-2 rounded-2xl border border-black/15 bg-white px-6 py-3 text-sm font-bold text-black hover:border-red-400 hover:text-red-500 transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   <HugeiconsIcon icon={Logout03Icon} size={18} />
                   {isSigningOut ? 'Signing out…' : 'Sign Out'}

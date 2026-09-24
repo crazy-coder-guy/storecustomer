@@ -61,7 +61,7 @@ export function CategoryProductsPage() {
                     {notFound ? 'Curated Collection' : category?.name || ''}
                   </h1>
                   {category?.badge && (
-                    <span className="rounded-full bg-black px-2.5 py-1 text-[11px] font-bold text-white">
+                    <span className="rounded-2xl bg-black px-2.5 py-1 text-[11px] font-bold text-white">
                       {category.badge}
                     </span>
                   )}

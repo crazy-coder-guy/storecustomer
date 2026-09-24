@@ -50,7 +50,7 @@ export function OrderConfirmationPage() {
                 <Skeleton className="h-3.5 w-4/5 rounded" />
               </div>
             </div>
-            <Skeleton className="h-12 w-full rounded-full" />
+            <Skeleton className="h-12 w-full rounded-2xl" />
           </div>
         ) : isError || !order ? (
           <div className="max-w-md w-full text-center space-y-4">

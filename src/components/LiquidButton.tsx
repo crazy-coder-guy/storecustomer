@@ -28,7 +28,7 @@ export function LiquidButton({
     <>
       {/* Liquid Fill Overlay */}
       <span
-        className={`absolute inset-0 translate-y-full rounded-full transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:translate-y-0 ${
+        className={`absolute inset-0 translate-y-full rounded-2xl transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:translate-y-0 ${
           isPrimary ? 'bg-white' : 'bg-black'
         }`}
       />
@@ -60,7 +60,7 @@ export function LiquidButton({
     </>
   )
 
-  const baseClasses = `group tap-press relative inline-flex items-center justify-between overflow-hidden rounded-full border border-black pl-6 pr-2.5 py-2.5 sm:pl-8 sm:pr-3 sm:py-3 transition-all duration-300 shadow-sm hover:shadow-md cursor-pointer select-none ${
+  const baseClasses = `group tap-press relative inline-flex items-center justify-between overflow-hidden rounded-2xl border border-black pl-6 pr-2.5 py-2.5 sm:pl-8 sm:pr-3 sm:py-3 transition-all duration-300 shadow-sm hover:shadow-md cursor-pointer select-none ${
     isPrimary ? 'bg-black text-white' : 'bg-white text-black'
   } ${className}`
 

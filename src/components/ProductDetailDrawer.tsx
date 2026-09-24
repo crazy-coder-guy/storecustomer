@@ -240,7 +240,7 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
                   </span>
                 )}
                 {discountPercent > 0 && (
-                  <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-black text-emerald-800">
+                  <span className="rounded-2xl bg-emerald-100 px-2.5 py-0.5 text-xs font-black text-emerald-800">
                     {discountPercent}% OFF
                   </span>
                 )}
@@ -379,12 +379,12 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
             <button
               type="button"
               onClick={handleQuickAdd}
-              className={`flex-1 group relative flex items-center justify-between overflow-hidden rounded-full border px-6 py-3 transition-all duration-300 shadow-sm hover:shadow-md cursor-pointer tap-press ${
+              className={`flex-1 group relative flex items-center justify-between overflow-hidden rounded-2xl border px-6 py-3 transition-all duration-300 shadow-sm hover:shadow-md cursor-pointer tap-press ${
                 addedSuccess || isInCart ? 'border-black bg-white' : 'border-black bg-black'
               }`}
             >
               {!(addedSuccess || isInCart) && (
-                <span className="absolute inset-0 translate-y-full rounded-full bg-white transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:translate-y-0" />
+                <span className="absolute inset-0 translate-y-full rounded-2xl bg-white transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:translate-y-0" />
               )}
               <div className="relative z-10 flex items-center justify-between w-full">
                 <span
@@ -413,7 +413,7 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
             <Link
               to={`/product/${product.id}`}
               onClick={onClose}
-              className="shrink-0 rounded-full border border-black/20 px-4 py-3 text-xs font-black text-black hover:border-black transition-colors"
+              className="shrink-0 rounded-2xl border border-black/20 px-4 py-3 text-xs font-black text-black hover:border-black transition-colors"
             >
               Full Page →
             </Link>

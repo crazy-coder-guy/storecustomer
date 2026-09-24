@@ -19,7 +19,7 @@ export function HeroSection({ onShopClick }: HeroSectionProps) {
       <div className="kaira-container">
         <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:gap-8 lg:grid-cols-2 lg:items-center">
           <Reveal className="space-y-4 sm:space-y-6 lg:space-y-7">
-            <div className="inline-flex items-center gap-2 rounded-full border border-black/15 bg-white px-4 py-1.5 text-xs sm:text-sm font-bold text-black shadow-2xs">
+            <div className="inline-flex items-center gap-2 rounded-2xl border border-black/15 bg-white px-4 py-1.5 text-xs sm:text-sm font-bold text-black shadow-2xs">
               <span className="h-1.5 w-1.5 rounded-full bg-black animate-pulse" />
               <span>New Season Collection</span>
             </div>

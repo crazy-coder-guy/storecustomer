@@ -73,7 +73,7 @@ export function SizeGuidePage() {
       <main className="kaira-container max-w-4xl pt-10 sm:pt-16 space-y-12">
         {/* Editorial Hero */}
         <div className="space-y-4 max-w-3xl">
-          <div className="inline-flex items-center gap-2 rounded-full border border-black/15 bg-white px-3.5 py-1 text-xs font-semibold text-black">
+          <div className="inline-flex items-center gap-2 rounded-2xl border border-black/15 bg-white px-3.5 py-1 text-xs font-semibold text-black">
             <span>Precision Tailoring</span>
           </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-black leading-[1.08]">
@@ -103,11 +103,11 @@ export function SizeGuidePage() {
             ))}
           </div>
 
-          <div className="flex items-center gap-1 border border-black/20 rounded-full p-1 text-xs font-extrabold">
+          <div className="flex items-center gap-1 border border-black/20 rounded-2xl p-1 text-xs font-extrabold">
             <button
               type="button"
               onClick={() => setUnit('inches')}
-              className={`rounded-full px-3 py-1 transition-colors cursor-pointer ${
+              className={`rounded-2xl px-3 py-1 transition-colors cursor-pointer ${
                 unit === 'inches' ? 'bg-black text-white' : 'text-black/60 hover:text-black'
               }`}
             >
@@ -116,7 +116,7 @@ export function SizeGuidePage() {
             <button
               type="button"
               onClick={() => setUnit('cm')}
-              className={`rounded-full px-3 py-1 transition-colors cursor-pointer ${
+              className={`rounded-2xl px-3 py-1 transition-colors cursor-pointer ${
                 unit === 'cm' ? 'bg-black text-white' : 'text-black/60 hover:text-black'
               }`}
             >

@@ -47,7 +47,7 @@ export function Footer() {
                 <input
                   type="email"
                   placeholder="Enter your email"
-                  className="w-full rounded-full border border-white/20 bg-white/5 py-2.5 pl-10 pr-24 text-xs font-semibold text-white placeholder:text-white/40 focus:border-white focus:bg-white/10 focus:outline-none transition-all"
+                  className="w-full rounded-2xl border border-white/20 bg-white/5 py-2.5 pl-10 pr-24 text-xs font-semibold text-white placeholder:text-white/40 focus:border-white focus:bg-white/10 focus:outline-none transition-all"
                 />
                 <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40">
                   <HugeiconsIcon icon={Mail01Icon} size={15} />
@@ -55,7 +55,7 @@ export function Footer() {
               </div>
               <button
                 type="submit"
-                className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1 rounded-full bg-white px-3.5 py-1.5 text-xs font-black text-black hover:bg-neutral-200 transition-colors cursor-pointer shadow-xs"
+                className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1 rounded-2xl bg-white px-3.5 py-1.5 text-xs font-black text-black hover:bg-neutral-200 transition-colors cursor-pointer shadow-xs"
               >
                 <span>Join</span>
                 <HugeiconsIcon icon={ArrowRight01Icon} size={12} />

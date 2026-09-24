@@ -21,7 +21,7 @@ export function AboutPage() {
         <section className="relative overflow-hidden bg-white py-12 sm:py-20 lg:py-24">
           <div className="kaira-container">
             <div className="max-w-4xl space-y-6">
-              <div className="inline-flex items-center gap-2 rounded-full border border-black/15 bg-gray-50 px-4 py-1.5 text-xs sm:text-sm font-semibold text-black">
+              <div className="inline-flex items-center gap-2 rounded-2xl border border-black/15 bg-gray-50 px-4 py-1.5 text-xs sm:text-sm font-semibold text-black">
                 <HugeiconsIcon icon={SparklesIcon} size={16} />
                 <span>Our Story & Philosophy</span>
               </div>

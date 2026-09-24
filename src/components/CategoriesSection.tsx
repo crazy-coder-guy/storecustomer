@@ -52,7 +52,7 @@ export function CategoriesSection() {
                   {/* Card Image Box */}
                   <div className="relative aspect-[4/2.2] w-full overflow-hidden bg-gray-100">
                     {category.badge && (
-                      <span className="absolute left-3 top-3 z-10 rounded-full bg-black px-2.5 py-1 text-[11px] font-bold text-white shadow-sm">
+                      <span className="absolute left-3 top-3 z-10 rounded-2xl bg-black px-2.5 py-1 text-[11px] font-bold text-white shadow-sm">
                         {category.badge}
                       </span>
                     )}
@@ -79,9 +79,9 @@ export function CategoriesSection() {
 
                     {/* Centered Liquid Button Action Link */}
                     <div className="pt-2">
-                      <div className="group/btn relative flex w-full items-center justify-between overflow-hidden rounded-full border border-black bg-black px-5 py-2.5 transition-all duration-300 shadow-sm cursor-pointer">
+                      <div className="group/btn relative flex w-full items-center justify-between overflow-hidden rounded-2xl border border-black bg-black px-5 py-2.5 transition-all duration-300 shadow-sm cursor-pointer">
                         {/* Liquid Fill Overlay */}
-                        <span className="absolute inset-0 translate-y-full rounded-full bg-white transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover/btn:translate-y-0" />
+                        <span className="absolute inset-0 translate-y-full rounded-2xl bg-white transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover/btn:translate-y-0" />
 
                         {/* Button Content */}
                         <div className="relative z-10 flex items-center justify-between w-full">

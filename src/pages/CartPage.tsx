@@ -51,7 +51,7 @@ export function CartPage() {
                 <button
                   type="button"
                   onClick={clearCart}
-                  className="text-xs text-black/50 hover:text-red-500 font-extrabold uppercase tracking-wider transition-colors cursor-pointer rounded-full border border-black/15 px-3 py-1.5"
+                  className="text-xs text-black/50 hover:text-red-500 font-extrabold uppercase tracking-wider transition-colors cursor-pointer rounded-2xl border border-black/15 px-3 py-1.5"
                 >
                   Clear Bag
                 </button>
@@ -162,7 +162,7 @@ export function CartPage() {
                             </div>
 
                             {/* Compact Quantity Stepper */}
-                            <div className="inline-flex items-center rounded-full border border-black/15 bg-white p-0.5 shadow-2xs">
+                            <div className="inline-flex items-center rounded-2xl border border-black/15 bg-white p-0.5 shadow-2xs">
                               <button
                                 type="button"
                                 onClick={() => updateQuantity(item.id, item.quantity - 1)}

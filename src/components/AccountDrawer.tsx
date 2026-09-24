@@ -152,7 +152,7 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
                   <div className="min-w-0 flex-1 space-y-2">
                     <Skeleton className="h-4 w-32 rounded" />
                     <Skeleton className="h-3 w-40 rounded" />
-                    <Skeleton className="h-5 w-24 rounded-full" />
+                    <Skeleton className="h-5 w-24 rounded-2xl" />
                   </div>
                 </div>
                 <div>
@@ -187,7 +187,7 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
                   type="button"
                   onClick={handleSignIn}
                   disabled={isSigningIn}
-                  className="w-full flex items-center justify-center gap-3 rounded-full border border-black bg-black px-6 py-3.5 text-xs sm:text-sm font-bold text-white shadow-md hover:bg-neutral-800 transition-all cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 active:scale-[0.99]"
+                  className="w-full flex items-center justify-center gap-3 rounded-2xl border border-black bg-black px-6 py-3.5 text-xs sm:text-sm font-bold text-white shadow-md hover:bg-neutral-800 transition-all cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 active:scale-[0.99]"
                 >
                   <HugeiconsIcon icon={GoogleIcon} size={18} />
                   <span>{isSigningIn ? 'Signing in with Google…' : 'Sign In with Google'}</span>
@@ -226,7 +226,7 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
                     <p className="text-xs text-black/50 font-medium truncate mt-0.5">
                       {user.email}
                     </p>
-                    <div className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-black px-2.5 py-0.5 text-[10px] font-bold text-white tracking-wide">
+                    <div className="mt-2 inline-flex items-center gap-1.5 rounded-2xl bg-black px-2.5 py-0.5 text-[10px] font-bold text-white tracking-wide">
                       <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
                       <span>KAIRA Member</span>
                     </div>
@@ -344,7 +344,7 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
                 type="button"
                 onClick={handleSignOut}
                 disabled={isSigningOut}
-                className="w-full flex items-center justify-center gap-2.5 rounded-full border border-black/20 bg-white py-3.5 px-6 text-xs sm:text-sm font-bold text-black hover:border-black hover:bg-black hover:text-white transition-all duration-300 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 shadow-2xs active:scale-[0.99]"
+                className="w-full flex items-center justify-center gap-2.5 rounded-2xl border border-black/20 bg-white py-3.5 px-6 text-xs sm:text-sm font-bold text-black hover:border-black hover:bg-black hover:text-white transition-all duration-300 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 shadow-2xs active:scale-[0.99]"
               >
                 <HugeiconsIcon icon={Logout03Icon} size={17} />
                 <span>{isSigningOut ? 'Signing out…' : 'Sign Out of Account'}</span>
