@@ -333,3 +333,21 @@ body {
 .animate-butter-slide {
   animation: butterFloatIn 0.5s cubic-bezier(0.19, 1, 0.22, 1) both;
 }
+
+/* -------------------------------------------------------------
+   MOBILE FLOATING PILL ENTRANCE (Bottom-up Buttery Glide)
+   ------------------------------------------------------------- */
+@keyframes pillFloatUp {
+  0% {
+    opacity: 0;
+    transform: translateY(24px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-pill-float-up {
+  animation: pillFloatUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
