@@ -59,6 +59,10 @@ export interface Product {
   status: ProductStatus
   createdAt: string
   updatedAt: string
+  category?: Category
+  images?: ProductImage[]
+  sizes?: Size[]
+  colors?: Color[]
 }
 
 export type ImageType = 'PRODUCT' | 'MODEL' | 'LIFESTYLE'

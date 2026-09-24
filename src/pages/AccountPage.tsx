@@ -11,6 +11,7 @@ import {
 } from '@hugeicons/core-free-icons'
 import { Navbar } from '../components/Navbar'
 import { Footer } from '../components/Footer'
+import { Skeleton } from '../components/Skeleton'
 import { useAuth } from '../context/AuthContext'
 
 export function AccountPage() {
@@ -47,7 +48,20 @@ export function AccountPage() {
         <main className="py-10 sm:py-16">
           <div className="kaira-container max-w-lg mx-auto">
             {isLoading ? (
-              <p className="text-center text-sm font-semibold text-black/50">Loading…</p>
+              /* Profile skeleton, shaped like the signed-in card below */
+              <div className="space-y-6">
+                <div className="rounded-3xl border border-black/10 bg-white p-6 sm:p-8 shadow-xs text-center">
+                  <Skeleton className="mx-auto h-20 w-20 rounded-full" />
+                  <Skeleton className="mt-4 h-5 w-40 rounded mx-auto" />
+                  <Skeleton className="mt-2 h-3.5 w-52 rounded mx-auto" />
+                </div>
+                <div className="grid grid-cols-3 gap-3">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <Skeleton key={i} className="h-24 rounded-2xl" />
+                  ))}
+                </div>
+                <Skeleton className="h-12 w-full rounded-full" />
+              </div>
             ) : !user ? (
               /* Signed-out state */
               <div className="rounded-3xl border border-black/10 bg-neutral-50/70 p-8 sm:p-10 text-center space-y-5">

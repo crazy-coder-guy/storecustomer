@@ -60,7 +60,7 @@ export function CartPage() {
 
             {items.length === 0 ? (
               /* Empty Bag State */
-              <div className="rounded-3xl border border-black/10 bg-neutral-50/70 p-8 sm:p-12 text-center max-w-2xl mx-auto space-y-5 my-6">
+              <div className="rounded-3xl p-8 sm:p-12 text-center max-w-2xl mx-auto space-y-5 my-6">
                 <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-white border border-black/10 text-black/30 shadow-xs">
                   <HugeiconsIcon icon={ShoppingBag01Icon} size={30} />
                 </div>

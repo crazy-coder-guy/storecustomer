@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { Link } from 'react-router-dom'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ArrowRight01Icon } from '@hugeicons/core-free-icons'
 
@@ -64,10 +65,21 @@ export function LiquidButton({
   } ${className}`
 
   if (href) {
+    // Same-page hash anchors (e.g. "#categories") just scroll — no routing
+    // needed. Everything else is an in-app route, so it goes through
+    // react-router's Link to avoid a full page reload.
+    if (href.startsWith('#')) {
+      return (
+        <a href={href} className={baseClasses}>
+          {content}
+        </a>
+      )
+    }
+
     return (
-      <a href={href} className={baseClasses}>
+      <Link to={href} className={baseClasses}>
         {content}
-      </a>
+      </Link>
     )
   }
 

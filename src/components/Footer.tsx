@@ -16,19 +16,12 @@ export function Footer() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 pb-12 border-b border-white/10">
           {/* Brand Col */}
           <div className="lg:col-span-5 space-y-4">
-            <a href="/" className="inline-block hover:opacity-90 transition-opacity">
+            <Link to="/" className="inline-block hover:opacity-90 transition-opacity">
               <KairaLogo className="h-8 text-white" height={32} />
-            </a>
+            </Link>
             <p className="text-sm text-white/65 max-w-sm leading-relaxed font-normal">
               Redefining everyday essentials with heavyweight fabrics, relaxed tailored fits, and timeless minimalist aesthetics.
             </p>
-            <div className="flex items-center gap-3 pt-2 text-xs font-black uppercase tracking-widest text-white/40">
-              <span>Mumbai</span>
-              <span>•</span>
-              <span>Bengaluru</span>
-              <span>•</span>
-              <span>Surat</span>
-            </div>
           </div>
 
           {/* Customer Support Col */}

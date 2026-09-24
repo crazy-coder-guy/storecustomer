@@ -5,6 +5,28 @@ html.lenis body {
   height: auto;
 }
 
+/* Scroll reveal — rise + fade only (transform/opacity are compositor-only,
+   so this stays smooth alongside Lenis's rAF loop). Avoid animating `filter`
+   here: blur forces a repaint every frame and was the source of scroll jank
+   when several cards revealed at once. */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px) scale(0.985);
+  transition:
+    opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal.reveal-soft {
+  transform: translateY(16px) scale(0.995);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
 .lenis.lenis-smooth {
   scroll-behavior: auto;
 }

@@ -22,6 +22,7 @@ import { SizeGuidePage } from './pages/SizeGuidePage'
 import { ContactPage } from './pages/ContactPage'
 import { GoogleOneTapPrompt } from './components/GoogleOneTapPrompt'
 import { SmoothScroll } from './components/SmoothScroll'
+import { ScrollManager } from './components/ScrollManager'
 
 export function App() {
   return (
@@ -30,6 +31,7 @@ export function App() {
         <SmoothScroll />
         <WishlistProvider>
           <BrowserRouter>
+            <ScrollManager />
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/about" element={<AboutPage />} />

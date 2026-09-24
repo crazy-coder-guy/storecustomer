@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { ProductCard, type ProductItem } from './ProductCard'
+import { Reveal } from './Reveal'
 import { useCart } from '../context/CartContext'
 import { ProductDetailDrawer } from './ProductDetailDrawer'
 import { useFeaturedProducts, PLACEHOLDER_PRODUCT_IMAGE } from '../hooks/queries'
@@ -53,7 +54,7 @@ export function TopSellingSection({ onAddToCart }: TopSellingSectionProps) {
     <section id="shop" className="py-16 sm:py-24 bg-white">
       <div className="kaira-container">
         {/* Section Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 sm:mb-14 gap-4 border-b border-black/5 pb-6">
+        <Reveal className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 sm:mb-14 gap-4 border-b border-black/5 pb-6">
           <div>
             <span className="text-[11px] font-extrabold uppercase tracking-widest text-black/40">Curated Favorites</span>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-black tracking-tight mt-1">
@@ -67,7 +68,7 @@ export function TopSellingSection({ onAddToCart }: TopSellingSectionProps) {
             <span>View All Products</span>
             <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
           </a>
-        </div>
+        </Reveal>
 
         {/* Product Cards Grid */}
         {isLoading ? (
@@ -78,13 +79,14 @@ export function TopSellingSection({ onAddToCart }: TopSellingSectionProps) {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-10">
-            {products.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onAddToCart={handleAdd}
-                onOpenDetail={(id) => setSelectedDrawerProductId(id)}
-              />
+            {products.map((product, idx) => (
+              <Reveal key={product.id} delay={(idx % 4) * 90} strength="soft">
+                <ProductCard
+                  product={product}
+                  onAddToCart={handleAdd}
+                  onOpenDetail={(id) => setSelectedDrawerProductId(id)}
+                />
+              </Reveal>
             ))}
           </div>
         )}

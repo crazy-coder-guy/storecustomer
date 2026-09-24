@@ -1,4 +1,5 @@
 import { LiquidButton } from './LiquidButton'
+import { Reveal } from './Reveal'
 import bannerImg from '../assets/banner.png'
 import { useStorefrontSettings } from '../hooks/queries'
 
@@ -17,7 +18,7 @@ export function HeroSection({ onShopClick }: HeroSectionProps) {
     <section className="relative overflow-hidden bg-white pt-4 pb-2 sm:py-6 lg:py-8">
       <div className="kaira-container">
         <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:gap-8 lg:grid-cols-2 lg:items-center">
-          <div className="space-y-4 sm:space-y-6 lg:space-y-7">
+          <Reveal className="space-y-4 sm:space-y-6 lg:space-y-7">
             <div className="inline-flex items-center gap-2 rounded-full border border-black/15 bg-white px-4 py-1.5 text-xs sm:text-sm font-bold text-black shadow-2xs">
               <span className="h-1.5 w-1.5 rounded-full bg-black animate-pulse" />
               <span>New Season Collection</span>
@@ -44,10 +45,10 @@ export function HeroSection({ onShopClick }: HeroSectionProps) {
                 Explore Categories
               </LiquidButton>
             </div>
-          </div>
+          </Reveal>
 
           {/* Hero Banner Image */}
-          <div className="relative overflow-hidden">
+          <Reveal className="relative overflow-hidden" delay={150}>
             <img
               src={bannerImg}
               alt="Kaira Fashion Banner"
@@ -55,7 +56,7 @@ export function HeroSection({ onShopClick }: HeroSectionProps) {
             />
             {/* Bottom White Linear Gradient Fade Out */}
             <div className="absolute inset-x-0 bottom-0 h-24 sm:h-36 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none" />
-          </div>
+          </Reveal>
         </div>
       </div>
     </section>

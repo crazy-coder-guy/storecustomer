@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Navbar } from '../components/Navbar'
 import { Footer } from '../components/Footer'
 import { LiquidButton } from '../components/LiquidButton'
+import { Skeleton } from '../components/Skeleton'
 import { getOrder } from '../services/order.service'
 import { formatCurrency } from '../utils/formatCurrency'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -29,7 +30,28 @@ export function OrderConfirmationPage() {
       <Navbar />
       <main className="flex-1 flex items-center justify-center py-16 sm:py-20 px-4">
         {isLoading || !mounted ? (
-          <p className="text-sm font-semibold text-black/50">Loading your order…</p>
+          /* Skeleton shaped like the confirmation card below */
+          <div className="max-w-lg w-full text-center space-y-6">
+            <Skeleton className="mx-auto h-20 w-20 rounded-full" />
+            <div className="space-y-2 flex flex-col items-center">
+              <Skeleton className="h-7 w-3/4 rounded" />
+              <Skeleton className="h-3.5 w-full rounded" />
+              <Skeleton className="h-3.5 w-2/3 rounded" />
+            </div>
+            <div className="rounded-2xl border border-black/10 bg-neutral-50 p-5 text-left space-y-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="flex justify-between">
+                  <Skeleton className="h-3.5 w-28 rounded" />
+                  <Skeleton className="h-3.5 w-20 rounded" />
+                </div>
+              ))}
+              <div className="border-t border-black/10 pt-3 space-y-2">
+                <Skeleton className="h-3.5 w-full rounded" />
+                <Skeleton className="h-3.5 w-4/5 rounded" />
+              </div>
+            </div>
+            <Skeleton className="h-12 w-full rounded-full" />
+          </div>
         ) : isError || !order ? (
           <div className="max-w-md w-full text-center space-y-4">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-rose-50 text-rose-600 border border-rose-200">

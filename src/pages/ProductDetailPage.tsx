@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { Navbar } from '../components/Navbar'
 import { Footer } from '../components/Footer'
 import { LiquidButton } from '../components/LiquidButton'
+import { Skeleton } from '../components/Skeleton'
 import { formatCurrency } from '../utils/formatCurrency'
 import { useCart } from '../context/CartContext'
 import { useWishlist } from '../context/WishlistContext'
@@ -82,9 +83,58 @@ export function ProductDetailPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-white text-black flex flex-col justify-between">
-        <Navbar />
-        <div className="kaira-container py-24 text-center text-sm font-semibold text-black/50">
-          Loading product…
+        <div>
+          <Navbar />
+          {/* Skeleton mirroring the two-column gallery + details layout below */}
+          <section className="py-6 lg:py-10">
+            <div className="kaira-container">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 xl:gap-12 items-start">
+                {/* Left Column: Gallery */}
+                <div className="lg:col-span-7 flex flex-col-reverse sm:flex-row gap-3 sm:gap-4">
+                  <div className="flex sm:flex-col gap-2.5 sm:gap-3 shrink-0">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                      <Skeleton
+                        key={i}
+                        className="h-16 w-16 sm:h-20 sm:w-20 lg:h-24 lg:w-24 rounded-2xl shrink-0"
+                      />
+                    ))}
+                  </div>
+                  <Skeleton className="flex-1 min-h-[380px] sm:min-h-[460px] lg:min-h-[500px] rounded-3xl" />
+                </div>
+
+                {/* Right Column: Details */}
+                <div className="lg:col-span-5 space-y-6">
+                  <div className="space-y-3 pb-4 border-b border-black/10">
+                    <Skeleton className="h-3 w-24 rounded" />
+                    <Skeleton className="h-8 w-3/4 rounded" />
+                    <Skeleton className="h-7 w-28 rounded" />
+                  </div>
+                  <div className="space-y-2.5">
+                    <Skeleton className="h-3 w-20 rounded" />
+                    <div className="flex items-center gap-3">
+                      {Array.from({ length: 4 }).map((_, i) => (
+                        <Skeleton key={i} className="h-9 w-9 rounded-full" />
+                      ))}
+                    </div>
+                  </div>
+                  <div className="space-y-2.5">
+                    <Skeleton className="h-3 w-24 rounded" />
+                    <div className="grid grid-cols-5 gap-2.5">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <Skeleton key={i} className="h-11 rounded-xl" />
+                      ))}
+                    </div>
+                  </div>
+                  <Skeleton className="h-14 w-full rounded-full" />
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-4">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                      <Skeleton key={i} className="h-24 rounded-xl" />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
         </div>
         <Footer />
       </div>

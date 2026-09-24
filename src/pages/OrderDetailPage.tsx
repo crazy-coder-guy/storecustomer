@@ -15,6 +15,7 @@ import { toast } from 'sonner'
 import { Navbar } from '../components/Navbar'
 import { Footer } from '../components/Footer'
 import { LiquidButton } from '../components/LiquidButton'
+import { Skeleton } from '../components/Skeleton'
 import { getOrder } from '../services/order.service'
 import { formatCurrency } from '../utils/formatCurrency'
 import { formatDate } from '../utils/formatDate'
@@ -101,9 +102,53 @@ export function OrderDetailPage() {
           
 
             {isLoading ? (
-              <div className="py-12 space-y-6">
-                <div className="h-14 w-1/2 rounded bg-neutral-100 animate-pulse" />
-                <div className="h-64 rounded bg-neutral-50 animate-pulse" />
+              /* Skeleton shaped like the order header + items/summary layout below */
+              <div className="py-8 space-y-12">
+                <div className="space-y-4 pb-8 border-b border-black/10">
+                  <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                    <div className="space-y-2">
+                      <Skeleton className="h-3 w-32 rounded" />
+                      <Skeleton className="h-9 w-56 rounded" />
+                      <Skeleton className="h-7 w-32 rounded" />
+                    </div>
+                    <Skeleton className="h-8 w-40 rounded-full" />
+                  </div>
+                  <div className="pt-6 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                      <div key={i} className="space-y-2">
+                        <Skeleton className="h-1.5 w-full rounded-full" />
+                        <Skeleton className="h-3 w-20 rounded" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
+                  <div className="lg:col-span-7 space-y-6">
+                    <Skeleton className="h-4 w-40 rounded" />
+                    <div className="space-y-5">
+                      {Array.from({ length: 2 }).map((_, i) => (
+                        <div key={i} className="flex items-center gap-5">
+                          <Skeleton className="h-20 w-20 sm:h-24 sm:w-24 rounded-2xl shrink-0" />
+                          <div className="flex-1 space-y-2">
+                            <Skeleton className="h-4 w-3/4 rounded" />
+                            <Skeleton className="h-3 w-1/2 rounded" />
+                            <Skeleton className="h-3 w-1/3 rounded" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="lg:col-span-5 space-y-6">
+                    <Skeleton className="h-4 w-48 rounded" />
+                    <div className="space-y-2.5">
+                      {Array.from({ length: 4 }).map((_, i) => (
+                        <Skeleton key={i} className="h-3.5 w-full rounded" />
+                      ))}
+                    </div>
+                    <Skeleton className="h-24 w-full rounded-xl" />
+                  </div>
+                </div>
               </div>
             ) : isError || !order ? (
               <div className="py-20 text-center max-w-md mx-auto space-y-4">

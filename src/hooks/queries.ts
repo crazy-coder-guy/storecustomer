@@ -80,42 +80,48 @@ export function useProductDetail(id: string | undefined) {
 }
 
 /**
- * The list products endpoint intentionally omits images/variants, so product
- * grids (category, search, wishlist) fetch each product's detail to obtain a
- * thumbnail image and the color swatches. The catalog is small, so this is a
- * small number of parallel requests rather than true N+1 pagination.
+ * Grids map products to card data. If the product objects already contain
+ * images and colors from the optimized backend listProducts endpoint, we avoid
+ * firing N parallel getProduct requests. Only items missing details trigger a fetch.
  */
 export function useProductCards(products: Product[] | undefined): {
   cards: ProductCardData[]
   isLoading: boolean
 } {
   const list = products ?? []
+  
+  // Only query detailed information if the product does not already have images provided
   const results = useQueries({
     queries: list.map((p) => ({
       queryKey: ['product', p.id],
       queryFn: () => getProduct(p.id),
+      enabled: !p.images || p.images.length === 0,
       staleTime: 30 * 1000,
     })),
   })
 
   const cards: ProductCardData[] = list.map((p, idx) => {
     const detail = results[idx]?.data
-    const images = detail?.images ?? []
+    const images = (p.images && p.images.length > 0 ? p.images : detail?.images) ?? []
     const primary = images.find((img) => img.isPrimary) ?? images[0]
-    const colors = detail
-      ? Array.from(
-          new Set(
-            detail.variants
-              .map((v) => v.color?.hexCode)
-              .filter((hex): hex is string => Boolean(hex))
-          )
+    
+    let colors: string[] | undefined
+    if (p.colors && p.colors.length > 0) {
+      colors = p.colors.map((c) => c.hexCode).filter(Boolean)
+    } else if (detail) {
+      colors = Array.from(
+        new Set(
+          detail.variants
+            .map((v) => v.color?.hexCode)
+            .filter((hex): hex is string => Boolean(hex))
         )
-      : undefined
+      )
+    }
 
     return {
       id: p.id,
       name: p.name,
-      categoryName: detail?.category?.name ?? '',
+      categoryName: p.category?.name ?? detail?.category?.name ?? '',
       price: p.basePrice,
       mrp: p.mrp,
       image: primary?.imageUrl ?? PLACEHOLDER_PRODUCT_IMAGE,
@@ -124,7 +130,8 @@ export function useProductCards(products: Product[] | undefined): {
     }
   })
 
-  return { cards, isLoading: results.length > 0 && results.some((r) => r.isLoading) }
+  const isLoading = results.length > 0 && results.some((r) => r.isLoading)
+  return { cards, isLoading }
 }
 
 /**

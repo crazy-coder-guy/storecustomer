@@ -144,8 +144,8 @@ export function Navbar({ cartCount: propCartCount, wishlistCount: propWishlistCo
               />
             </button>
           ) : (
-            <a
-              href="/"
+            <Link
+              to="/"
               className="group flex items-center hover:opacity-90 transition-opacity shrink-0"
               aria-label="Kaira Home"
             >
@@ -154,7 +154,7 @@ export function Navbar({ cartCount: propCartCount, wishlistCount: propWishlistCo
                 className="h-6 sm:h-7 lg:h-8 text-black transition-transform duration-300 group-hover:scale-105"
                 height={28}
               />
-            </a>
+            </Link>
           )}
         </div>
 

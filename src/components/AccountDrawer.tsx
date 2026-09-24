@@ -17,6 +17,7 @@ import {
 import { useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
 import { useWishlist } from '../context/WishlistContext'
+import { Skeleton } from './Skeleton'
 
 interface AccountDrawerProps {
   isOpen: boolean
@@ -144,9 +145,30 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
           {/* Body Content */}
           <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
             {isLoading ? (
-              <div className="flex flex-col items-center justify-center py-16 space-y-3">
-                <div className="h-10 w-10 rounded-full border-2 border-black border-t-transparent animate-spin" />
-                <p className="text-xs font-semibold text-black/50">Loading profile…</p>
+              /* Profile skeleton, shaped like the signed-in layout below */
+              <div className="space-y-8 py-2">
+                <div className="flex items-center gap-4 pb-6 border-b border-black/10">
+                  <Skeleton className="h-16 w-16 shrink-0 rounded-full" />
+                  <div className="min-w-0 flex-1 space-y-2">
+                    <Skeleton className="h-4 w-32 rounded" />
+                    <Skeleton className="h-3 w-40 rounded" />
+                    <Skeleton className="h-5 w-24 rounded-full" />
+                  </div>
+                </div>
+                <div>
+                  <Skeleton className="h-3 w-24 rounded mb-4 ml-2" />
+                  <div className="divide-y divide-black/5 border-y border-black/10">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                      <div key={i} className="flex items-center gap-3.5 py-4 px-2">
+                        <Skeleton className="h-5 w-5 rounded" />
+                        <div className="flex-1 space-y-2">
+                          <Skeleton className="h-3.5 w-32 rounded" />
+                          <Skeleton className="h-2.5 w-24 rounded" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             ) : !user ? (
               /* Signed-out state */
