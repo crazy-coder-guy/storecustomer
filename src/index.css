@@ -242,6 +242,12 @@ body {
   animation-play-state: paused;
 }
 
+/* Shorter loop for single-line banner copy — the default 22s duration is
+   tuned for VelocityScroll's long repeated phrase and feels sluggish here. */
+.animate-marquee-fast {
+  animation: marquee 12s linear infinite;
+}
+
 /* 8s Refined Luxury Shimmer & Letter Stroke Wave on KAIRA */
 @keyframes letterDrawWave {
   0%, 70% {

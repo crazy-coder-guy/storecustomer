@@ -122,8 +122,20 @@ export function Navbar({ cartCount: propCartCount, wishlistCount: propWishlistCo
   return (
     <header className="sticky top-0 z-50 w-full border-b-0 sm:border-b border-black/10 bg-white/95 backdrop-blur-md">
       {/* Top Banner Announcement - Legible & Well Proportioned */}
-      <div className="bg-black py-2 px-3 text-center text-xs font-extrabold text-white tracking-wide uppercase overflow-x-auto whitespace-nowrap no-scrollbar">
-        {announcementText}
+      <div className="bg-black py-2 px-3 text-white overflow-hidden">
+        {/* Mobile: continuous marquee so long copy isn't cut off / stuck behind a manual swipe */}
+        <div className="sm:hidden flex w-max animate-marquee-fast space-x-10 select-none">
+          <span className="text-sm font-extrabold tracking-wide uppercase whitespace-nowrap">
+            {announcementText}
+          </span>
+          <span className="text-sm font-extrabold tracking-wide uppercase whitespace-nowrap" aria-hidden="true">
+            {announcementText}
+          </span>
+        </div>
+        {/* Desktop/tablet: centered, fits comfortably without needing to scroll */}
+        <div className="hidden sm:block text-center text-xs font-extrabold tracking-wide uppercase whitespace-nowrap">
+          {announcementText}
+        </div>
       </div>
 
       <div className="kaira-container flex items-center justify-between py-3 sm:py-4 gap-4">
@@ -320,23 +332,6 @@ export function Navbar({ cartCount: propCartCount, wishlistCount: propWishlistCo
 
         {/* Right Section: Action Icons */}
         <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-          {/* Account Button (Opens slide-in Account Sidebar Drawer) */}
-          <button
-            type="button"
-            onClick={() => setIsAccountOpen(true)}
-            className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-black/15 text-xs font-black uppercase text-black hover:border-black hover:bg-black/5 transition-all cursor-pointer shadow-2xs"
-            title={user ? `Signed in as ${user.email}` : 'Sign In / Account'}
-            aria-label="Your account"
-          >
-            {user?.photoUrl ? (
-              <img src={user.photoUrl} alt="" className="h-full w-full object-cover" referrerPolicy="no-referrer" />
-            ) : user ? (
-              (user.name ?? user.email ?? '?').charAt(0)
-            ) : (
-              <HugeiconsIcon icon={UserIcon} size={16} className="text-black/70" />
-            )}
-          </button>
-
           {/* Search Button (Mobile view < 768px navigates directly to separate /search page) */}
           <Link
             to="/search"
@@ -393,6 +388,23 @@ export function Navbar({ cartCount: propCartCount, wishlistCount: propWishlistCo
               </div>
             </Link>
           )}
+
+          {/* Account Button (Opens slide-in Account Sidebar Drawer) */}
+          <button
+            type="button"
+            onClick={() => setIsAccountOpen(true)}
+            className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-black/15 text-xs font-black uppercase text-black hover:border-black hover:bg-black/5 transition-all cursor-pointer shadow-2xs"
+            title={user ? `Signed in as ${user.email}` : 'Sign In / Account'}
+            aria-label="Your account"
+          >
+            {user?.photoUrl ? (
+              <img src={user.photoUrl} alt="" className="h-full w-full object-cover" referrerPolicy="no-referrer" />
+            ) : user ? (
+              (user.name ?? user.email ?? '?').charAt(0)
+            ) : (
+              <HugeiconsIcon icon={UserIcon} size={16} className="text-black/70" />
+            )}
+          </button>
         </div>
       </div>
 
