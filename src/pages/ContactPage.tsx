@@ -6,6 +6,7 @@ import { CheckmarkCircle02Icon } from '@hugeicons/core-free-icons'
 
 export function ContactPage() {
   const [sent, setSent] = useState(false)
+  const [ticketNumber, setTicketNumber] = useState('')
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -17,6 +18,7 @@ export function ContactPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    setTicketNumber(`KR-CARE-${Math.floor(1000 + Math.random() * 9000)}`)
     setSent(true)
   }
 
@@ -29,13 +31,13 @@ export function ContactPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 pb-12 border-b border-black/10">
           <div className="lg:col-span-6 space-y-4">
             <div className="inline-flex items-center gap-2 rounded-2xl border border-black/15 bg-white px-3.5 py-1 text-xs font-semibold text-black">
-              <span>Customer Concierge</span>
+              <span>Customer Support</span>
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-black leading-[1.08]">
               We Are Here to Assist.
             </h1>
             <p className="text-base sm:text-lg text-black/75 font-medium leading-relaxed">
-              Have questions regarding orders, tailoring fit, or personal styling? Our dedicated concierge desk responds within 2 business hours.
+              Have questions about your order, fit, or sizing? Our support team responds within 2 business hours.
             </p>
           </div>
 
@@ -47,9 +49,9 @@ export function ContactPage() {
                   <HugeiconsIcon icon={CheckmarkCircle02Icon} size={24} />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-black text-black">Message Dispatched!</h3>
+                  <h3 className="text-2xl font-black text-black">Message Sent</h3>
                   <p className="text-sm text-black/70 font-medium leading-relaxed mt-2">
-                    Thank you, {formData.name || 'there'}. Ticket #KR-CARE-928 has been assigned and an apparel specialist will reply directly to your email shortly.
+                    Thank you{formData.name ? `, ${formData.name}` : ''}. Reference #{ticketNumber} has been logged, and our team will reply to your email shortly.
                   </p>
                 </div>
                 <button
@@ -167,7 +169,7 @@ export function ContactPage() {
           <div className="space-y-1.5">
             <span className="text-xs font-extrabold uppercase tracking-widest text-black/40">Direct Inbox</span>
             <h4 className="text-xl font-black text-black">Email Support</h4>
-            <p className="text-sm text-black/70 font-medium">care@kaiiraapparel.com</p>
+            <p className="text-sm text-black/70 font-medium">hello.kaiiraofficial@gmail.com</p>
           </div>
           <div className="space-y-1.5">
             <span className="text-xs font-extrabold uppercase tracking-widest text-black/40">Instant Chat</span>
@@ -175,7 +177,7 @@ export function ContactPage() {
             <p className="text-sm text-emerald-800 font-bold">+91 91520 44890</p>
           </div>
           <div className="space-y-1.5">
-            <span className="text-xs font-extrabold uppercase tracking-widest text-black/40">Studio Hours</span>
+            <span className="text-xs font-extrabold uppercase tracking-widest text-black/40">Support Hours</span>
             <h4 className="text-xl font-black text-black">Operations</h4>
             <p className="text-sm text-black/70 font-medium">Monday to Saturday • 10:00 AM – 7:30 PM IST</p>
           </div>
@@ -183,7 +185,7 @@ export function ContactPage() {
       </main>
 
       {/* Smooth Scroll Wipe Out KAIRA Text */}
-      <ScrollWipeKaira subtitle="Dedicated concierge team ready to assist with bespoke fit and orders." />
+      <ScrollWipeKaira subtitle="Our team is ready to help with fit, sizing, and orders." />
     </div>
   )
 }

@@ -27,7 +27,7 @@ export function WishlistPage() {
     try {
       const variantId = await resolveDefaultVariantId(product.id)
       await addToCart(variantId, 1)
-      toast.success(`Added "${product.name}" to bag!`)
+      toast.success(`Added "${product.name}" to bag`)
     } catch (err) {
       toast.error(err instanceof Error ? err.message : getErrorMessage(err))
     }

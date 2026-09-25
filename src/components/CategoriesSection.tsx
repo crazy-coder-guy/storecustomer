@@ -26,7 +26,7 @@ export function CategoriesSection() {
             Shop By Category
           </h2>
           <p className="text-base sm:text-lg font-medium text-black/60">
-            Thoughtfully designed categories focused on silhouette, weight, and minimalist aesthetics.
+            Categories built around silhouette, weight, and fit.
           </p>
         </Reveal>
 
@@ -73,7 +73,7 @@ export function CategoriesSection() {
                         {category.name}
                       </h3>
                       <p className="text-xs sm:text-sm text-black/65 font-medium leading-relaxed line-clamp-2 pt-1">
-                        {category.description || 'Explore this curated collection of modern essentials.'}
+                        {category.description || 'A focused edit of modern essentials.'}
                       </p>
                     </div>
 

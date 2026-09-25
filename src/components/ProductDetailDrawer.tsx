@@ -5,6 +5,7 @@ import { formatCurrency } from '../utils/formatCurrency'
 import { useProductDetail, PLACEHOLDER_PRODUCT_IMAGE } from '../hooks/queries'
 import { useCart } from '../context/CartContext'
 import { useWishlist } from '../context/WishlistContext'
+import { ShareModal } from './ShareModal'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
   Cancel01Icon,
@@ -17,6 +18,7 @@ import {
   RefreshIcon,
   CreditCardIcon,
   CheckmarkCircle02Icon,
+  RulerIcon,
 } from '@hugeicons/core-free-icons'
 
 interface ProductDetailDrawerProps {
@@ -44,6 +46,7 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false)
   const [isAdding, setIsAdding] = useState(false)
   const [addedSuccess, setAddedSuccess] = useState(false)
+  const [isShareOpen, setIsShareOpen] = useState(false)
 
   const colors = useMemo<ColorOption[]>(() => {
     if (!product) return []
@@ -241,15 +244,6 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
                 {product.name}
               </h1>
 
-              {/* Rating row: ★★★★★ 4.8 (128 reviews) matching PDP */}
-              <div className="flex items-center gap-2 pt-0.5 text-xs text-black/60 font-semibold">
-                <div className="flex items-center text-black text-sm tracking-tighter">
-                  {'★★★★★'}
-                </div>
-                <span className="font-bold text-black">4.8</span>
-                <span className="text-black/40">(128 reviews)</span>
-              </div>
-
               {/* Price, MRP, Discount */}
               <div className="flex items-baseline gap-2.5 pt-1.5 flex-wrap">
                 <span className="text-2xl sm:text-3xl font-black text-black tracking-tight">
@@ -314,7 +308,8 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
                   onClick={() => setIsSizeGuideOpen(true)}
                   className="flex items-center gap-1 text-[11px] font-bold text-black/75 hover:text-black underline underline-offset-2 cursor-pointer"
                 >
-                  <span>📏 Size Guide</span>
+                  <HugeiconsIcon icon={RulerIcon} size={12} />
+                  <span>Size Guide</span>
                 </button>
               </div>
 
@@ -362,7 +357,7 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
                 <div className="pb-3 animate-fade-in">
                   <p className="text-xs sm:text-[13px] text-black/70 font-normal leading-relaxed">
                     {product.description ||
-                      'A premium heavyweight t-shirt crafted with 100% cotton for a structured fit and long-lasting comfort. Designed for everyday wear with a clean and minimal aesthetic.'}
+                      'A soft, comfortable tee with a relaxed fit and dropped shoulders. Clean construction, built for everyday wear.'}
                   </p>
                 </div>
               )}
@@ -410,25 +405,25 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
                 </div>
               </div>
 
-              {/* Easy Returns */}
+              {/* Easy Exchange */}
               <div className="flex items-center gap-2 border-l border-black/10 px-2">
                 <div className="text-black shrink-0">
                   <HugeiconsIcon icon={RefreshIcon} size={17} strokeWidth={1.8} />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[11px] font-bold text-black leading-tight">Easy Returns</p>
-                  <p className="text-[9px] text-black/55 font-medium leading-tight truncate">7 days return policy</p>
+                  <p className="text-[11px] font-bold text-black leading-tight">Easy Exchange</p>
+                  <p className="text-[9px] text-black/55 font-medium leading-tight truncate">7-day exchange only</p>
                 </div>
               </div>
 
-              {/* Secure Payments */}
+              {/* Prepaid Only */}
               <div className="flex items-center gap-2 border-l border-black/10 pl-2">
                 <div className="text-black shrink-0">
                   <HugeiconsIcon icon={CreditCardIcon} size={17} strokeWidth={1.8} />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[11px] font-bold text-black leading-tight">Secure Payments</p>
-                  <p className="text-[9px] text-black/55 font-medium leading-tight truncate">100% secure checkout</p>
+                  <p className="text-[11px] font-bold text-black leading-tight">Prepaid Only</p>
+                  <p className="text-[9px] text-black/55 font-medium leading-tight truncate">No Cash on Delivery</p>
                 </div>
               </div>
             </div>

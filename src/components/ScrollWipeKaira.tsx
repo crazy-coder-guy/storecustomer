@@ -7,7 +7,7 @@ interface ScrollWipeKairaProps {
 
 export function ScrollWipeKaira({
   className = '',
-  subtitle = 'Everyday essentials crafted with heavyweight luxury and timeless minimalism.',
+  subtitle = 'Everyday essentials crafted with heavyweight fabric and clean design.',
 }: ScrollWipeKairaProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [revealProgress, setRevealProgress] = useState(0)

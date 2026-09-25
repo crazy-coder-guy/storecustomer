@@ -8,6 +8,8 @@ import { useCart } from '../context/CartContext'
 import { useWishlist } from '../context/WishlistContext'
 import { useProductDetail, PLACEHOLDER_PRODUCT_IMAGE } from '../hooks/queries'
 import { Reveal } from '../components/Reveal'
+import { toast } from 'sonner'
+import { ShareModal } from '../components/ShareModal'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
   FavouriteIcon,
@@ -20,6 +22,7 @@ import {
   Add01Icon,
   Search01Icon,
   Cancel01Icon,
+  RulerIcon,
 } from '@hugeicons/core-free-icons'
 
 interface ColorOption {
@@ -38,6 +41,7 @@ export function ProductDetailPage() {
   const [quantity, setQuantity] = useState(1)
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false)
   const [isZoomOpen, setIsZoomOpen] = useState(false)
+  const [isShareOpen, setIsShareOpen] = useState(false)
 
   const { data: product, isLoading, isError } = useProductDetail(id)
 
@@ -113,6 +117,14 @@ export function ProductDetailPage() {
     const curIdx = images.indexOf(selectedImage)
     const nextIdx = (curIdx + 1) % images.length
     setSelectedImage(images[nextIdx])
+  }
+
+  const handleShare = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+    setIsShareOpen(true)
   }
 
   if (isLoading) {
@@ -229,17 +241,44 @@ export function ProductDetailPage() {
 
                 {/* Main Image Showcase - Proportionate height without empty gap */}
                 <div className="relative flex-1 w-full aspect-[3.8/4.5] overflow-hidden rounded-3xl bg-[#f2f2f2] shadow-xs select-none">
-                  {/* Wishlist Button - Top Right Circular Floating Button */}
-                  <button
-                    type="button"
-                    onClick={() => toggleWishlist(product.id)}
-                    aria-label="Add to Wishlist"
-                    className={`absolute right-4 top-4 sm:right-5 sm:top-5 z-20 flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full bg-white shadow-sm hover:shadow-md transition-all cursor-pointer hover:scale-105 ${
-                      isWishlisted ? 'text-red-500 fill-red-500' : 'text-neutral-700 hover:text-black'
-                    }`}
-                  >
-                    <HugeiconsIcon icon={FavouriteIcon} size={18} strokeWidth={1.8} fill={isWishlisted ? 'currentColor' : 'none'} />
-                  </button>
+                  {/* Top-Right Floating Actions: Share + Wishlist */}
+                  <div className="absolute right-4 top-4 sm:right-5 sm:top-5 z-20 flex items-center gap-2">
+                    {/* Share Button */}
+                    <button
+                      type="button"
+                      onClick={handleShare}
+                      aria-label="Share Product"
+                      title="Share Product"
+                      className="tap-press flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full bg-white text-neutral-700 shadow-sm hover:shadow-md hover:text-black hover:scale-105 transition-all cursor-pointer"
+                    >
+                      <svg
+                        className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-neutral-700 hover:text-black transition-colors"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+                        <polyline points="16 6 12 2 8 6" />
+                        <line x1="12" y1="2" x2="12" y2="15" />
+                      </svg>
+                    </button>
+
+                    {/* Wishlist Button */}
+                    <button
+                      type="button"
+                      onClick={() => toggleWishlist(product.id)}
+                      aria-label="Add to Wishlist"
+                      title="Add to Wishlist"
+                      className={`tap-press flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full bg-white shadow-sm hover:shadow-md transition-all cursor-pointer hover:scale-105 ${
+                        isWishlisted ? 'text-red-500 fill-red-500' : 'text-neutral-700 hover:text-black'
+                      }`}
+                    >
+                      <HugeiconsIcon icon={FavouriteIcon} size={18} strokeWidth={1.8} fill={isWishlisted ? 'currentColor' : 'none'} />
+                    </button>
+                  </div>
 
                   {/* Left Carousel Arrow */}
                   {images.length > 1 && (
@@ -303,15 +342,6 @@ export function ProductDetailPage() {
                     {product.name}
                   </h1>
 
-                  {/* Rating row: ★★★★★ 4.8 (128 reviews) */}
-                  <div className="flex items-center gap-2 pt-0.5 text-xs text-black/60 font-semibold">
-                    <div className="flex items-center text-black text-sm tracking-tighter">
-                      {'★★★★★'}
-                    </div>
-                    <span className="font-bold text-black">4.8</span>
-                    <span className="text-black/40">(128 reviews)</span>
-                  </div>
-
                   {/* Pricing Row: Price + MRP (strike-through) + Discount Badge */}
                   <div className="flex items-baseline gap-2.5 pt-1.5 flex-wrap">
                     <span className="text-2xl sm:text-3xl font-black text-black">
@@ -371,7 +401,7 @@ export function ProductDetailPage() {
                         onClick={() => setIsSizeGuideOpen(true)}
                         className="flex items-center gap-1.5 text-xs font-bold text-black/60 hover:text-black transition-colors cursor-pointer underline-offset-4 hover:underline"
                       >
-                        <span className="text-xs">⌗</span>
+                        <HugeiconsIcon icon={RulerIcon} size={14} />
                         <span>Size Guide</span>
                       </button>
                     </div>
@@ -452,29 +482,29 @@ export function ProductDetailPage() {
                       </div>
                       <div className="min-w-0">
                         <p className="text-xs sm:text-[13px] font-bold text-black leading-snug">Free Shipping</p>
-                        <p className="text-[10px] sm:text-[11px] text-black/55 font-medium leading-tight">on orders above ₹999</p>
+                        <p className="text-[10px] sm:text-[11px] text-black/55 font-medium leading-tight">on orders above ₹1,999</p>
                       </div>
                     </div>
 
-                    {/* Easy Returns */}
+                    {/* 7-Day Exchange */}
                     <div className="flex items-center gap-2.5 border-l border-black/10 px-2.5 sm:px-3">
                       <div className="text-black shrink-0">
                         <HugeiconsIcon icon={RefreshIcon} size={20} strokeWidth={1.8} />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-xs sm:text-[13px] font-bold text-black leading-snug">Easy Returns</p>
-                        <p className="text-[10px] sm:text-[11px] text-black/55 font-medium leading-tight">7 days return policy</p>
+                        <p className="text-xs sm:text-[13px] font-bold text-black leading-snug">7-Day Exchange</p>
+                        <p className="text-[10px] sm:text-[11px] text-black/55 font-medium leading-tight">Only size/color exchange</p>
                       </div>
                     </div>
 
-                    {/* Secure Payments */}
+                    {/* Prepaid Only */}
                     <div className="flex items-center gap-2.5 border-l border-black/10 pl-2.5 sm:pl-3">
                       <div className="text-black shrink-0">
                         <HugeiconsIcon icon={CreditCardIcon} size={20} strokeWidth={1.8} />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-xs sm:text-[13px] font-bold text-black leading-snug">Secure Payments</p>
-                        <p className="text-[10px] sm:text-[11px] text-black/55 font-medium leading-tight">100% secure checkout</p>
+                        <p className="text-xs sm:text-[13px] font-bold text-black leading-snug">Prepaid Only</p>
+                        <p className="text-[10px] sm:text-[11px] text-black/55 font-medium leading-tight">No Cash on Delivery</p>
                       </div>
                     </div>
                   </div>
@@ -502,7 +532,7 @@ export function ProductDetailPage() {
                       <div className="pb-4 animate-fade-in">
                         <p className="text-xs sm:text-sm text-black/75 font-medium leading-relaxed">
                           {product.description ||
-                            'A soft and comfortable oversized tee designed around a relaxed body and dropped shoulders. Its clean construction makes it suitable for everyday casual wear and simple streetwear combinations.'}
+                            'A soft, comfortable tee with a relaxed fit and dropped shoulders. Clean construction, built for everyday wear.'}
                         </p>
                       </div>
                     )}
@@ -530,14 +560,14 @@ export function ProductDetailPage() {
                     )}
                   </div>
 
-                  {/* Accordion 3: SHIPPING & RETURNS */}
+                  {/* Accordion 3: SHIPPING & EXCHANGES */}
                   <div className="border-b border-black/10">
                     <button
                       type="button"
                       onClick={() => toggleAccordion('shipping')}
                       className="w-full py-3.5 flex items-center justify-between text-xs sm:text-sm font-extrabold uppercase tracking-wide text-black text-left cursor-pointer group"
                     >
-                      <span className="group-hover:text-black/70 transition-colors">Shipping & Returns</span>
+                      <span className="group-hover:text-black/70 transition-colors">Shipping & Exchanges</span>
                       <span className={`text-lg font-bold text-black transition-transform duration-300 leading-none ${openAccordion === 'shipping' ? 'rotate-45' : 'rotate-0'}`}>
                         +
                       </span>
@@ -546,7 +576,8 @@ export function ProductDetailPage() {
                       <div className="pb-4 animate-fade-in space-y-1.5 text-xs sm:text-sm text-black/75 font-medium">
                         <p>• Dispatched within 24-48 business hours.</p>
                         <p>• Express delivery in 2-4 business days across India.</p>
-                        <p>• Free hassle-free returns and exchanges within 7 days of delivery.</p>
+                        <p>• Prepaid orders only (no Cash on Delivery).</p>
+                        <p>• Hassle-free size/color exchanges within 7 days of delivery (No returns, only exchange).</p>
                       </div>
                     )}
                   </div>
@@ -657,6 +688,22 @@ export function ProductDetailPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Custom Share Modal */}
+      {product && (
+        <ShareModal
+          isOpen={isShareOpen}
+          onClose={() => setIsShareOpen(false)}
+          title={product.name}
+          imageUrl={selectedImage || product.images?.[0]?.imageUrl}
+          price={effectivePrice}
+          mrp={effectiveMrp}
+          discountPercent={discountPercent}
+          colors={colors}
+          rating={4.9}
+          reviewsCount={128}
+        />
       )}
 
       <Footer />

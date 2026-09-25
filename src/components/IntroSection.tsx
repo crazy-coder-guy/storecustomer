@@ -26,8 +26,8 @@ const PILLARS = [
   },
   {
     icon: RefreshIcon,
-    title: 'Easy Returns',
-    description: '7-day hassle-free returns and exchanges, no questions asked.',
+    title: 'Easy Exchange',
+    description: '7-day hassle-free size and color exchange on all unworn items.',
   },
 ]
 
@@ -50,8 +50,8 @@ export function IntroSection() {
           </h2>
 
           <p className="text-sm sm:text-base lg:text-lg text-black/65 font-normal leading-relaxed max-w-2xl mx-auto pt-1">
-            We focus on silhouette, weight, and minimalist aesthetics — creating timeless, durable garments
-            that fit effortlessly into your everyday rotation.
+            We focus on silhouette, weight, and construction — building durable garments made to be worn
+            daily, for years.
           </p>
 
           <div className="pt-3 flex justify-center">

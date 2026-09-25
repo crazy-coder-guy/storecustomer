@@ -58,7 +58,7 @@ export function TopSellingSection({ onAddToCart }: TopSellingSectionProps) {
         {/* Section Header */}
         <Reveal animation="fade-up" duration={700} className="mb-10 sm:mb-14 border-b border-black/5 pb-6">
           <div>
-            <span className="text-[11px] font-extrabold uppercase tracking-widest text-black/40">Curated Favorites</span>
+            <span className="text-[11px] font-extrabold uppercase tracking-widest text-black/40">Most Wanted</span>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-black tracking-tight mt-1">
               Top Selling T-Shirts
             </h2>

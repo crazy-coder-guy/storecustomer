@@ -59,7 +59,7 @@ export function CategoryProductsPage() {
               <div className="space-y-1">
                 <div className="flex items-center gap-3">
                   <h1 className="text-2xl sm:text-4xl font-black text-black tracking-tight">
-                    {notFound ? 'Curated Collection' : category?.name || ''}
+                    {notFound ? 'Full Collection' : category?.name || ''}
                   </h1>
                   {category?.badge && (
                     <span className="rounded-2xl bg-black px-2.5 py-1 text-[11px] font-bold text-white">
@@ -70,7 +70,7 @@ export function CategoryProductsPage() {
                 <p className="text-xs sm:text-sm text-black/65 font-medium max-w-2xl">
                   {notFound
                     ? 'This category could not be found. Explore our full collection instead.'
-                    : category?.description || 'Exceptional modern garments tailored with heavy organic cottons and modern silhouettes.'}
+                    : category?.description || 'Heavyweight organic cotton garments with a clean, modern silhouette.'}
                 </p>
               </div>
             </Reveal>

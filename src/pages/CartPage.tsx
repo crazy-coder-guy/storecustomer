@@ -39,7 +39,7 @@ export function CartPage() {
 
 
   return (
-    <div className="min-h-screen bg-white text-black flex flex-col justify-between selection:bg-black selection:text-white font-sans">
+    <div className="min-h-screen bg-white text-black flex flex-col justify-between font-sans">
       <div>
         <Navbar />
 
@@ -62,7 +62,7 @@ export function CartPage() {
                   <button
                     type="button"
                     onClick={clearCart}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-black/15 bg-neutral-50 hover:bg-black hover:text-white px-3.5 py-1.5 text-xs font-bold text-black transition-all cursor-pointer shadow-2xs active:scale-95 group"
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-black/15 bg-neutral-50 hover:bg-black hover:text-white px-3.5 py-1.5 text-xs font-bold text-black transition-all cursor-pointer shadow-2xs active:scale-95 group"
                   >
                     <HugeiconsIcon icon={Delete02Icon} size={14} className="text-black/60 group-hover:text-white transition-colors" />
                     <span className="tracking-wider text-[11px]">CLEAR BAG</span>
@@ -73,12 +73,12 @@ export function CartPage() {
 
             {items.length === 0 ? (
               /* Empty Bag State */
-              <div className="rounded-3xl border border-black/10 p-8 sm:p-12 text-center max-w-lg mx-auto space-y-4 my-8">
+              <div className="p-8 sm:p-12 text-center max-w-lg mx-auto space-y-4 my-8">
                 <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-neutral-100 border border-black/10 text-black/40">
                   <HugeiconsIcon icon={ShoppingBag01Icon} size={28} />
                 </div>
                 <div className="space-y-1">
-                  <h2 className="text-xl font-black text-black">Your bag is completely empty</h2>
+                  <h2 className="text-xl font-black text-black">Your bag is empty</h2>
                   <p className="text-xs sm:text-sm font-semibold text-black/55 max-w-sm mx-auto">
                     Explore our latest collection of heavyweight essentials and oversized apparel.
                   </p>
@@ -86,7 +86,7 @@ export function CartPage() {
                 <div className="pt-2">
                   <Link
                     to="/"
-                    className="inline-flex items-center justify-center rounded-full bg-black px-6 py-2.5 text-xs font-bold text-white hover:bg-neutral-800 transition-all"
+                    className="inline-flex items-center justify-center rounded-2xl bg-black px-6 py-2.5 text-xs font-bold text-white hover:bg-neutral-800 transition-all shadow-sm active:scale-95"
                   >
                     Start Shopping
                   </Link>
@@ -273,7 +273,7 @@ export function CartPage() {
                       {totalDiscount > 0 && (
                         <div className="rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 flex items-center gap-2.5 text-xs sm:text-sm font-bold text-emerald-800 shadow-2xs">
                           <HugeiconsIcon icon={Tag01Icon} size={18} className="text-emerald-700 shrink-0" />
-                          <span>You're saving {formatCurrency(totalDiscount)} on this order!</span>
+                          <span>You save {formatCurrency(totalDiscount)} on this order.</span>
                         </div>
                       )}
 
@@ -282,10 +282,10 @@ export function CartPage() {
                         <button
                           type="button"
                           onClick={() => navigate('/checkout')}
-                          className="w-full flex items-center justify-between rounded-full bg-black py-2.5 pl-6 pr-2 text-sm sm:text-base font-extrabold text-white hover:bg-neutral-800 transition-all shadow-md active:scale-98 cursor-pointer"
+                          className="w-full flex items-center justify-between rounded-2xl bg-black py-2.5 pl-6 pr-2.5 text-sm sm:text-base font-extrabold text-white hover:bg-neutral-800 transition-all shadow-md active:scale-98 cursor-pointer"
                         >
                           <span>Proceed to Checkout</span>
-                          <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-white text-black shadow-xs">
+                          <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-white text-black shadow-xs">
                             <HugeiconsIcon icon={ArrowRight01Icon} size={16} strokeWidth={2.5} />
                           </div>
                         </button>
@@ -315,24 +315,24 @@ export function CartPage() {
                           <div className="mx-auto flex h-8 w-8 items-center justify-center rounded-full bg-neutral-100 text-black">
                             <HugeiconsIcon icon={RefreshIcon} size={16} />
                           </div>
-                          <p className="text-xs font-black text-black">7-Day Returns</p>
-                          <p className="text-[10px] text-black/50">Hassle free</p>
+                          <p className="text-xs font-black text-black">7-Day Exchange</p>
+                          <p className="text-[10px] text-black/50">Hassle-free exchange</p>
                         </div>
 
                         <div className="space-y-1">
                           <div className="mx-auto flex h-8 w-8 items-center justify-center rounded-full bg-neutral-100 text-black">
                             <HugeiconsIcon icon={SecurityCheckIcon} size={16} />
                           </div>
-                          <p className="text-xs font-black text-black">Secure Payment</p>
-                          <p className="text-[10px] text-black/50">100% secure</p>
+                          <p className="text-xs font-black text-black">Prepaid Only</p>
+                          <p className="text-[10px] text-black/50">100% secure payments</p>
                         </div>
 
                         <div className="space-y-1">
                           <div className="mx-auto flex h-8 w-8 items-center justify-center rounded-full bg-neutral-100 text-black">
                             <HugeiconsIcon icon={CustomerService01Icon} size={16} />
                           </div>
-                          <p className="text-xs font-black text-black">24/7 Support</p>
-                          <p className="text-[10px] text-black/50">We're here</p>
+                          <p className="text-xs font-black text-black">Dedicated Support</p>
+                          <p className="text-[10px] text-black/50">Email support</p>
                         </div>
                       </div>
 
@@ -363,10 +363,10 @@ export function CartPage() {
                       <button
                         type="button"
                         onClick={() => navigate('/checkout')}
-                        className="flex-1 max-w-[210px] flex items-center justify-between rounded-full bg-black py-2 pl-4 pr-1.5 text-xs sm:text-sm font-extrabold text-white active:scale-95 transition-all shadow-md cursor-pointer"
+                        className="flex-1 max-w-[210px] flex items-center justify-between rounded-2xl bg-black py-2 pl-4 pr-1.5 text-xs sm:text-sm font-extrabold text-white active:scale-95 transition-all shadow-md cursor-pointer"
                       >
                         <span>Proceed to Pay</span>
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-black shadow-xs">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-white text-black shadow-xs">
                           <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={2.5} />
                         </div>
                       </button>

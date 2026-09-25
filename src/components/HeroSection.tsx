@@ -12,7 +12,7 @@ export function HeroSection({ onShopClick }: HeroSectionProps) {
   const heroTitle = settings?.heroTitle || 'Modern Essentials for Everyday Style'
   const heroSubtitle =
     settings?.heroSubtitle ||
-    'Discover refined apparel crafted with exceptional fabrics and minimal aesthetics. Designed by Kaiira.'
+    'Refined apparel crafted from exceptional fabrics, built for everyday wear. Designed by Kaiira.'
 
   return (
     <section className="relative overflow-hidden bg-white pt-4 pb-2 sm:py-6 lg:py-8">

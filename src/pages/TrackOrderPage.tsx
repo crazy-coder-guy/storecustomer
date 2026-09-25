@@ -228,21 +228,21 @@ export function TrackOrderPage() {
               <span className="text-xs font-extrabold uppercase tracking-widest text-black/40">Dispatch Speed</span>
               <h4 className="text-lg font-black text-black">Same-Day Dispatch</h4>
               <p className="text-sm text-black/70 font-medium leading-relaxed">
-                All confirmed orders placed before 1:00 PM are handed over to our express linehaul the very same afternoon.
+                All confirmed orders placed before 1:00 PM are handed over to our express courier network the very same afternoon.
               </p>
             </div>
             <div className="space-y-2">
               <span className="text-xs font-extrabold uppercase tracking-widest text-black/40">Verified Transit</span>
-              <h4 className="text-lg font-black text-black">Air Surface Linehaul</h4>
+              <h4 className="text-lg font-black text-black">Real-Time Tracking</h4>
               <p className="text-sm text-black/70 font-medium leading-relaxed">
-                Continuous telemetry tracking across Delhivery and BlueDart airline transit routes.
+                Live shipment tracking across our courier partners, from dispatch to doorstep.
               </p>
             </div>
             <div className="space-y-2">
               <span className="text-xs font-extrabold uppercase tracking-widest text-black/40">Customer Support</span>
               <h4 className="text-lg font-black text-black">Need Direct Help?</h4>
               <p className="text-sm text-black/70 font-medium leading-relaxed">
-                Reach our concierge desk directly at <span className="font-bold text-black">care@kaiiraapparel.com</span> for manual order lookups.
+                Reach our support team directly at <span className="font-bold text-black">hello.kaiiraofficial@gmail.com</span> for manual order lookups.
               </p>
             </div>
           </div>

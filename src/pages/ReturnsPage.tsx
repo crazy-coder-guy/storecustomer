@@ -12,8 +12,8 @@ export function ReturnsPage() {
   const steps = [
     {
       num: '01',
-      title: '7-Day Return Window',
-      desc: 'Submit your request using the self-serve form below or email us within 7 days of package delivery.',
+      title: '7-Day Exchange Window',
+      desc: 'Submit your request using the form below or contact us via email at hello.kaiiraofficial@gmail.com within 7 days of package delivery.',
     },
     {
       num: '02',
@@ -22,8 +22,8 @@ export function ReturnsPage() {
     },
     {
       num: '03',
-      title: 'Instant Exchange or Refund',
-      desc: 'Your replacement size is dispatched instantly or the full refund is credited to your bank/UPI within 24 to 48 hours.',
+      title: 'Instant Replacement Exchange',
+      desc: 'Once collected and inspected, your replacement size or color variant is dispatched immediately.',
     },
   ]
 
@@ -35,20 +35,20 @@ export function ReturnsPage() {
 
   return (
     <div className="min-h-screen bg-white text-black font-sans pb-24">
-      <StandaloneHeader title="Returns & Exchanges" />
+      <StandaloneHeader title="Exchange Policy" />
 
       <main className="kaira-container max-w-4xl pt-10 sm:pt-16 space-y-16">
         {/* Editorial Split Hero */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 pb-12 border-b border-black/10">
           <div className="lg:col-span-6 space-y-4">
             <div className="inline-flex items-center gap-2 rounded-2xl border border-black/15 bg-white px-3.5 py-1 text-xs font-semibold text-black">
-              <span>Hassle-Free Policy</span>
+              <span>Exchange Only Policy</span>
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-black leading-[1.08]">
-              Easy Returns. Free Exchanges.
+              7-Day Easy Exchange.
             </h1>
             <p className="text-base sm:text-lg text-black/75 font-medium leading-relaxed">
-              Every KAIIRA purchase comes with a 7-day no-questions-asked return and free size exchange guarantee.
+              We offer hassle-free size and color exchanges within 7 days of delivery. Please note: we currently do not offer monetary returns/refunds; only exchanges are provided.
             </p>
           </div>
 
@@ -100,8 +100,7 @@ export function ReturnsPage() {
                   >
                     <option value="size_exchange">Exchange Size (Need Larger / Smaller)</option>
                     <option value="color_exchange">Exchange Color / Style</option>
-                    <option value="refund_upi">Return & Refund to UPI / Bank Account</option>
-                    <option value="defective">Fabric / Stitch Quality Defect</option>
+                    <option value="defective">Fabric / Stitch Quality Exchange</option>
                   </select>
                 </div>
 
@@ -143,7 +142,7 @@ export function ReturnsPage() {
               • Garments must be in unworn, unwashed condition with original studio tags and barcodes attached.
             </p>
             <p>
-              • Refunds for prepaid orders are credited back to the original payment source within 24-48 hours of pickup.
+              • We follow an Exchange-Only policy. Once the parcel is collected and verified, your exchange item is dispatched. No cash/bank refunds are issued.
             </p>
           </div>
         </div>

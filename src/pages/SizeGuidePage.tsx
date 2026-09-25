@@ -27,7 +27,7 @@ export function SizeGuidePage() {
     },
     tees: {
       title: 'Heavyweight & Graphic Tees',
-      fit: 'Boxy Heavyweight Streetwear Fit',
+      fit: 'Boxy Heavyweight Fit',
       inches: [
         { size: 'S', chest: '38 - 40', length: '27.5', shoulder: '19.5', sleeve: '8.5' },
         { size: 'M', chest: '40 - 42', length: '28.5', shoulder: '20.5', sleeve: '9.0' },
@@ -77,7 +77,7 @@ export function SizeGuidePage() {
             <span>Precision Tailoring</span>
           </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-black leading-[1.08]">
-            Size & Fit Matrix.
+            Size & Fit Guide.
           </h1>
           <p className="text-base sm:text-xl text-black/75 font-medium leading-relaxed">
             Find your exact tailored silhouette. All garments are crafted with pre-shrunk fabrics for consistent fitting.
@@ -179,7 +179,7 @@ export function SizeGuidePage() {
       </main>
 
       {/* Smooth Scroll Wipe Out KAIRA Text */}
-      <ScrollWipeKaira subtitle="Tailored drape and relaxed boxy silhouettes calculated to flatter every frame." />
+      <ScrollWipeKaira subtitle="Tailored drape and relaxed boxy silhouettes, fitted for every body." />
     </div>
   )
 }

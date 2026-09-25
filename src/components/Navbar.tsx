@@ -43,7 +43,7 @@ export function Navbar({ cartCount: propCartCount, wishlistCount: propWishlistCo
   const cartCount = propCartCount !== undefined ? propCartCount : contextCartCount
   const wishlistCount = propWishlistCount !== undefined ? propWishlistCount : contextWishlistCount
   const { data: settings } = useStorefrontSettings()
-  const announcementText = settings?.announcementText || 'Free Express Shipping Over ₹1,999 • 7-Day Easy Returns'
+  const announcementText = settings?.announcementText || 'Free Express Shipping Over ₹1,999 • 7-Day Easy Exchange'
   const [searchQuery, setSearchQuery] = useState('')
   const [debouncedQuery, setDebouncedQuery] = useState('')
   const [placeholderIndex, setPlaceholderIndex] = useState(0)

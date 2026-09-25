@@ -19,10 +19,10 @@ export function ShippingInfoPage() {
     },
     {
       num: '03',
-      title: 'Cash on Delivery (COD)',
-      time: 'Available pan-India across 27,000+ pin codes',
+      title: '100% Prepaid Orders (No COD)',
+      time: 'Instant Payment Verification',
       cost: 'Zero Extra Surcharges',
-      desc: 'Pay cash or scan UPI QR code on the spot at your doorstep when the parcel arrives safely in tamper-proof security packaging.',
+      desc: 'To maintain swift logistics and minimize fulfillment delays, all orders are processed via 100% secure prepaid methods (UPI, Cards, NetBanking). Cash on Delivery is currently not offered.',
     },
   ]
 
@@ -128,7 +128,7 @@ export function ShippingInfoPage() {
       </main>
 
       {/* Smooth Scroll Wipe Out KAIRA Text */}
-      <ScrollWipeKaira subtitle="Worldwide standards. Sustainable zero-plastic packaging on all shipments." />
+      <ScrollWipeKaira subtitle="Reliable nationwide delivery with sustainable, zero-plastic packaging." />
     </div>
   )
 }

@@ -1,7 +1,12 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { FavouriteIcon, ArrowRight01Icon, MinusSignIcon, Add01Icon } from '@hugeicons/core-free-icons'
+import {
+  FavouriteIcon,
+  ArrowRight01Icon,
+  MinusSignIcon,
+  Add01Icon,
+} from '@hugeicons/core-free-icons'
 import { formatCurrency } from '../utils/formatCurrency'
 import { useWishlist } from '../context/WishlistContext'
 import { useCart } from '../context/CartContext'

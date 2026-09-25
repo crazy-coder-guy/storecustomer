@@ -10,6 +10,7 @@ import {
   Cancel01Icon,
   Location01Icon,
   Copy01Icon,
+  Download01Icon,
 } from '@hugeicons/core-free-icons'
 import { toast } from 'sonner'
 import { Navbar } from '../components/Navbar'
@@ -19,6 +20,7 @@ import { Skeleton } from '../components/Skeleton'
 import { getOrder } from '../services/order.service'
 import { formatCurrency } from '../utils/formatCurrency'
 import { formatDate } from '../utils/formatDate'
+import { openPrintableInvoice } from '../utils/invoice'
 import type { OrderStatus } from '../types'
 
 const STATUS_CONFIG: Record<
@@ -32,7 +34,7 @@ const STATUS_CONFIG: Record<
     icon: Clock01Icon,
   },
   PROCESSING: {
-    label: 'Processing in Studio',
+    label: 'Processing',
     badgeClass: 'bg-blue-50 text-blue-800 border-blue-200/60',
     dotClass: 'bg-blue-500',
     icon: PackageIcon,
@@ -65,6 +67,9 @@ export function OrderDetailPage() {
     enabled: Boolean(orderId),
   })
 
+  const itemsTotal = order?.items?.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0) ?? 0
+  const deliveryFee = order ? Math.max(0, order.totalAmount - itemsTotal) : 0
+
   function handleCopyOrderNumber(orderNumber: string) {
     navigator.clipboard.writeText(orderNumber)
     toast.success('Order number copied to clipboard')
@@ -76,7 +81,7 @@ export function OrderDetailPage() {
   const milestones = [
     { label: 'Order Placed', desc: 'Verified & Registered', active: true },
     {
-      label: 'Studio Packing',
+      label: 'Packed & Checked',
       desc: 'Quality check & packaging',
       active: order ? ['PROCESSING', 'SHIPPED', 'DELIVERED'].includes(order.status) : false,
     },
@@ -205,7 +210,7 @@ export function OrderDetailPage() {
                       </div>
                     </div>
 
-                    {/* Status Badges */}
+                    {/* Status Badges & Invoice Button */}
                     <div className="flex flex-wrap items-center gap-2.5">
                       {statusMeta && (
                         <span
@@ -226,6 +231,16 @@ export function OrderDetailPage() {
                       >
                         {order.paymentStatus === 'PAID' ? 'Payment Verified' : 'Payment Pending'}
                       </span>
+
+                      <button
+                        type="button"
+                        onClick={() => openPrintableInvoice(order)}
+                        className="inline-flex items-center gap-1.5 rounded-2xl border border-black/20 bg-white hover:bg-black hover:text-white px-4 py-1.5 text-xs font-bold text-black transition-all cursor-pointer shadow-2xs active:scale-95"
+                        title="Download / Print Official Invoice"
+                      >
+                        <HugeiconsIcon icon={Download01Icon} size={14} />
+                        <span>Download Invoice</span>
+                      </button>
                     </div>
                   </div>
 
@@ -338,11 +353,13 @@ export function OrderDetailPage() {
                       <div className="space-y-2.5 text-xs sm:text-sm font-semibold text-black/70">
                         <div className="flex justify-between">
                           <span>Items Total</span>
-                          <span className="font-bold text-black">{formatCurrency(order.totalAmount)}</span>
+                          <span className="font-bold text-black">{formatCurrency(itemsTotal)}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span>Express Studio Shipping</span>
-                          <span className="font-bold text-emerald-600 uppercase text-xs">Complimentary</span>
+                          <span>Delivery</span>
+                          <span className={deliveryFee === 0 ? 'font-bold text-emerald-600 uppercase text-xs' : 'font-bold text-black'}>
+                            {deliveryFee === 0 ? 'Free' : formatCurrency(deliveryFee)}
+                          </span>
                         </div>
                         <div className="flex justify-between">
                           <span>GST & Taxes</span>
@@ -378,12 +395,12 @@ export function OrderDetailPage() {
                     <div className="space-y-2 text-xs text-black/60 pl-6 border-l-2 border-black/10">
                       <p className="font-bold text-black">Need assistance with this order?</p>
                       <p className="font-medium">
-                        Reach out to our concierge at{' '}
+                        Reach out to our support team at{' '}
                         <a
-                          href="mailto:care@kaiiraapparel.com"
+                          href="mailto:hello.kaiiraofficial@gmail.com"
                           className="font-bold text-black underline underline-offset-2"
                         >
-                          care@kaiiraapparel.com
+                          hello.kaiiraofficial@gmail.com
                         </a>{' '}
                         quoting reference #{order.orderNumber}.
                       </p>

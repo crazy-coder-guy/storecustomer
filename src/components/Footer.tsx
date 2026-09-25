@@ -20,7 +20,7 @@ export function Footer() {
               <KairaLogo className="h-8 text-white" height={32} />
             </Link>
             <p className="text-sm text-white/65 max-w-sm leading-relaxed font-normal">
-              Redefining everyday essentials with heavyweight fabrics, relaxed tailored fits, and timeless minimalist aesthetics.
+              Redefining everyday essentials with heavyweight fabrics, relaxed tailored fits, and clean design.
             </p>
           </div>
 
@@ -30,7 +30,7 @@ export function Footer() {
             <ul className="space-y-2.5 text-sm font-semibold text-white/80">
               <li><Link to="/track-order" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Track Your Order</Link></li>
               <li><Link to="/shipping-info" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Shipping & Delivery Info</Link></li>
-              <li><Link to="/returns-exchanges" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Returns & Exchanges</Link></li>
+              <li><Link to="/returns-exchanges" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Exchange Policy</Link></li>
               <li><Link to="/size-guide" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Size & Fit Guide</Link></li>
               <li><Link to="/contact" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Help & Contact Us</Link></li>
             </ul>
@@ -40,7 +40,7 @@ export function Footer() {
           <div className="lg:col-span-4 space-y-3.5">
             <h4 className="text-xs font-black uppercase tracking-widest text-white/50">Stay Connected</h4>
             <p className="text-xs text-white/60 leading-relaxed">
-              Get notified first on new drop arrivals, private sales, and limited studio editions.
+              Be the first to know about new arrivals, private sales, and limited releases.
             </p>
             <form onSubmit={(e) => e.preventDefault()} className="relative flex items-center pt-1">
               <div className="relative w-full">
@@ -74,7 +74,7 @@ export function Footer() {
             <Link to="/security" className="hover:text-white transition-colors">Security</Link>
           </div>
           <div>
-            © {new Date().getFullYear()} Kaiira Apparel Inc. All rights reserved.
+            © {new Date().getFullYear()} Kaiira. All rights reserved.
           </div>
         </div>
       </div>

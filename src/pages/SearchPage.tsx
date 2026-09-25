@@ -19,7 +19,7 @@ const POPULAR_SEARCHES = [
   'Acid Wash',
   'Co-ord Set',
   'Heavyweight Tee',
-  'Desert Vibe',
+  'Denim Jacket',
   'Cargo Pants',
 ]
 

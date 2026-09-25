@@ -20,7 +20,7 @@ export function PrivacyPolicyPage() {
               Privacy Policy
             </h1>
             <p className="text-sm font-semibold text-black/60">
-              Last updated: September 2026 • Effective for all KAIIRA Apparel users
+              Last updated: September 2026 • Effective for all KAIIRA users
             </p>
           </div>
 
@@ -31,7 +31,7 @@ export function PrivacyPolicyPage() {
                 1. Information We Collect
               </h2>
               <p>
-                At KAIIRA Apparel, we respect your privacy and are committed to protecting your personal data. When you visit our website, place an order, or create an account, we may collect the following information:
+                At KAIIRA, we respect your privacy and are committed to protecting your personal data. When you visit our website, place an order, or create an account, we may collect the following information:
               </p>
               <ul className="list-disc pl-5 space-y-2 text-black/70">
                 <li>Personal identification details (Name, Email Address, Phone Number).</li>
@@ -61,7 +61,7 @@ export function PrivacyPolicyPage() {
                 3. Data Sharing & Third Parties
               </h2>
               <p>
-                We value your trust and **never sell or rent your personal information** to third-party marketers. We only share necessary data with trusted service providers who assist in operating our store:
+                We value your trust and <strong className="font-bold text-black">never sell or rent your personal information</strong> to third-party marketers. We only share necessary data with trusted service providers who assist in operating our store:
               </p>
               <ul className="list-disc pl-5 space-y-2 text-black/70">
                 <li>Logistics and courier partners (for doorstep order delivery).</li>

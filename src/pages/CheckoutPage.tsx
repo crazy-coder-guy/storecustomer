@@ -147,7 +147,7 @@ export function CheckoutPage() {
                 Checkout
               </h1>
               <p className="text-xs sm:text-sm text-neutral-500 font-medium mt-1">
-                Almost there! Complete your details to place your order.
+                Complete your details to place your order.
               </p>
             </div>
 
@@ -314,14 +314,14 @@ export function CheckoutPage() {
                     <span>Payments are securely processed by Razorpay. We never store your card details.</span>
                   </div>
 
-                  {/* Submit Button: Pay {finalTotal} with inner circular arrow button */}
+                  {/* Submit Button: Pay {finalTotal} with inner arrow button */}
                   <button
                     type="submit"
                     disabled={isPlacingOrder}
-                    className="w-full h-12 bg-black hover:bg-neutral-800 active:scale-[0.99] transition-all text-white rounded-full pl-6 pr-2 flex items-center justify-between font-bold text-sm cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="w-full h-12 bg-black hover:bg-neutral-800 active:scale-[0.99] transition-all text-white rounded-2xl pl-6 pr-2.5 flex items-center justify-between font-bold text-sm cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed shadow-sm"
                   >
                     <span>{isPlacingOrder ? 'Processing…' : `Pay ${formatCurrency(finalTotal)}`}</span>
-                    <span className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center shrink-0">
+                    <span className="w-8 h-8 rounded-xl bg-white text-black flex items-center justify-center shrink-0">
                       <HugeiconsIcon icon={ArrowRight01Icon} size={16} strokeWidth={2.5} />
                     </span>
                   </button>
@@ -392,7 +392,7 @@ export function CheckoutPage() {
                   <div className="flex justify-between items-center">
                     <span>Delivery Fee</span>
                     <span className="text-black font-semibold">
-                      {deliveryFee === 0 ? '₹0' : formatCurrency(deliveryFee)}
+                      {deliveryFee === 0 ? 'Free' : formatCurrency(deliveryFee)}
                     </span>
                   </div>
 

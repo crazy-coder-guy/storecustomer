@@ -15,9 +15,11 @@ import {
   Invoice01Icon,
   CreditCardIcon,
   DeliveryTruck01Icon,
+  Download01Icon,
 } from '@hugeicons/core-free-icons'
 
 import confetti from 'canvas-confetti'
+import { openPrintableInvoice } from '../utils/invoice'
 
 export function OrderConfirmationPage() {
   const { orderId } = useParams<{ orderId: string }>()
@@ -71,6 +73,7 @@ export function OrderConfirmationPage() {
 
   const itemsCount = order?.items?.reduce((acc, item) => acc + item.quantity, 0) || order?.itemsCount || 0
   const subtotal = order?.items?.reduce((acc, item) => acc + item.unitPrice * item.quantity, 0) || order?.totalAmount || 0
+  const deliveryFee = order ? Math.max(0, order.totalAmount - subtotal) : 0
 
   return (
     <div className="min-h-screen bg-white text-black flex flex-col justify-between font-sans">
@@ -113,7 +116,7 @@ export function OrderConfirmationPage() {
                 <p className="text-sm text-neutral-500">We couldn't find that order.</p>
                 <Link
                   to="/"
-                  className="inline-flex items-center justify-center h-11 px-6 rounded-full bg-black text-white text-sm font-bold hover:bg-neutral-800 transition-colors"
+                  className="inline-flex items-center justify-center h-11 px-6 rounded-2xl bg-black text-white text-sm font-bold hover:bg-neutral-800 transition-colors shadow-sm active:scale-95"
                 >
                   Continue Shopping
                 </Link>
@@ -134,10 +137,10 @@ export function OrderConfirmationPage() {
                     </div>
 
                     <h1 className="text-2xl sm:text-3xl font-extrabold text-black tracking-tight">
-                      Order Placed Successfully!
+                      Order Placed
                     </h1>
                     <p className="text-xs sm:text-sm text-neutral-500 font-medium max-w-md mt-2 leading-relaxed">
-                      Thank you for shopping with Kaiira, {order.customerName ? order.customerName.split(' ')[0] : 'there'}. A confirmation has been sent to{' '}
+                      Thank you for shopping with Kaiira{order.customerName ? `, ${order.customerName.split(' ')[0]}` : ''}. A confirmation has been sent to{' '}
                       <span className="text-neutral-700 font-semibold">{order.customerEmail}</span>.
                     </p>
                   </div>
@@ -166,7 +169,7 @@ export function OrderConfirmationPage() {
                         <span>Payment Status</span>
                       </div>
                       <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-600 border border-emerald-200/50">
-                        {order.paymentStatus === 'PAID' ? 'Paid' : 'Paid'}
+                        {order.paymentStatus === 'PAID' ? 'Paid' : 'Pending'}
                       </span>
                     </div>
 
@@ -197,11 +200,20 @@ export function OrderConfirmationPage() {
                     </div>
                   </div>
 
-                  {/* Continue Shopping button */}
-                  <div className="mt-6">
+                  {/* Actions: Download Invoice & Continue Shopping */}
+                  <div className="mt-6 flex flex-col sm:flex-row items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => openPrintableInvoice(order)}
+                      className="w-full sm:w-1/2 h-12 border border-black/20 bg-white hover:border-black hover:bg-black hover:text-white transition-all text-black rounded-2xl px-5 flex items-center justify-center gap-2 font-bold text-sm cursor-pointer shadow-2xs active:scale-[0.99]"
+                    >
+                      <HugeiconsIcon icon={Download01Icon} size={17} />
+                      <span>Download Invoice</span>
+                    </button>
+
                     <Link
                       to="/"
-                      className="w-full h-12 bg-black hover:bg-neutral-800 active:scale-[0.99] transition-all text-white rounded-full px-6 flex items-center justify-between font-bold text-sm cursor-pointer"
+                      className="w-full sm:w-1/2 h-12 bg-black hover:bg-neutral-800 active:scale-[0.99] transition-all text-white rounded-2xl px-6 flex items-center justify-between font-bold text-sm cursor-pointer shadow-sm"
                     >
                       <span>Continue Shopping</span>
                       <HugeiconsIcon icon={ArrowRight01Icon} size={18} strokeWidth={2.5} />
@@ -265,7 +277,9 @@ export function OrderConfirmationPage() {
 
                     <div className="flex justify-between items-center">
                       <span>Delivery Fee</span>
-                      <span className="text-black font-semibold">₹0</span>
+                      <span className="text-black font-semibold">
+                        {deliveryFee === 0 ? 'Free' : formatCurrency(deliveryFee)}
+                      </span>
                     </div>
 
                     <div className="flex justify-between items-center border-t border-neutral-100 pt-4 mt-4">

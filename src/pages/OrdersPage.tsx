@@ -13,6 +13,8 @@ import {
   DeliveryTruck01Icon,
   Clock01Icon,
   Cancel01Icon,
+  ArrowDown01Icon,
+  ArrowUp01Icon,
 } from '@hugeicons/core-free-icons'
 import { Navbar } from '../components/Navbar'
 import { Footer } from '../components/Footer'
@@ -21,6 +23,7 @@ import { useAuth } from '../context/AuthContext'
 import { listMyOrders } from '../services/order.service'
 import { formatCurrency } from '../utils/formatCurrency'
 import { formatDate } from '../utils/formatDate'
+import { openPrintableInvoice } from '../utils/invoice'
 import type { Order, OrderStatus } from '../types'
 
 type FilterTab = 'ALL' | 'ACTIVE' | 'DELIVERED' | 'CANCELLED'
@@ -36,7 +39,7 @@ const STATUS_CONFIG: Record<
     icon: Clock01Icon,
   },
   PROCESSING: {
-    label: 'Processing in Studio',
+    label: 'Processing',
     badgeClass: 'bg-blue-50 text-blue-800 border-blue-200/60',
     dotClass: 'bg-blue-500',
     icon: PackageIcon,
@@ -66,6 +69,14 @@ export function OrdersPage() {
   const [activeTab, setActiveTab] = useState<FilterTab>('ALL')
   const [searchQuery, setSearchQuery] = useState('')
   const [isSigningIn, setIsSigningIn] = useState(false)
+  const [expandedOrders, setExpandedOrders] = useState<Record<string, boolean>>({})
+
+  function toggleOrderExpand(orderId: string) {
+    setExpandedOrders((prev) => ({
+      ...prev,
+      [orderId]: !prev[orderId],
+    }))
+  }
 
   const {
     data: orders = [],
@@ -118,53 +129,15 @@ export function OrdersPage() {
     })
   }, [orders, activeTab, searchQuery])
 
-  // Download Order Receipt / Invoice Summary
+  // Download / Print Order Receipt / Invoice Summary with Garment Images
   function handleDownloadInvoice(e: React.MouseEvent, order: Order) {
     e.preventDefault()
     e.stopPropagation()
-
-    const invoiceData = {
-      invoiceTitle: 'KAIIRA APPAREL — OFFICIAL ORDER SUMMARY',
-      orderNumber: order.orderNumber,
-      orderId: order.id,
-      datePlaced: order.createdAt,
-      status: order.status,
-      paymentStatus: order.paymentStatus,
-      customer: {
-        name: order.customerName,
-        email: order.customerEmail,
-        phone: order.customerPhone,
-        shippingAddress: order.shippingAddress,
-      },
-      items: order.items?.map((item) => ({
-        product: item.productName,
-        color: item.colorName,
-        size: item.sizeCode,
-        quantity: item.quantity,
-        unitPrice: item.unitPrice,
-        subtotal: item.unitPrice * item.quantity,
-      })),
-      totalAmount: order.totalAmount,
-      currency: 'INR',
-      terms: 'Thank you for choosing KAIIRA. Goods once inspected are eligible for 7-day hassle-free exchange.',
-      contactSupport: 'care@kaiiraapparel.com',
-    }
-
-    const blob = new Blob([JSON.stringify(invoiceData, null, 2)], {
-      type: 'application/json',
-    })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `kaiira-order-${order.orderNumber}.json`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    openPrintableInvoice(order)
   }
 
   return (
-    <div className="min-h-screen bg-white text-black flex flex-col justify-between selection:bg-black selection:text-white font-sans">
+    <div className="min-h-screen bg-white text-black flex flex-col justify-between font-sans">
       <div>
         <Navbar />
 
@@ -331,7 +304,7 @@ export function OrdersPage() {
                     No orders placed yet
                   </h2>
                   <p className="text-xs sm:text-sm font-semibold text-black/60 max-w-md mx-auto leading-relaxed">
-                    Explore our curated collection of luxury heavyweight essentials and minimalist streetwear.
+                    Explore our collection of heavyweight essentials and everyday apparel.
                   </p>
                 </div>
                 <LiquidButton href="/" variant="primary" className="mx-auto">
@@ -424,57 +397,90 @@ export function OrdersPage() {
                             </div>
                           </div>
 
-                          {/* Line Items List */}
-                          <div className="space-y-4 py-3">
-                            {order.items?.map((item) => (
-                              <div
-                                key={item.id}
-                                className="flex items-center gap-4 sm:gap-5"
-                              >
-                                {/* Thumbnail */}
-                                <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl bg-neutral-100 border border-black/10 overflow-hidden shrink-0 flex items-center justify-center">
-                                  {item.productImageUrl ? (
-                                    <img
-                                      src={item.productImageUrl}
-                                      alt={item.productName}
-                                      className="h-full w-full object-cover"
-                                    />
-                                  ) : (
-                                    <HugeiconsIcon
-                                      icon={PackageIcon}
-                                      size={24}
-                                      className="text-black/30"
-                                    />
-                                  )}
+                          {/* Line Items List with Compact Expandable View */}
+                          {(() => {
+                            const items = order.items || []
+                            const isExpanded = Boolean(expandedOrders[order.id])
+                            const showCollapsible = items.length > 2
+                            const visibleItems = showCollapsible && !isExpanded ? items.slice(0, 2) : items
+
+                            return (
+                              <div className="py-2">
+                                <div className="space-y-3.5">
+                                  {visibleItems.map((item) => (
+                                    <div
+                                      key={item.id}
+                                      className="flex items-center gap-4 sm:gap-5"
+                                    >
+                                      {/* Thumbnail */}
+                                      <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl bg-neutral-100 border border-black/10 overflow-hidden shrink-0 flex items-center justify-center">
+                                        {item.productImageUrl ? (
+                                          <img
+                                            src={item.productImageUrl}
+                                            alt={item.productName}
+                                            className="h-full w-full object-cover pointer-events-none select-none"
+                                            draggable={false}
+                                          />
+                                        ) : (
+                                          <HugeiconsIcon
+                                            icon={PackageIcon}
+                                            size={24}
+                                            className="text-black/30"
+                                          />
+                                        )}
+                                      </div>
+
+                                      {/* Item Info */}
+                                      <div className="min-w-0 flex-1 space-y-1">
+                                        <h4 className="text-base sm:text-lg font-black text-black tracking-tight leading-snug truncate">
+                                          {item.productName}
+                                        </h4>
+                                        <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-black/60">
+                                          <span className="flex items-center gap-1.5">
+                                            <span
+                                              className="h-2.5 w-2.5 rounded-full border border-black/20"
+                                              style={{ backgroundColor: item.colorHex || '#000' }}
+                                            />
+                                            <span>{item.colorName}</span>
+                                          </span>
+                                          <span>•</span>
+                                          <span className="font-extrabold text-black/80">
+                                            Size: {item.sizeCode}
+                                          </span>
+                                          <span>•</span>
+                                          <span>Qty: {item.quantity}</span>
+                                        </div>
+                                        <p className="text-base font-black text-black">
+                                          {formatCurrency(item.unitPrice * item.quantity)}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  ))}
                                 </div>
 
-                                {/* Item Info */}
-                                <div className="min-w-0 flex-1 space-y-1">
-                                  <h4 className="text-base sm:text-lg font-black text-black tracking-tight leading-snug truncate">
-                                    {item.productName}
-                                  </h4>
-                                  <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-black/60">
-                                    <span className="flex items-center gap-1.5">
-                                      <span
-                                        className="h-2.5 w-2.5 rounded-full border border-black/20"
-                                        style={{ backgroundColor: item.colorHex || '#000' }}
+                                {/* Show More / Show Less Toggle when an order has many items */}
+                                {showCollapsible && (
+                                  <div className="pt-3">
+                                    <button
+                                      type="button"
+                                      onClick={() => toggleOrderExpand(order.id)}
+                                      className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-wider text-black/80 hover:text-black bg-neutral-100/90 hover:bg-neutral-200/80 px-3.5 py-1.5 rounded-xl transition-all cursor-pointer"
+                                    >
+                                      <HugeiconsIcon
+                                        icon={isExpanded ? ArrowUp01Icon : ArrowDown01Icon}
+                                        size={14}
                                       />
-                                      <span>{item.colorName}</span>
-                                    </span>
-                                    <span>•</span>
-                                    <span className="font-extrabold text-black/80">
-                                      Size: {item.sizeCode}
-                                    </span>
-                                    <span>•</span>
-                                    <span>Qty: {item.quantity}</span>
+                                      <span>
+                                        {isExpanded
+                                          ? 'Show Less'
+                                          : `+ ${items.length - 2} More Items`}
+                                      </span>
+                                    </button>
                                   </div>
-                                  <p className="text-base font-black text-black">
-                                    {formatCurrency(item.unitPrice * item.quantity)}
-                                  </p>
-                                </div>
+                                )}
                               </div>
-                            ))}
-                          </div>
+                            )
+                          })()}
 
                           {/* Order Bottom Action Row */}
                           <div className="pt-4 flex flex-wrap items-center justify-between gap-3">

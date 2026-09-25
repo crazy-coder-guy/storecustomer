@@ -85,7 +85,7 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
 
   function handleDownloadAccountData() {
     const summary = {
-      brand: 'KAIIRA Apparel',
+      brand: 'KAIIRA',
       user: {
         name: user?.name ?? 'Valued Customer',
         email: user?.email ?? 'Unknown',
@@ -97,7 +97,7 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
         wishlistItemsCount: wishlistCount,
       },
       exportTimestamp: new Date().toISOString(),
-      customerCare: 'care@kaiiraapparel.com',
+      customerCare: 'hello.kaiiraofficial@gmail.com',
     }
 
     const blob = new Blob([JSON.stringify(summary, null, 2)], { type: 'application/json' })

@@ -32,7 +32,7 @@ export function AboutPage() {
               </h1>
 
               <p className="text-lg sm:text-2xl text-black/75 font-medium leading-relaxed max-w-3xl">
-                Founded on the belief that everyday clothing should combine quiet luxury, sustainable craftsmanship, and effortless comfort.
+                Founded on the belief that everyday clothing should combine considered design, sustainable craftsmanship, and lasting comfort.
               </p>
             </Reveal>
           </div>
@@ -53,7 +53,7 @@ export function AboutPage() {
                 Designed in Minimal Tones. Built to Last.
               </h2>
               <p className="text-base sm:text-lg text-black/75 leading-relaxed">
-                At Kaiira, we eliminate unnecessary clutter. Every seam, cut, and fabric choice is engineered to offer unmatched durability and effortless aesthetic harmony.
+                At Kaiira, we eliminate unnecessary clutter. Every seam, cut, and fabric choice is engineered for durability and a clean, considered finish.
               </p>
               <p className="text-base sm:text-lg text-black/75 leading-relaxed">
                 We work directly with certified organic cotton mills and ethical artisans across the globe to guarantee transparent sourcing and zero-compromise quality.
@@ -68,7 +68,7 @@ export function AboutPage() {
         </section>
 
         {/* Velocity Text Ticker */}
-        <VelocityScroll text="SUSTAINABLE MATERIALS • ETHICAL CRAFTSMANSHIP • TIMELESS SILHOUETTES • ZERO WASTE PACKAGING • DESIGNED BY KAIIRA •" />
+        <VelocityScroll text="SUSTAINABLE MATERIALS • ETHICAL CRAFTSMANSHIP • REFINED SILHOUETTES • ZERO WASTE PACKAGING • DESIGNED BY KAIIRA •" />
 
         {/* Core Values Grid */}
         <section className="py-20 bg-gray-50/50">
@@ -100,7 +100,7 @@ export function AboutPage() {
                 {
                   icon: PackageIcon,
                   title: 'Express Shipping',
-                  desc: 'Carbon-neutral worldwide shipping with plastic-free, recyclable packaging on every order.',
+                  desc: 'Carbon-conscious nationwide shipping with plastic-free, recyclable packaging on every order.',
                 },
               ].map((val, idx) => (
                 <Reveal
@@ -128,7 +128,7 @@ export function AboutPage() {
             <Reveal animation="fade-up" duration={750} className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center divide-x divide-white/10">
               <div className="space-y-1">
                 <div className="text-4xl sm:text-6xl font-black">50K+</div>
-                <div className="text-xs sm:text-sm text-white/70 uppercase tracking-wider font-semibold">Worldwide Customers</div>
+                <div className="text-xs sm:text-sm text-white/70 uppercase tracking-wider font-semibold">Happy Customers</div>
               </div>
               <div className="space-y-1">
                 <div className="text-4xl sm:text-6xl font-black">100%</div>
@@ -136,7 +136,7 @@ export function AboutPage() {
               </div>
               <div className="space-y-1">
                 <div className="text-4xl sm:text-6xl font-black">35+</div>
-                <div className="text-xs sm:text-sm text-white/70 uppercase tracking-wider font-semibold">Global Stockists</div>
+                <div className="text-xs sm:text-sm text-white/70 uppercase tracking-wider font-semibold">Retail Partners</div>
               </div>
               <div className="space-y-1">
                 <div className="text-4xl sm:text-6xl font-black">4.9/5</div>
