@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Cancel01Icon, Notification03Icon, BellOffIcon } from '@hugeicons/core-free-icons'
+import { Cancel01Icon, Notification03Icon, BellOffIcon, Share01Icon } from '@hugeicons/core-free-icons'
 import { usePushNotifications } from '../hooks/usePushNotifications'
 import { usePromptSlot } from '../context/PromptSlotContext'
 
@@ -13,7 +13,7 @@ const DISMISSED_KEY = 'kaira_push_prompt_dismissed'
 const BLOCKED_DISMISSED_KEY = 'kaira_push_blocked_dismissed'
 
 export function NotificationPermissionPrompt() {
-  const { permission, isSubscribing, enableNotifications } = usePushNotifications()
+  const { permission, isSubscribing, enableNotifications, needsInstallFirst } = usePushNotifications()
   const { isActive, activePrompt, claim, release } = usePromptSlot('notification')
   const [wantsToShow, setWantsToShow] = useState(false)
   const isBlocked = permission === 'denied'
@@ -24,6 +24,12 @@ export function NotificationPermissionPrompt() {
       release()
       localStorage.removeItem(BLOCKED_DISMISSED_KEY)
       return
+    }
+
+    if (needsInstallFirst) {
+      if (localStorage.getItem(BLOCKED_DISMISSED_KEY)) return
+      const timer = setTimeout(() => setWantsToShow(true), 3500)
+      return () => clearTimeout(timer)
     }
 
     if (permission === 'denied') {
@@ -52,7 +58,7 @@ export function NotificationPermissionPrompt() {
   function handleDismiss() {
     setWantsToShow(false)
     release()
-    if (isBlocked) {
+    if (isBlocked || needsInstallFirst) {
       localStorage.setItem(BLOCKED_DISMISSED_KEY, 'true')
     } else {
       sessionStorage.setItem(DISMISSED_KEY, 'true')
@@ -90,7 +96,9 @@ export function NotificationPermissionPrompt() {
         {/* Content row with Bell icon */}
         <div className="flex items-start gap-3 pr-7">
           <div className="relative flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-xl sm:rounded-2xl bg-gradient-to-b from-neutral-100 to-neutral-200 text-black border border-black/10 shadow-inner">
-            {isBlocked ? (
+            {needsInstallFirst ? (
+              <HugeiconsIcon icon={Share01Icon} size={20} />
+            ) : isBlocked ? (
               <HugeiconsIcon icon={BellOffIcon} size={22} />
             ) : (
               <>
@@ -105,17 +113,30 @@ export function NotificationPermissionPrompt() {
 
           <div className="min-w-0 flex-1">
             <h4 className="text-sm sm:text-base font-black text-black tracking-tight leading-snug">
-              {isBlocked ? 'Notifications are blocked' : 'Allow Notifications?'}
+              {needsInstallFirst
+                ? 'Install the app to enable notifications'
+                : isBlocked
+                  ? 'Notifications are blocked'
+                  : 'Allow Notifications?'}
             </h4>
             <p className="text-[11px] sm:text-xs text-black/60 mt-0.5 sm:mt-1 leading-snug sm:leading-relaxed">
-              {isBlocked
-                ? "You've blocked notifications for this site in your browser, so we can't alert you about price drops or order updates."
-                : 'Get real-time alerts for price drops, limited restocks, and order delivery status.'}
+              {needsInstallFirst
+                ? "iPhone only supports notifications for apps added to your Home Screen — install Kaiira first, then you'll be able to turn them on."
+                : isBlocked
+                  ? "You've blocked notifications for this site in your browser, so we can't alert you about price drops or order updates."
+                  : 'Get real-time alerts for price drops, limited restocks, and order delivery status.'}
             </p>
           </div>
         </div>
 
-        {isBlocked && (
+        {needsInstallFirst && (
+          <div className="mt-2.5 pt-2.5 border-t border-black/10 text-[11px] sm:text-xs text-black/70 leading-relaxed">
+            Tap the <span className="font-bold">Share</span> icon in Safari's toolbar, then choose{' '}
+            <span className="font-bold">Add to Home Screen</span>.
+          </div>
+        )}
+
+        {isBlocked && !needsInstallFirst && (
           <div className="mt-2.5 pt-2.5 border-t border-black/10 text-[11px] sm:text-xs text-black/70 leading-relaxed">
             To turn them back on: click the <span className="font-bold">lock icon</span> next to the
             address bar → <span className="font-bold">Notifications</span> → <span className="font-bold">Allow</span>,
@@ -125,7 +146,7 @@ export function NotificationPermissionPrompt() {
 
         {/* Actions */}
         <div className="flex items-center gap-2 mt-3">
-          {!isBlocked && (
+          {!isBlocked && !needsInstallFirst && (
             <button
               type="button"
               onClick={handleEnable}
@@ -140,12 +161,12 @@ export function NotificationPermissionPrompt() {
             type="button"
             onClick={handleDismiss}
             className={
-              isBlocked
+              isBlocked || needsInstallFirst
                 ? 'tap-press flex-1 inline-flex items-center justify-center rounded-xl bg-black/5 px-3.5 py-2 sm:py-2.5 text-xs font-bold text-black hover:bg-black/10 transition-colors cursor-pointer active:scale-95'
                 : 'tap-press px-3.5 py-2 sm:py-2.5 text-xs font-bold text-black/50 hover:text-black transition-colors cursor-pointer rounded-xl hover:bg-black/5 active:scale-95'
             }
           >
-            {isBlocked ? 'Got it' : 'Later'}
+            {isBlocked || needsInstallFirst ? 'Got it' : 'Later'}
           </button>
         </div>
       </div>

@@ -28,6 +28,7 @@ import { SecurityPage } from './pages/SecurityPage'
 import { GoogleOneTapPrompt } from './components/GoogleOneTapPrompt'
 import { NotificationPermissionPrompt } from './components/NotificationPermissionPrompt'
 import { InstallAppPrompt } from './components/InstallAppPrompt'
+import { SplashScreen } from './components/SplashScreen'
 import { ScrollManager } from './components/ScrollManager'
 import { HapticFeedback } from './components/HapticFeedback'
 
@@ -36,6 +37,7 @@ export function App() {
     <AuthProvider>
       <CartProvider>
         <PromptSlotProvider>
+          <SplashScreen />
           <HapticFeedback />
           <WishlistProvider>
             <BrowserRouter>

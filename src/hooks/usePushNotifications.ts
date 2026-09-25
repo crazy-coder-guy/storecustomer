@@ -29,6 +29,19 @@ async function postSubscription(subscription: PushSubscription) {
 
 export type PushPermissionState = 'unsupported' | 'default' | 'granted' | 'denied'
 
+// iOS Safari only supports Web Push (and only shows the native permission
+// dialog at all) once the site is installed to the Home Screen — calling
+// requestPermission() from a regular browser tab silently does nothing.
+// Feature-detecting `Notification` isn't enough to catch this since iOS
+// 16.4+ does expose the API, it just refuses to prompt outside standalone.
+function iosNeedsInstallFirst(): boolean {
+  if (typeof window === 'undefined') return false
+  const nav = window.navigator as Navigator & { standalone?: boolean }
+  const isIOS = /iPad|iPhone|iPod/.test(nav.userAgent) || (nav.userAgent.includes('Macintosh') && nav.maxTouchPoints > 1)
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || nav.standalone === true
+  return isIOS && !isStandalone
+}
+
 export function usePushNotifications() {
   const { user } = useAuth()
   const [permission, setPermission] = useState<PushPermissionState>(() => {
@@ -37,6 +50,7 @@ export function usePushNotifications() {
     }
     return Notification.permission as PushPermissionState
   })
+  const [needsInstallFirst] = useState(iosNeedsInstallFirst)
   const [isSubscribing, setIsSubscribing] = useState(false)
   const syncedForUid = useRef<string | null>(null)
 
@@ -70,7 +84,7 @@ export function usePushNotifications() {
   }, [permission, user])
 
   const enableNotifications = useCallback(async () => {
-    if (permission === 'unsupported' || isSubscribing) return false
+    if (permission === 'unsupported' || needsInstallFirst || isSubscribing) return false
     setIsSubscribing(true)
     try {
       const result = await Notification.requestPermission()
@@ -96,7 +110,7 @@ export function usePushNotifications() {
     } finally {
       setIsSubscribing(false)
     }
-  }, [permission, isSubscribing])
+  }, [permission, needsInstallFirst, isSubscribing])
 
-  return { permission, isSubscribing, enableNotifications }
+  return { permission, isSubscribing, enableNotifications, needsInstallFirst }
 }

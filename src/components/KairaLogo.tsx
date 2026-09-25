@@ -2,9 +2,25 @@ interface KairaLogoProps {
   className?: string
   height?: number
   animated?: boolean
+  /**
+   * 'loop' (default) is the navbar's ambient behavior — sits fully drawn,
+   * with a brief shimmer/redraw every 8s. 'draw-in' is a one-shot version
+   * of the same per-letter stroke technique for places (like the splash
+   * screen) that are only visible briefly and need to actually look
+   * animated the moment they mount, not mid-way through an ambient loop.
+   */
+  variant?: 'loop' | 'draw-in'
 }
 
-export function KairaLogo({ className = 'h-7 sm:h-9 text-black', height = 36, animated = false }: KairaLogoProps) {
+export function KairaLogo({
+  className = 'h-7 sm:h-9 text-black',
+  height = 36,
+  animated = false,
+  variant = 'loop',
+}: KairaLogoProps) {
+  const letterClass = variant === 'draw-in' ? 'kaira-drawin-path' : 'kaira-letter-path'
+  const pathClass = (n: number) => (variant === 'draw-in' ? `kaira-drawin-path-${n}` : `kaira-path-${n}`)
+
   return (
     <svg
       viewBox="0 0 236 44"
@@ -21,7 +37,7 @@ export function KairaLogo({ className = 'h-7 sm:h-9 text-black', height = 36, an
         strokeWidth="4.5"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className={animated ? 'kaira-letter-path kaira-path-1' : ''}
+        className={animated ? `${letterClass} ${pathClass(1)}` : ''}
       />
 
       {/* A (Minimalist Crossbar-less Lambda Accent) */}
@@ -31,7 +47,7 @@ export function KairaLogo({ className = 'h-7 sm:h-9 text-black', height = 36, an
         strokeWidth="4.5"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className={animated ? 'kaira-letter-path kaira-path-2' : ''}
+        className={animated ? `${letterClass} ${pathClass(2)}` : ''}
       />
 
       {/* I */}
@@ -40,7 +56,7 @@ export function KairaLogo({ className = 'h-7 sm:h-9 text-black', height = 36, an
         stroke="currentColor"
         strokeWidth="4.5"
         strokeLinecap="round"
-        className={animated ? 'kaira-letter-path kaira-path-3' : ''}
+        className={animated ? `${letterClass} ${pathClass(3)}` : ''}
       />
 
       {/* I */}
@@ -49,7 +65,7 @@ export function KairaLogo({ className = 'h-7 sm:h-9 text-black', height = 36, an
         stroke="currentColor"
         strokeWidth="4.5"
         strokeLinecap="round"
-        className={animated ? 'kaira-letter-path kaira-path-4' : ''}
+        className={animated ? `${letterClass} ${pathClass(4)}` : ''}
       />
 
       {/* R (Futuristic Curved R) */}
@@ -59,7 +75,7 @@ export function KairaLogo({ className = 'h-7 sm:h-9 text-black', height = 36, an
         strokeWidth="4.5"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className={animated ? 'kaira-letter-path kaira-path-5' : ''}
+        className={animated ? `${letterClass} ${pathClass(5)}` : ''}
       />
 
       {/* A (Matching Accent Lambda) */}
@@ -69,7 +85,7 @@ export function KairaLogo({ className = 'h-7 sm:h-9 text-black', height = 36, an
         strokeWidth="4.5"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className={animated ? 'kaira-letter-path kaira-path-6' : ''}
+        className={animated ? `${letterClass} ${pathClass(6)}` : ''}
       />
     </svg>
   )
