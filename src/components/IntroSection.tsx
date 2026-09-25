@@ -33,43 +33,55 @@ const PILLARS = [
 
 export function IntroSection() {
   return (
-    <section className="relative overflow-hidden bg-black text-white py-16 sm:py-24">
+    <section className="relative overflow-hidden bg-white text-black py-16 sm:py-24 border-t border-black/5">
       <div className="kaira-container">
-        <Reveal className="max-w-3xl mx-auto text-center space-y-5 mb-14 sm:mb-20">
-          <div className="inline-flex items-center gap-2 rounded-2xl border border-white/15 bg-white/5 px-4 py-1.5 text-xs sm:text-sm font-semibold text-white/80">
-            <HugeiconsIcon icon={SparklesIcon} size={16} />
-            <span>Introducing Kaiira 2.0</span>
+        {/* Editorial Header */}
+        <Reveal className="max-w-3xl mx-auto text-center space-y-4 mb-14 sm:mb-16">
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <span className="w-8 sm:w-12 h-px bg-black/25" />
+            <span className="text-[11px] sm:text-xs font-bold uppercase tracking-[0.2em] text-black/60">
+              THE KAIIRA PHILOSOPHY
+            </span>
+            <span className="w-8 sm:w-12 h-px bg-black/25" />
           </div>
 
-          <h2 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.1]">
-            A New Home For Premium Essentials.
+          <h2 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-black leading-[1.08]">
+            Crafted For Longevity. Built For Everyday.
           </h2>
 
-          <p className="text-base sm:text-xl text-white/70 font-medium leading-relaxed max-w-2xl mx-auto">
-            We've rebuilt the experience from the ground up — meticulously tailored fits, museum-grade
-            fabrics, and a shopping journey as refined as the clothes themselves.
+          <p className="text-sm sm:text-base lg:text-lg text-black/65 font-normal leading-relaxed max-w-2xl mx-auto pt-1">
+            We focus on silhouette, weight, and minimalist aesthetics — creating timeless, durable garments
+            that fit effortlessly into your everyday rotation.
           </p>
 
-          <div className="pt-2 flex justify-center">
-            <LiquidButton href="/products" variant="outline" className="!border-white">
+          <div className="pt-3 flex justify-center">
+            <LiquidButton href="/products" variant="primary">
               Discover The Collection
             </LiquidButton>
           </div>
         </Reveal>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          {PILLARS.map((pillar, idx) => (
-            <Reveal key={pillar.title} delay={idx * 90} strength="soft">
-              <div className="h-full rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-7 space-y-3 sm:space-y-4 hover:bg-white/[0.06] hover:border-white/20 transition-colors">
-                <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-white text-black">
-                  <HugeiconsIcon icon={pillar.icon} size={22} />
+        {/* 4 Pillars - Refined Borderless Feature Strip */}
+        <Reveal delay={120} strength="soft">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-0 lg:divide-x lg:divide-black/10 pt-6 sm:pt-8 border-t border-black/10">
+            {PILLARS.map((pillar) => (
+              <div
+                key={pillar.title}
+                className="flex flex-col items-center text-center lg:px-6 xl:px-8 space-y-2.5 group"
+              >
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-black/5 text-black group-hover:bg-black group-hover:text-white transition-all duration-300">
+                  <HugeiconsIcon icon={pillar.icon} size={20} strokeWidth={2} />
                 </div>
-                <h3 className="text-sm sm:text-lg font-bold text-white">{pillar.title}</h3>
-                <p className="text-xs sm:text-sm text-white/60 leading-relaxed">{pillar.description}</p>
+                <h3 className="text-sm sm:text-base font-extrabold text-black tracking-tight pt-1">
+                  {pillar.title}
+                </h3>
+                <p className="text-xs sm:text-sm text-black/60 leading-relaxed font-normal max-w-xs">
+                  {pillar.description}
+                </p>
               </div>
-            </Reveal>
-          ))}
-        </div>
+            ))}
+          </div>
+        </Reveal>
       </div>
     </section>
   )

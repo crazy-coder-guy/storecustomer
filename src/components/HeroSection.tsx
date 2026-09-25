@@ -31,6 +31,7 @@ export function HeroSection({ onShopClick }: HeroSectionProps) {
             </p>
             <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 pt-1 sm:pt-2">
               <LiquidButton
+                href="/products"
                 onClick={onShopClick}
                 variant="primary"
                 className="w-full sm:w-auto"

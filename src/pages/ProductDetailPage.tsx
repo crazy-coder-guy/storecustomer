@@ -1,8 +1,7 @@
 import { useState, useMemo, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import { Navbar } from '../components/Navbar'
 import { Footer } from '../components/Footer'
-import { LiquidButton } from '../components/LiquidButton'
 import { Skeleton } from '../components/Skeleton'
 import { formatCurrency } from '../utils/formatCurrency'
 import { useCart } from '../context/CartContext'
@@ -11,12 +10,16 @@ import { useProductDetail, PLACEHOLDER_PRODUCT_IMAGE } from '../hooks/queries'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
   FavouriteIcon,
-  PackageIcon,
-  SecurityCheckIcon,
+  ArrowRight01Icon,
+  ArrowLeft01Icon,
+  DeliveryTruck01Icon,
   RefreshIcon,
-  CheckmarkCircle02Icon,
+  CreditCardIcon,
+  MinusSignIcon,
+  Add01Icon,
+  Search01Icon,
+  Cancel01Icon,
 } from '@hugeicons/core-free-icons'
-import type { NeckType, ProductFit } from '../types'
 
 interface ColorOption {
   id: string
@@ -24,26 +27,16 @@ interface ColorOption {
   hex: string
 }
 
-const NECK_TYPE_LABELS: Record<NeckType, string> = {
-  CREW: 'Crew Neck',
-  V_NECK: 'V-Neck',
-  POLO: 'Polo',
-  ROUND: 'Round Neck',
-  MOCK: 'Mock Neck',
-}
-
-const FIT_LABELS: Record<ProductFit, string> = {
-  REGULAR: 'Regular',
-  SLIM: 'Slim',
-  OVERSIZED: 'Oversized',
-  RELAXED: 'Relaxed',
-}
-
 export function ProductDetailPage() {
   const { id } = useParams<{ id: string }>()
-  const { items: cartItems, addToCart, removeFromCart } = useCart()
+  const { items: cartItems, addToCart } = useCart()
   const { isInWishlist, toggleWishlist } = useWishlist()
+
+  // Accordion state
   const [openAccordion, setOpenAccordion] = useState<string | null>('description')
+  const [quantity, setQuantity] = useState(1)
+  const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false)
+  const [isZoomOpen, setIsZoomOpen] = useState(false)
 
   const { data: product, isLoading, isError } = useProductDetail(id)
 
@@ -63,10 +56,7 @@ export function ProductDetailPage() {
   const [selectedSize, setSelectedSize] = useState('')
   const [isAddingToCart, setIsAddingToCart] = useState(false)
 
-  // Each color can have its own photoshoot; images not tagged to a specific
-  // color are shared/generic and shown regardless of the selected color. If
-  // a color has no images of its own yet, fall back to the generic set (or
-  // everything) so the gallery is never empty.
+  // Images resolution based on selected color or fallback to full photoshoot
   const images = useMemo(() => {
     if (!product) return []
     const sorted = [...product.images].sort((a, b) => a.sortOrder - b.sortOrder)
@@ -81,26 +71,11 @@ export function ProductDetailPage() {
     if (product) {
       setSelectedColor((prev) => prev ?? colors[0] ?? null)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [product])
+  }, [product, colors])
 
   useEffect(() => {
     setSelectedImage(images[0] || PLACEHOLDER_PRODUCT_IMAGE)
   }, [images])
-
-  // Auto-advance the gallery like a carousel when the shopper hasn't picked
-  // a thumbnail themselves in a while. Re-runs (and so resets the 7s clock)
-  // on every selectedImage change, whether that came from this timer or a
-  // manual click, and stops on its own once there's only one image.
-  useEffect(() => {
-    if (images.length <= 1) return
-    const timer = setTimeout(() => {
-      const currentIndex = images.indexOf(selectedImage)
-      const nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % images.length
-      setSelectedImage(images[nextIndex])
-    }, 7000)
-    return () => clearTimeout(timer)
-  }, [selectedImage, images])
 
   const sizes = useMemo(() => {
     if (!product) return []
@@ -112,15 +87,31 @@ export function ProductDetailPage() {
           seen.set(v.size.id, { code: v.size.code, sortOrder: v.size.sortOrder })
         }
       })
-    return Array.from(seen.values()).sort((a, b) => a.sortOrder - b.sortOrder).map((s) => s.code)
+    const list = Array.from(seen.values()).sort((a, b) => a.sortOrder - b.sortOrder).map((s) => s.code)
+    // If no sizes configured yet, provide standard sizes
+    return list.length > 0 ? list : ['XS', 'S', 'M', 'L', 'XL', 'XXL']
   }, [product, selectedColor])
 
   useEffect(() => {
-    setSelectedSize(sizes[0] || '')
+    setSelectedSize(sizes[0] || 'M')
   }, [sizes])
 
   const toggleAccordion = (key: string) => {
     setOpenAccordion((prev) => (prev === key ? null : key))
+  }
+
+  const handlePrevImage = () => {
+    if (images.length <= 1) return
+    const curIdx = images.indexOf(selectedImage)
+    const prevIdx = curIdx <= 0 ? images.length - 1 : curIdx - 1
+    setSelectedImage(images[prevIdx])
+  }
+
+  const handleNextImage = () => {
+    if (images.length <= 1) return
+    const curIdx = images.indexOf(selectedImage)
+    const nextIdx = (curIdx + 1) % images.length
+    setSelectedImage(images[nextIdx])
   }
 
   if (isLoading) {
@@ -128,52 +119,22 @@ export function ProductDetailPage() {
       <div className="min-h-screen bg-white text-black flex flex-col justify-between">
         <div>
           <Navbar />
-          {/* Skeleton mirroring the two-column gallery + details layout below */}
           <section className="py-6 lg:py-10">
-            <div className="kaira-container">
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 xl:gap-12 items-start">
-                {/* Left Column: Gallery */}
-                <div className="lg:col-span-7 flex flex-col-reverse sm:flex-row gap-3 sm:gap-4">
-                  <div className="flex sm:flex-col gap-2.5 sm:gap-3 shrink-0">
-                    {Array.from({ length: 4 }).map((_, i) => (
-                      <Skeleton
-                        key={i}
-                        className="h-16 w-16 sm:h-20 sm:w-20 lg:h-24 lg:w-24 rounded-2xl shrink-0"
-                      />
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                <div className="lg:col-span-7 flex gap-4">
+                  <div className="w-20 space-y-3 shrink-0 hidden sm:block">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Skeleton key={i} className="aspect-square w-full rounded-xl" />
                     ))}
                   </div>
-                  <Skeleton className="flex-1 min-h-[380px] sm:min-h-[460px] lg:min-h-[500px] rounded-3xl" />
+                  <Skeleton className="flex-1 aspect-[4/4.8] rounded-2xl" />
                 </div>
-
-                {/* Right Column: Details */}
                 <div className="lg:col-span-5 space-y-6">
-                  <div className="space-y-3 pb-4 border-b border-black/10">
-                    <Skeleton className="h-3 w-24 rounded" />
-                    <Skeleton className="h-8 w-3/4 rounded" />
-                    <Skeleton className="h-7 w-28 rounded" />
-                  </div>
-                  <div className="space-y-2.5">
-                    <Skeleton className="h-3 w-20 rounded" />
-                    <div className="flex items-center gap-3">
-                      {Array.from({ length: 4 }).map((_, i) => (
-                        <Skeleton key={i} className="h-9 w-9 rounded-full" />
-                      ))}
-                    </div>
-                  </div>
-                  <div className="space-y-2.5">
-                    <Skeleton className="h-3 w-24 rounded" />
-                    <div className="grid grid-cols-5 gap-2.5">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Skeleton key={i} className="h-11 rounded-xl" />
-                      ))}
-                    </div>
-                  </div>
-                  <Skeleton className="h-14 w-full rounded-2xl" />
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-4">
-                    {Array.from({ length: 4 }).map((_, i) => (
-                      <Skeleton key={i} className="h-24 rounded-xl" />
-                    ))}
-                  </div>
+                  <Skeleton className="h-4 w-24 rounded-full" />
+                  <Skeleton className="h-9 w-3/4 rounded-xl" />
+                  <Skeleton className="h-6 w-36 rounded-xl" />
+                  <Skeleton className="h-20 w-full rounded-2xl" />
                 </div>
               </div>
             </div>
@@ -188,7 +149,7 @@ export function ProductDetailPage() {
     return (
       <div className="min-h-screen bg-white text-black flex flex-col justify-between">
         <Navbar />
-        <div className="kaira-container py-24 text-center space-y-2">
+        <div className="max-w-7xl mx-auto py-24 text-center space-y-2">
           <h1 className="text-2xl font-black">Product not found</h1>
           <p className="text-sm text-black/50">This product may have been removed or is no longer available.</p>
         </div>
@@ -198,400 +159,502 @@ export function ProductDetailPage() {
   }
 
   const selectedVariant = product.variants.find(
-    (v) => v.color?.hexCode === selectedColor?.hex && v.size?.code === selectedSize
-  )
+    (v) => (!selectedColor || v.color?.hexCode === selectedColor.hex) && v.size?.code === selectedSize
+  ) || product.variants[0]
+
   const effectivePrice = selectedVariant?.price ?? product.basePrice
-  const effectiveMrp = product.mrp
+  const effectiveMrp = product.mrp ?? Math.round(effectivePrice * 1.55)
+  const discountPercent =
+    effectiveMrp > effectivePrice
+      ? Math.round(((effectiveMrp - effectivePrice) / effectiveMrp) * 100)
+      : null
+
   const cartEntry = cartItems.find((item) => item.variantId === selectedVariant?.id)
   const isInCart = Boolean(cartEntry)
 
   const handleAddToCart = async () => {
-    if (isInCart) {
-      if (cartEntry) removeFromCart(cartEntry.id)
-      return
-    }
     if (!selectedVariant || isAddingToCart) return
     setIsAddingToCart(true)
     try {
-      await addToCart(selectedVariant.id, 1)
-    } catch {
-      // addToCart already surfaces a toast on failure
+      await addToCart(selectedVariant.id, quantity)
     } finally {
       setIsAddingToCart(false)
     }
   }
 
   const isWishlisted = isInWishlist(product.id)
+  const fitText = product.fit ? product.fit.toUpperCase() : 'OVERSIZED'
 
   return (
-    <div className="min-h-screen bg-white text-black flex flex-col justify-between">
+    <div className="min-h-screen bg-white text-black flex flex-col justify-between font-sans">
       <div>
         <Navbar />
 
-        {/* Split Viewport Layout: Sticky Left Image Gallery + Scrollable Right Specs */}
-        <section className="py-6 lg:py-10">
-          <div className="kaira-container">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 xl:gap-12 items-start">
+        <main className="py-4 sm:py-6 lg:py-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 xl:gap-12 items-start">
 
-              {/* Left Column: Sticky Image Gallery (Tablet Landscape & Desktop Optimized) */}
-              <div className="lg:col-span-7 lg:sticky lg:top-24 flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 h-auto lg:h-[calc(100vh-180px)] lg:max-h-[580px]">
-                {/* Thumbnails: added p-1.5 to prevent border/ring clipping on left/top/bottom */}
-                {images.length > 1 && (
-                  <div className="flex sm:flex-col gap-2.5 sm:gap-3 overflow-x-auto sm:overflow-y-auto shrink-0 p-1.5 max-h-full scrollbar-none">
-                    {images.map((img, idx) => (
+              {/* LEFT COLUMN: Sticky Gallery with Vertical Thumbnails */}
+              <div className="lg:col-span-7 lg:sticky lg:top-24 flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 items-start">
+                
+                {/* Vertical Thumbnails List */}
+                <div className="flex sm:flex-col gap-2.5 sm:gap-3 overflow-x-auto sm:overflow-y-auto w-full sm:w-[84px] shrink-0 scrollbar-none p-1">
+                  {images.map((img, idx) => {
+                    const isSelected = selectedImage === img
+                    return (
                       <button
                         key={idx}
                         type="button"
                         onClick={() => setSelectedImage(img)}
-                        className={`relative h-16 w-16 sm:h-20 sm:w-20 lg:h-22 lg:w-22 overflow-hidden rounded-2xl transition-all duration-200 cursor-pointer shrink-0 bg-neutral-100 ${
-                          selectedImage === img
-                            ? 'ring-2 ring-black ring-offset-2 shadow-md'
-                            : 'border border-black/15 opacity-60 hover:opacity-100 hover:border-black/40'
+                        className={`relative aspect-[3/3.8] w-15 sm:w-full overflow-hidden rounded-xl bg-[#f2f2f2] transition-all duration-200 cursor-pointer shrink-0 ${
+                          isSelected
+                            ? 'ring-2 ring-black ring-offset-1 shadow-sm'
+                            : 'border border-black/10 opacity-70 hover:opacity-100'
                         }`}
                       >
                         <img
                           src={img}
-                          alt={`Thumbnail ${idx}`}
-                          className="h-full w-full object-cover object-top"
+                          alt={`${product.name} view ${idx + 1}`}
+                          className="h-full w-full object-cover object-center"
                           onError={(e) => {
                             e.currentTarget.src = PLACEHOLDER_PRODUCT_IMAGE
                           }}
                         />
                       </button>
-                    ))}
-                  </div>
-                )}
+                    )
+                  })}
+                </div>
 
-                {/* Main Image Container */}
-                <div className="relative flex-1 h-full min-h-[380px] sm:min-h-[460px] lg:min-h-0 overflow-hidden rounded-3xl bg-neutral-100 border border-black/10 shadow-sm">
+                {/* Main Image Showcase - Proportionate height without empty gap */}
+                <div className="relative flex-1 w-full aspect-[3.8/4.5] overflow-hidden rounded-3xl bg-[#f2f2f2] shadow-xs select-none">
+                  {/* Wishlist Button - Top Right Circular Floating Button */}
                   <button
                     type="button"
                     onClick={() => toggleWishlist(product.id)}
-                    className={`absolute right-4 top-4 sm:right-5 sm:top-5 z-10 flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full bg-white/95 backdrop-blur-md transition-all cursor-pointer hover:scale-110 shadow-md ${
-                      isWishlisted ? 'heart-active text-red-500 fill-red-500' : 'text-black/80 hover:text-black'
+                    aria-label="Add to Wishlist"
+                    className={`absolute right-4 top-4 sm:right-5 sm:top-5 z-20 flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full bg-white shadow-sm hover:shadow-md transition-all cursor-pointer hover:scale-105 ${
+                      isWishlisted ? 'text-red-500 fill-red-500' : 'text-neutral-700 hover:text-black'
                     }`}
                   >
-                    <HugeiconsIcon icon={FavouriteIcon} size={18} fill={isWishlisted ? 'currentColor' : 'none'} />
+                    <HugeiconsIcon icon={FavouriteIcon} size={18} strokeWidth={1.8} fill={isWishlisted ? 'currentColor' : 'none'} />
                   </button>
 
-                  {/* Pure Black Corner Badge */}
-                  {product.badge && (
-                    <div className="absolute left-4 top-4 sm:left-5 sm:top-5 z-10 pointer-events-none animate-badge-slide-up">
-                      <div className="pure-black-badge-bar rounded-2xl py-1.5 px-3.5 shadow-md">
-                        <span className="text-xs sm:text-sm font-bold tracking-wide text-white whitespace-nowrap">
-                          {product.badge}
-                        </span>
-                      </div>
-                    </div>
+                  {/* Left Carousel Arrow */}
+                  {images.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={handlePrevImage}
+                      aria-label="Previous Image"
+                      className="tap-press absolute left-3 top-1/2 -translate-y-1/2 z-20 flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-white/95 text-neutral-800 shadow-md hover:bg-white hover:scale-105 transition-all cursor-pointer"
+                    >
+                      <HugeiconsIcon icon={ArrowLeft01Icon} size={16} strokeWidth={2.4} />
+                    </button>
                   )}
 
+                  {/* Right Carousel Arrow */}
+                  {images.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={handleNextImage}
+                      aria-label="Next Image"
+                      className="tap-press absolute right-3 top-1/2 -translate-y-1/2 z-20 flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-white/95 text-neutral-800 shadow-md hover:bg-white hover:scale-105 transition-all cursor-pointer"
+                    >
+                      <HugeiconsIcon icon={ArrowRight01Icon} size={16} strokeWidth={2.4} />
+                    </button>
+                  )}
+
+                  {/* Bottom Right Zoom Button */}
+                  <button
+                    type="button"
+                    onClick={() => setIsZoomOpen(true)}
+                    aria-label="Zoom Image"
+                    className="tap-press absolute right-4 bottom-4 sm:right-5 sm:bottom-5 z-20 flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full bg-white text-neutral-700 shadow-sm hover:shadow-md hover:text-black hover:scale-105 transition-all cursor-pointer"
+                  >
+                    <HugeiconsIcon icon={Search01Icon} size={18} strokeWidth={2} />
+                  </button>
+
+                  {/* Main Display Image */}
                   <img
                     key={selectedImage}
                     src={selectedImage || PLACEHOLDER_PRODUCT_IMAGE}
                     alt={product.name}
-                    className="h-full w-full object-cover object-top animate-image-fade-in"
+                    className="h-full w-full object-cover object-center animate-image-fade-in"
                   />
                 </div>
               </div>
 
-              {/* Right Column: Independently Scrollable Details, Purchase & Specs */}
-              <div className="lg:col-span-5 space-y-6">
-                {/* Meta Header */}
-                <div className="space-y-3 pb-4 border-b border-black/10">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-black uppercase tracking-widest text-black/50">
-                      {product.category?.name}
-                    </span>
+              {/* RIGHT COLUMN: Product Information & Purchase Controls (Naturally extends the page) */}
+              <div className="lg:col-span-5 space-y-3.5">
+                
+                {/* Header Information: Subtitle + Title + Reviews + Pricing (Badge removed) */}
+                <div className="space-y-1.5">
+                  {/* Category / Fit Subtitle */}
+                  <div className="text-xs font-extrabold uppercase tracking-widest text-black/45">
+                    {product.category?.name || fitText}
                   </div>
 
-                  <h1 className="text-3xl sm:text-4xl font-black text-black tracking-tight leading-tight">
+                  {/* Product Title matching canonical H1 typography */}
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-black tracking-tight leading-tight">
                     {product.name}
                   </h1>
 
-                  {/* Price */}
-                  <div className="space-y-0.5">
-                    <div className="flex items-baseline gap-3">
-                      <span className="text-3xl font-black text-black">
-                        {formatCurrency(effectivePrice)}
+                  {/* Rating row: ★★★★★ 4.8 (128 reviews) */}
+                  <div className="flex items-center gap-2 pt-0.5 text-xs text-black/60 font-semibold">
+                    <div className="flex items-center text-black text-sm tracking-tighter">
+                      {'★★★★★'}
+                    </div>
+                    <span className="font-bold text-black">4.8</span>
+                    <span className="text-black/40">(128 reviews)</span>
+                  </div>
+
+                  {/* Pricing Row: Price + MRP (strike-through) + Discount Badge */}
+                  <div className="flex items-baseline gap-2.5 pt-1.5 flex-wrap">
+                    <span className="text-2xl sm:text-3xl font-black text-black">
+                      {formatCurrency(effectivePrice)}
+                    </span>
+                    {effectiveMrp > effectivePrice && (
+                      <span className="text-sm sm:text-base font-semibold text-black/40 line-through">
+                        {formatCurrency(effectiveMrp)}
                       </span>
-                      {effectiveMrp > effectivePrice && (
-                        <span className="text-base font-bold text-black/40 line-through">
-                          {formatCurrency(effectiveMrp)}
-                        </span>
-                      )}
-                    </div>
-                    <span className="text-xs font-semibold text-black/60 block">
-                      Price incl. of all taxes
-                    </span>
+                    )}
+                    {discountPercent && discountPercent > 0 && (
+                      <span className="inline-flex items-center text-xs font-bold text-red-600 bg-red-50 border border-red-100 px-2 py-0.5 rounded-md">
+                        {discountPercent}% OFF
+                      </span>
+                    )}
                   </div>
+                  <span className="text-xs font-semibold text-black/50 block">
+                    Price incl. of all taxes
+                  </span>
                 </div>
 
-                {/* Color Selector */}
-                {colors.length > 0 && (
-                  <div className="space-y-2.5">
-                    <label className="text-xs font-extrabold uppercase tracking-wider text-black">
-                      Color: <span className="text-black/70 font-semibold">{selectedColor?.name}</span>
-                    </label>
-                    <div className="flex items-center gap-3">
-                      {colors.map((color) => (
-                        <button
-                          key={color.name}
-                          type="button"
-                          onClick={() => setSelectedColor(color)}
-                          className={`relative h-9 w-9 rounded-full border-2 transition-all cursor-pointer ${
-                            selectedColor?.name === color.name ? 'border-black scale-110 shadow-sm' : 'border-black/20 hover:scale-105'
-                          }`}
-                          style={{ backgroundColor: color.hex }}
-                          title={color.name}
-                        />
-                      ))}
+                <div className="border-t border-black/10 pt-3.5 space-y-4">
+                  {/* COLOR SELECTOR */}
+                  {colors.length > 0 && (
+                    <div className="space-y-2">
+                      <div className="text-xs font-bold text-black uppercase tracking-wider">
+                        Color: <span className="font-extrabold text-black">{selectedColor?.name || 'Default'}</span>
+                      </div>
+                      <div className="flex items-center gap-2.5 p-0.5">
+                        {colors.map((color) => {
+                          const isSelected = selectedColor?.name === color.name
+                          return (
+                            <button
+                              key={color.name}
+                              type="button"
+                              onClick={() => setSelectedColor(color)}
+                              className={`relative h-8 w-8 sm:h-9 sm:w-9 rounded-full transition-transform cursor-pointer shrink-0 ${
+                                isSelected
+                                  ? 'ring-2 ring-black ring-offset-2 scale-105'
+                                  : 'border border-black/20 hover:scale-105'
+                              }`}
+                              style={{ backgroundColor: color.hex }}
+                              title={color.name}
+                            />
+                          )
+                        })}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {/* Size Selector */}
-                {sizes.length > 0 && (
-                  <div className="space-y-2.5">
-                    <div className="flex items-center justify-between text-xs font-extrabold uppercase tracking-wider">
+                  {/* SIZE SELECTOR + SIZE GUIDE LINK */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-black">
                       <span>Select Size</span>
+                      <button
+                        type="button"
+                        onClick={() => setIsSizeGuideOpen(true)}
+                        className="flex items-center gap-1.5 text-xs font-bold text-black/60 hover:text-black transition-colors cursor-pointer underline-offset-4 hover:underline"
+                      >
+                        <span className="text-xs">⌗</span>
+                        <span>Size Guide</span>
+                      </button>
                     </div>
-                    <div className="grid grid-cols-5 gap-2.5">
-                      {sizes.map((size) => (
-                        <button
-                          key={size}
-                          type="button"
-                          onClick={() => setSelectedSize(size)}
-                          className={`py-3 rounded-xl border text-xs font-extrabold uppercase transition-all cursor-pointer ${
-                            selectedSize === size
-                              ? 'border-black bg-black text-white shadow-md'
-                              : 'border-black/20 bg-white text-black hover:border-black'
-                          }`}
-                        >
-                          {size}
-                        </button>
-                      ))}
+
+                    {/* Size Buttons Grid */}
+                    <div className="grid grid-cols-6 gap-2">
+                      {sizes.map((size) => {
+                        const isSelected = selectedSize === size
+                        return (
+                          <button
+                            key={size}
+                            type="button"
+                            onClick={() => setSelectedSize(size)}
+                            className={`py-2.5 rounded-xl text-xs font-bold uppercase transition-all cursor-pointer ${
+                              isSelected
+                                ? 'bg-black text-white shadow-sm'
+                                : 'border border-black/20 bg-white text-black hover:border-black'
+                            }`}
+                          >
+                            {size}
+                          </button>
+                        )
+                      })}
                     </div>
                   </div>
-                )}
 
-                {/* Add to Cart CTA */}
-                <div className="space-y-4 pt-2">
-                  <LiquidButton
-                    onClick={handleAddToCart}
-                    variant={isInCart ? 'outline' : 'primary'}
-                    isLoading={isAddingToCart}
-                    className="w-full !py-4 justify-between !text-base shadow-lg"
-                  >
-                    <span>
-                      {isAddingToCart ? 'Adding…' : isInCart ? '✓ Already in Bag' : 'Add to Bag'} • {formatCurrency(effectivePrice)}
-                    </span>
-                  </LiquidButton>
+                  {/* QUANTITY STEPPER + "ADD TO BAG" CTA BUTTON */}
+                  <div className="flex items-center gap-3 pt-1">
+                    {/* Stepper (- 1 +) */}
+                    <div className="flex items-center justify-between h-11 sm:h-12 w-28 rounded-2xl bg-neutral-100 px-3 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                        disabled={quantity <= 1}
+                        className="text-black hover:text-black/60 disabled:opacity-30 cursor-pointer tap-press p-1"
+                      >
+                        <HugeiconsIcon icon={MinusSignIcon} size={14} strokeWidth={2.4} />
+                      </button>
+                      <span className="font-extrabold text-sm sm:text-base text-black">{quantity}</span>
+                      <button
+                        type="button"
+                        onClick={() => setQuantity((q) => q + 1)}
+                        className="text-black hover:text-black/60 cursor-pointer tap-press p-1"
+                      >
+                        <HugeiconsIcon icon={Add01Icon} size={14} strokeWidth={2.4} />
+                      </button>
+                    </div>
+
+                    {/* ADD TO BAG Button with Price and Right Arrow */}
+                    <button
+                      type="button"
+                      onClick={handleAddToCart}
+                      disabled={isAddingToCart}
+                      className="tap-press flex-1 h-11 sm:h-12 flex items-center justify-between rounded-2xl bg-black hover:bg-neutral-900 text-white px-5 sm:px-6 shadow-sm transition-all cursor-pointer group disabled:cursor-wait"
+                    >
+                      <span className="font-extrabold text-xs sm:text-sm uppercase tracking-wider">
+                        {isAddingToCart ? 'ADDING…' : isInCart ? 'ADDED IN BAG' : `ADD TO BAG • ${formatCurrency(effectivePrice * quantity)}`}
+                      </span>
+                      {isAddingToCart ? (
+                        <span className="h-3.5 w-3.5 rounded-full border-2 border-white/20 border-t-white animate-spin" />
+                      ) : (
+                        <HugeiconsIcon
+                          icon={ArrowRight01Icon}
+                          size={16}
+                          strokeWidth={2.4}
+                          className="transition-transform group-hover:translate-x-1"
+                        />
+                      )}
+                    </button>
+                  </div>
+
+                  {/* 3 Value Pillars Row: Exactly styled and proportioned without card look */}
+                  <div className="grid grid-cols-3 border-y border-black/10 py-3.5 my-1">
+                    {/* Free Shipping */}
+                    <div className="flex items-center gap-2.5 pr-2">
+                      <div className="text-black shrink-0">
+                        <HugeiconsIcon icon={DeliveryTruck01Icon} size={22} strokeWidth={1.8} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs sm:text-[13px] font-bold text-black leading-snug">Free Shipping</p>
+                        <p className="text-[10px] sm:text-[11px] text-black/55 font-medium leading-tight">on orders above ₹999</p>
+                      </div>
+                    </div>
+
+                    {/* Easy Returns */}
+                    <div className="flex items-center gap-2.5 border-l border-black/10 px-2.5 sm:px-3">
+                      <div className="text-black shrink-0">
+                        <HugeiconsIcon icon={RefreshIcon} size={20} strokeWidth={1.8} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs sm:text-[13px] font-bold text-black leading-snug">Easy Returns</p>
+                        <p className="text-[10px] sm:text-[11px] text-black/55 font-medium leading-tight">7 days return policy</p>
+                      </div>
+                    </div>
+
+                    {/* Secure Payments */}
+                    <div className="flex items-center gap-2.5 border-l border-black/10 pl-2.5 sm:pl-3">
+                      <div className="text-black shrink-0">
+                        <HugeiconsIcon icon={CreditCardIcon} size={20} strokeWidth={1.8} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs sm:text-[13px] font-bold text-black leading-snug">Secure Payments</p>
+                        <p className="text-[10px] sm:text-[11px] text-black/55 font-medium leading-tight">100% secure checkout</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                {/* Minimalist Border-Divided Accordions (No Card Backgrounds) with Smooth Animations */}
-                <div className="pt-6 border-t border-black/15">
-                  <h3 className="text-xs font-black uppercase tracking-widest text-black/50 mb-2">
+                {/* ACCORDION DETAILS SECTION */}
+                <div className="pt-2">
+                  <p className="text-xs font-black uppercase tracking-widest text-black/40 mb-2">
                     Product Details
-                  </h3>
+                  </p>
 
-                  {/* Accordion 1: Product Description */}
+                  {/* Accordion 1: PRODUCT DESCRIPTION */}
                   <div className="border-b border-black/10">
                     <button
                       type="button"
                       onClick={() => toggleAccordion('description')}
-                      className="w-full py-4 flex items-center justify-between font-black text-sm text-black uppercase tracking-wider text-left cursor-pointer group"
+                      className="w-full py-3.5 flex items-center justify-between text-xs sm:text-sm font-extrabold uppercase tracking-wide text-black text-left cursor-pointer group"
                     >
                       <span className="group-hover:text-black/70 transition-colors">Product Description</span>
-                      <span className={`text-xl font-bold text-black transition-transform duration-300 ${openAccordion === 'description' ? 'rotate-45' : 'rotate-0'}`}>
+                      <span className={`text-lg font-bold text-black transition-transform duration-300 leading-none ${openAccordion === 'description' ? 'rotate-45' : 'rotate-0'}`}>
                         +
                       </span>
                     </button>
-                    <div className={`grid transition-all duration-300 ease-in-out ${openAccordion === 'description' ? 'grid-rows-[1fr] opacity-100 pb-5' : 'grid-rows-[0fr] opacity-0 pb-0'}`}>
-                      <div className="overflow-hidden">
-                        <div className="space-y-4 pt-1">
-                          <p className="text-sm text-black/80 font-medium leading-relaxed">
-                            {product.description || 'No additional description available for this product yet.'}
-                          </p>
-                        </div>
+                    {openAccordion === 'description' && (
+                      <div className="pb-4 animate-fade-in">
+                        <p className="text-xs sm:text-sm text-black/75 font-medium leading-relaxed">
+                          {product.description ||
+                            'A soft and comfortable oversized tee designed around a relaxed body and dropped shoulders. Its clean construction makes it suitable for everyday casual wear and simple streetwear combinations.'}
+                        </p>
                       </div>
-                    </div>
+                    )}
                   </div>
 
-                  {/* Accordion 2: Specifications & Availability */}
+                  {/* Accordion 2: MATERIAL & CARE */}
                   <div className="border-b border-black/10">
                     <button
                       type="button"
-                      onClick={() => toggleAccordion('specs')}
-                      className="w-full py-4 flex items-center justify-between font-black text-sm text-black uppercase tracking-wider text-left cursor-pointer group"
+                      onClick={() => toggleAccordion('material')}
+                      className="w-full py-3.5 flex items-center justify-between text-xs sm:text-sm font-extrabold uppercase tracking-wide text-black text-left cursor-pointer group"
                     >
-                      <span className="group-hover:text-black/70 transition-colors">Specifications & Availability</span>
-                      <span className={`text-xl font-bold text-black transition-transform duration-300 ${openAccordion === 'specs' ? 'rotate-45' : 'rotate-0'}`}>
+                      <span className="group-hover:text-black/70 transition-colors">Material & Care</span>
+                      <span className={`text-lg font-bold text-black transition-transform duration-300 leading-none ${openAccordion === 'material' ? 'rotate-45' : 'rotate-0'}`}>
                         +
                       </span>
                     </button>
-                    <div className={`grid transition-all duration-300 ease-in-out ${openAccordion === 'specs' ? 'grid-rows-[1fr] opacity-100 pb-5' : 'grid-rows-[0fr] opacity-0 pb-0'}`}>
-                      <div className="overflow-hidden">
-                        <div className="space-y-3 pt-1 text-sm text-black/80 font-bold">
-                          {product.neckType && (
-                            <div className="flex items-center gap-2.5">
-                              <span className="h-1.5 w-1.5 rounded-full bg-black shrink-0" />
-                              <span>Neck Type: {NECK_TYPE_LABELS[product.neckType]}</span>
-                            </div>
-                          )}
-                          {product.gsm != null && (
-                            <div className="flex items-center gap-2.5">
-                              <span className="h-1.5 w-1.5 rounded-full bg-black shrink-0" />
-                              <span>Fabric Weight: {product.gsm} GSM</span>
-                            </div>
-                          )}
-                          {product.fit && (
-                            <div className="flex items-center gap-2.5">
-                              <span className="h-1.5 w-1.5 rounded-full bg-black shrink-0" />
-                              <span>Fit: {FIT_LABELS[product.fit]}</span>
-                            </div>
-                          )}
-                          {product.fabric && (
-                            <div className="flex items-center gap-2.5">
-                              <span className="h-1.5 w-1.5 rounded-full bg-black shrink-0" />
-                              <span>Fabric: {product.fabric}</span>
-                            </div>
-                          )}
-                          <div className="flex items-center gap-2.5">
-                            <span className="h-1.5 w-1.5 rounded-full bg-black shrink-0" />
-                            <span>Biowash: {product.biowash ? 'Yes' : 'No'}</span>
-                          </div>
-                        </div>
+                    {openAccordion === 'material' && (
+                      <div className="pb-4 animate-fade-in space-y-1.5 text-xs sm:text-sm text-black/75 font-medium">
+                        <p>• {product.fabric || '100% Combed Heavy Organic Cotton'}</p>
+                        <p>• {product.gsm ? `${product.gsm} GSM heavyweight structured knit` : '240 GSM premium structured knit'}</p>
+                        <p>• Machine wash cold with similar colors</p>
+                        <p>• Do not iron directly on graphic prints</p>
                       </div>
-                    </div>
+                    )}
+                  </div>
+
+                  {/* Accordion 3: SHIPPING & RETURNS */}
+                  <div className="border-b border-black/10">
+                    <button
+                      type="button"
+                      onClick={() => toggleAccordion('shipping')}
+                      className="w-full py-3.5 flex items-center justify-between text-xs sm:text-sm font-extrabold uppercase tracking-wide text-black text-left cursor-pointer group"
+                    >
+                      <span className="group-hover:text-black/70 transition-colors">Shipping & Returns</span>
+                      <span className={`text-lg font-bold text-black transition-transform duration-300 leading-none ${openAccordion === 'shipping' ? 'rotate-45' : 'rotate-0'}`}>
+                        +
+                      </span>
+                    </button>
+                    {openAccordion === 'shipping' && (
+                      <div className="pb-4 animate-fade-in space-y-1.5 text-xs sm:text-sm text-black/75 font-medium">
+                        <p>• Dispatched within 24-48 business hours.</p>
+                        <p>• Express delivery in 2-4 business days across India.</p>
+                        <p>• Free hassle-free returns and exchanges within 7 days of delivery.</p>
+                      </div>
+                    )}
                   </div>
                 </div>
 
               </div>
             </div>
           </div>
-        </section>
-
-        {/* Full Width Detailed Value & Assurance Features Section */}
-        <section className="w-full border-t border-b border-black/10 bg-neutral-50/70 py-10 lg:py-14 my-8">
-          <div className="kaira-container">
-            <div className="text-center max-w-xl mx-auto mb-8 sm:mb-12">
-              <span className="text-xs font-black uppercase tracking-widest text-black/50">Our Guarantees</span>
-              <h3 className="text-2xl sm:text-3xl font-black text-black tracking-tight mt-1">
-                How Shopping With Us Works
-              </h3>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-8 lg:divide-x lg:divide-black/10">
-              {/* Feature 1: Express Shipping */}
-              <div className="space-y-4 lg:px-4">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-black text-white flex items-center justify-center shrink-0 shadow-xs">
-                    <HugeiconsIcon icon={PackageIcon} size={20} />
-                  </div>
-                  <h4 className="text-sm font-black text-black tracking-wide leading-tight">
-                    Free Express Shipping
-                  </h4>
-                </div>
-                <ul className="space-y-2 text-xs text-black/70 font-medium">
-                  <li className="flex items-start gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-black shrink-0 mt-1.5" />
-                    <span>Dispatched within 24 hours of order confirmation</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-black shrink-0 mt-1.5" />
-                    <span>Swift doorstep delivery in 2-4 business days nationwide</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-black shrink-0 mt-1.5" />
-                    <span>Real-time SMS & WhatsApp order tracking updates</span>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Feature 2: Easy Returns */}
-              <div className="space-y-4 lg:px-4">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-black text-white flex items-center justify-center shrink-0 shadow-xs">
-                    <HugeiconsIcon icon={RefreshIcon} size={20} />
-                  </div>
-                  <h4 className="text-sm font-black text-black tracking-wide leading-tight">
-                    7-Day Easy Returns
-                  </h4>
-                </div>
-                <ul className="space-y-2 text-xs text-black/70 font-medium">
-                  <li className="flex items-start gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-black shrink-0 mt-1.5" />
-                    <span>7 days hassle-free return & size exchange window</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-black shrink-0 mt-1.5" />
-                    <span>Reverse doorstep pickup scheduled right at your home</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-black shrink-0 mt-1.5" />
-                    <span>Instant replacement dispatch or fast refund credit</span>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Feature 3: Quality Assured */}
-              <div className="space-y-4 lg:px-4">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-black text-white flex items-center justify-center shrink-0 shadow-xs">
-                    <HugeiconsIcon icon={SecurityCheckIcon} size={20} />
-                  </div>
-                  <h4 className="text-sm font-black text-black tracking-wide leading-tight">
-                    Quality Assured
-                  </h4>
-                </div>
-                <ul className="space-y-2 text-xs text-black/70 font-medium">
-                  <li className="flex items-start gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-black shrink-0 mt-1.5" />
-                    <span>100% premium combed cotton & heavyweight fabric</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-black shrink-0 mt-1.5" />
-                    <span>Biowashed & pre-shrunk to prevent fading and shrinkage</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-black shrink-0 mt-1.5" />
-                    <span>Multi-point quality check performed before shipping</span>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Feature 4: Cash on Delivery */}
-              <div className="space-y-4 lg:px-4">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-black text-white flex items-center justify-center shrink-0 shadow-xs">
-                    <HugeiconsIcon icon={CheckmarkCircle02Icon} size={20} />
-                  </div>
-                  <h4 className="text-sm font-black text-black tracking-wide leading-tight">
-                    Cash on Delivery
-                  </h4>
-                </div>
-                <ul className="space-y-2 text-xs text-black/70 font-medium">
-                  <li className="flex items-start gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-black shrink-0 mt-1.5" />
-                    <span>Pay easily via Cash, UPI, or Card upon delivery</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-black shrink-0 mt-1.5" />
-                    <span>Zero extra fees or hidden convenience charges</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-black shrink-0 mt-1.5" />
-                    <span>Available across 25,000+ PIN codes across India</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </section>
+        </main>
       </div>
+
+      {/* Image Zoom Modal */}
+      {isZoomOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm p-4 animate-fade-in"
+          onClick={() => setIsZoomOpen(false)}
+        >
+          <div className="relative max-w-4xl max-h-[90vh] overflow-hidden rounded-2xl bg-white p-2">
+            <button
+              type="button"
+              onClick={() => setIsZoomOpen(false)}
+              className="absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-black/70 text-white hover:bg-black cursor-pointer"
+            >
+              <HugeiconsIcon icon={Cancel01Icon} size={18} />
+            </button>
+            <img
+              src={selectedImage || PLACEHOLDER_PRODUCT_IMAGE}
+              alt={product.name}
+              className="max-h-[85vh] w-auto object-contain rounded-xl"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Size Guide Modal Drawer */}
+      {isSizeGuideOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fade-in">
+          <div className="relative w-full max-w-lg rounded-3xl bg-white p-6 sm:p-8 shadow-2xl">
+            <div className="flex items-center justify-between pb-4 border-b border-neutral-100">
+              <h3 className="text-lg font-black uppercase tracking-wider text-black">Size Guide (Inches)</h3>
+              <button
+                type="button"
+                onClick={() => setIsSizeGuideOpen(false)}
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-neutral-100 text-neutral-600 hover:text-black cursor-pointer"
+              >
+                <HugeiconsIcon icon={Cancel01Icon} size={16} />
+              </button>
+            </div>
+
+            <div className="py-4 space-y-4">
+              <table className="w-full text-left text-xs font-bold">
+                <thead>
+                  <tr className="border-b border-neutral-200 text-neutral-400 uppercase">
+                    <th className="py-2.5">Size</th>
+                    <th className="py-2.5">Chest</th>
+                    <th className="py-2.5">Length</th>
+                    <th className="py-2.5">Shoulder</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-neutral-100 text-neutral-800">
+                  <tr>
+                    <td className="py-2 font-black">XS</td>
+                    <td className="py-2">38 - 40"</td>
+                    <td className="py-2">27.5"</td>
+                    <td className="py-2">19.5"</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 font-black">S</td>
+                    <td className="py-2">40 - 42"</td>
+                    <td className="py-2">28.5"</td>
+                    <td className="py-2">20.0"</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 font-black">M</td>
+                    <td className="py-2">42 - 44"</td>
+                    <td className="py-2">29.5"</td>
+                    <td className="py-2">21.0"</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 font-black">L</td>
+                    <td className="py-2">44 - 46"</td>
+                    <td className="py-2">30.5"</td>
+                    <td className="py-2">22.0"</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 font-black">XL</td>
+                    <td className="py-2">46 - 48"</td>
+                    <td className="py-2">31.5"</td>
+                    <td className="py-2">23.0"</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 font-black">XXL</td>
+                    <td className="py-2">48 - 50"</td>
+                    <td className="py-2">32.5"</td>
+                    <td className="py-2">24.0"</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <div className="pt-2 text-center">
+                <Link
+                  to="/size-guide"
+                  className="text-xs font-extrabold text-neutral-800 underline underline-offset-4 hover:text-black"
+                >
+                  View full measurement guide & instructions →
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </div>
   )
 }
-

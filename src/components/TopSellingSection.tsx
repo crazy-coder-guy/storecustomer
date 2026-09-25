@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
 import { toast } from 'sonner'
 import { ProductCard, type ProductItem } from './ProductCard'
 import { Reveal } from './Reveal'
@@ -57,20 +56,13 @@ export function TopSellingSection({ onAddToCart }: TopSellingSectionProps) {
     <section id="shop" className="py-16 sm:py-24 bg-white">
       <div className="kaira-container">
         {/* Section Header */}
-        <Reveal className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 sm:mb-14 gap-4 border-b border-black/5 pb-6">
+        <Reveal className="mb-10 sm:mb-14 border-b border-black/5 pb-6">
           <div>
             <span className="text-[11px] font-extrabold uppercase tracking-widest text-black/40">Curated Favorites</span>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-black tracking-tight mt-1">
               Top Selling T-Shirts
             </h2>
           </div>
-          <Link
-            to="/products"
-            className="group flex items-center gap-1 text-xs sm:text-sm font-extrabold text-black uppercase tracking-wider hover:opacity-70 transition-opacity"
-          >
-            <span>View All Products</span>
-            <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
-          </Link>
         </Reveal>
 
         {/* Product Cards Grid: 2 columns on mobile, 3 on sm/md, 4 on desktop, 5 on large screens (xl/2xl) */}
