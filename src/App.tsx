@@ -16,7 +16,18 @@ import { OrderConfirmationPage } from './pages/OrderConfirmationPage'
 import { OrdersPage } from './pages/OrdersPage'
 import { OrderDetailPage } from './pages/OrderDetailPage'
 import { SearchPage } from './pages/SearchPage'
-import { WishlistPage } from './pages/WishlistPage'
+import { WishlistDrawer } from './components/WishlistDrawer'
+import { useWishlist } from './context/WishlistContext'
+import { useEffect } from 'react'
+import { Navigate } from 'react-router-dom'
+
+function WishlistRedirect() {
+  const { openWishlist } = useWishlist()
+  useEffect(() => {
+    openWishlist()
+  }, [openWishlist])
+  return <Navigate to="/" replace />
+}
 import { TrackOrderPage } from './pages/TrackOrderPage'
 import { ShippingInfoPage } from './pages/ShippingInfoPage'
 import { ReturnsPage } from './pages/ReturnsPage'
@@ -42,6 +53,7 @@ export function App() {
           <WishlistProvider>
             <BrowserRouter>
               <ScrollManager />
+              <WishlistDrawer />
               <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/about" element={<AboutPage />} />
@@ -55,8 +67,8 @@ export function App() {
                 <Route path="/orders" element={<OrdersPage />} />
                 <Route path="/orders/:orderId" element={<OrderDetailPage />} />
                 <Route path="/search" element={<SearchPage />} />
-                <Route path="/wishlist" element={<WishlistPage />} />
-                <Route path="/favourites" element={<WishlistPage />} />
+                <Route path="/wishlist" element={<WishlistRedirect />} />
+                <Route path="/favourites" element={<WishlistRedirect />} />
                 <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
                 <Route path="/privacy" element={<PrivacyPolicyPage />} />
                 <Route path="/terms-of-service" element={<TermsOfServicePage />} />

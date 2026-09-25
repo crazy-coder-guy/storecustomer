@@ -28,7 +28,7 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
   const navigate = useNavigate()
   const { user, isLoading, signInWithGoogle, signOutUser } = useAuth()
   const { cartCount } = useCart()
-  const { wishlistCount } = useWishlist()
+  const { wishlistCount, openWishlist } = useWishlist()
   const [isSigningIn, setIsSigningIn] = useState(false)
   const [isSigningOut, setIsSigningOut] = useState(false)
 
@@ -264,7 +264,10 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
 
                     <button
                       type="button"
-                      onClick={() => handleNavigate('/wishlist')}
+                      onClick={() => {
+                        onClose()
+                        openWishlist()
+                      }}
                       className="group w-full flex items-center justify-between py-4 px-2 hover:bg-black/[0.02] transition-colors cursor-pointer text-left"
                     >
                       <div className="flex items-center gap-3.5">

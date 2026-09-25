@@ -13,10 +13,12 @@ import { Navbar } from '../components/Navbar'
 import { Footer } from '../components/Footer'
 import { Skeleton } from '../components/Skeleton'
 import { useAuth } from '../context/AuthContext'
+import { useWishlist } from '../context/WishlistContext'
 
 export function AccountPage() {
   const navigate = useNavigate()
   const { user, isLoading, signInWithGoogle, signOutUser } = useAuth()
+  const { openWishlist } = useWishlist()
   const [isSigningIn, setIsSigningIn] = useState(false)
   const [isSigningOut, setIsSigningOut] = useState(false)
 
@@ -125,7 +127,7 @@ export function AccountPage() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => navigate('/wishlist')}
+                    onClick={openWishlist}
                     className="flex flex-col items-center gap-2 rounded-2xl border border-black/10 bg-neutral-50/60 p-5 hover:border-black transition-colors cursor-pointer"
                   >
                     <HugeiconsIcon icon={FavouriteIcon} size={22} />
