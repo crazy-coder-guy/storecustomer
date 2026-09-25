@@ -2,7 +2,6 @@ import { Navbar } from '../components/Navbar'
 import { HeroSection } from '../components/HeroSection'
 import { IntroSection } from '../components/IntroSection'
 import { TopSellingSection } from '../components/TopSellingSection'
-import { CategoriesSection } from '../components/CategoriesSection'
 import { VelocityScroll } from '../components/VelocityScroll'
 import { Footer } from '../components/Footer'
 
@@ -24,8 +23,8 @@ export function HomePage() {
           <TopSellingSection />
           {/* Velocity Scroll Marquee */}
           <VelocityScroll text="KAIIRA • MODERN ESSENTIALS • NEW SEASON COLLECTION • PREMIUM QUALITY • MINIMALIST APPAREL • EXPRESS SHIPPING •" />
-          {/* Curated Category Showcase Section */}
-          <CategoriesSection />
+          {/* Curated Category Showcase Section (Hidden) */}
+          {/* <CategoriesSection /> */}
         </main>
       </div>
 

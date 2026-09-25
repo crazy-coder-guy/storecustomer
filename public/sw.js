@@ -55,32 +55,47 @@ self.addEventListener('push', (event) => {
     payload = { title: 'Kaiira', body: event.data.text() }
   }
 
-  const { title = 'Kaiira', body = '', url = '/' } = payload
+  const { title = 'Kaiira', body = '', url = '/', image, actions } = payload
+
+  // Each action button carries its own optional target url (falling back to
+  // the notification's own), but the Notification API's `actions` option
+  // only accepts {action, title, icon} — so the per-action urls are kept
+  // separately in `data` and looked up by action id on click instead.
+  const hasActions = Array.isArray(actions) && actions.length > 0
+  const notificationActions = hasActions
+    ? actions.map((a) => ({ action: a.action, title: a.title, icon: a.icon }))
+    : undefined
+  const actionUrls = hasActions
+    ? Object.fromEntries(actions.map((a) => [a.action, a.url || url]))
+    : undefined
 
   event.waitUntil(
     self.registration.showNotification(title, {
       body,
       icon: '/favicon.png',
       badge: '/favicon.png',
-      data: { url },
+      image: image || undefined,
+      actions: notificationActions,
+      data: { url, actionUrls },
     })
   )
 })
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close()
-  const url = event.notification.data?.url || '/'
+  const { url = '/', actionUrls } = event.notification.data || {}
+  const targetUrl = (event.action && actionUrls && actionUrls[event.action]) || url
 
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
       for (const client of clientList) {
         if (client.url.includes(self.location.origin) && 'focus' in client) {
-          client.navigate(url)
+          client.navigate(targetUrl)
           return client.focus()
         }
       }
       if (self.clients.openWindow) {
-        return self.clients.openWindow(url)
+        return self.clients.openWindow(targetUrl)
       }
     })
   )

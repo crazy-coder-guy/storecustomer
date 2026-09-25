@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Cancel01Icon, ArrowRight01Icon } from '@hugeicons/core-free-icons'
+import { Cancel01Icon, ArrowRight01Icon, Share01Icon, MoreVerticalIcon } from '@hugeicons/core-free-icons'
 import { usePromptSlot } from '../context/PromptSlotContext'
 
 const DISMISSED_KEY = 'kaiira_install_prompt_dismissed'
@@ -11,24 +11,43 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>
 }
 
+type InstallMode = 'native' | 'ios-manual' | 'android-manual'
+
 function isRunningStandalone(): boolean {
   if (typeof window === 'undefined') return false
   const nav = window.navigator as Navigator & { standalone?: boolean }
   return window.matchMedia('(display-mode: standalone)').matches || nav.standalone === true
 }
 
+function detectPlatform(): 'ios' | 'android' | 'other' {
+  const ua = window.navigator.userAgent
+  // iPadOS 13+ reports as "Macintosh" but is touch-capable, unlike a real Mac.
+  const isIOS = /iPad|iPhone|iPod/.test(ua) || (ua.includes('Macintosh') && navigator.maxTouchPoints > 1)
+  if (isIOS) return 'ios'
+  if (/Android/.test(ua)) return 'android'
+  return 'other'
+}
+
 export function InstallAppPrompt() {
   const { isActive, activePrompt, claim, release } = usePromptSlot('install')
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
+  const [mode, setMode] = useState<InstallMode | null>(null)
   const [wantsToShow, setWantsToShow] = useState(false)
   const [isInstalling, setIsInstalling] = useState(false)
 
+  // iOS and some Android browsers never fire beforeinstallprompt at all, so
+  // this only relies on that event for the browsers that actually support
+  // it (mainly Chromium) — everyone else still gets the popover, just with
+  // manual "here's how" instructions instead of a one-tap install button.
   useEffect(() => {
     if (isRunningStandalone() || localStorage.getItem(DISMISSED_KEY)) return
+
+    const platform = detectPlatform()
 
     function handleBeforeInstallPrompt(e: Event) {
       e.preventDefault()
       setDeferredPrompt(e as BeforeInstallPromptEvent)
+      setMode('native')
     }
 
     function handleAppInstalled() {
@@ -39,20 +58,35 @@ export function InstallAppPrompt() {
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
     window.addEventListener('appinstalled', handleAppInstalled)
+
+    let fallbackTimer: ReturnType<typeof setTimeout> | undefined
+    if (platform === 'ios') {
+      // No install API exists on iOS at all — go straight to instructions.
+      setMode('ios-manual')
+    } else if (platform === 'android') {
+      // Give beforeinstallprompt a chance to fire first (real one-tap
+      // install is the better experience where it's supported); fall back
+      // to manual instructions if it doesn't show up in time.
+      fallbackTimer = setTimeout(() => {
+        setMode((current) => current ?? 'android-manual')
+      }, 2500)
+    }
+
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
       window.removeEventListener('appinstalled', handleAppInstalled)
+      if (fallbackTimer) clearTimeout(fallbackTimer)
     }
   }, [])
 
   useEffect(() => {
-    if (!deferredPrompt) return
+    if (!mode) return
     // Let the page settle before asking — same reasoning as the other
     // floating prompts, and it also gives the higher-priority ones (Google
     // sign-in, notifications) first crack at the shared slot.
     const timer = setTimeout(() => setWantsToShow(true), 5000)
     return () => clearTimeout(timer)
-  }, [deferredPrompt])
+  }, [mode])
 
   // Lowest priority of the three floating prompts — keeps retrying the
   // shared slot so this only appears once Google sign-in and the
@@ -86,7 +120,7 @@ export function InstallAppPrompt() {
     }
   }
 
-  const isVisible = wantsToShow && isActive
+  const isVisible = wantsToShow && isActive && mode !== null
 
   if (!isVisible) return null
 
@@ -119,23 +153,55 @@ export function InstallAppPrompt() {
           </div>
         </div>
 
+        {mode === 'ios-manual' && (
+          <div className="mt-2.5 pt-2.5 border-t border-black/10 text-[11px] sm:text-xs text-black/70 leading-relaxed flex items-center gap-2">
+            <HugeiconsIcon icon={Share01Icon} size={16} className="shrink-0" />
+            <span>
+              Tap the <span className="font-bold">Share</span> icon in Safari's toolbar, then choose{' '}
+              <span className="font-bold">Add to Home Screen</span>.
+            </span>
+          </div>
+        )}
+
+        {mode === 'android-manual' && (
+          <div className="mt-2.5 pt-2.5 border-t border-black/10 text-[11px] sm:text-xs text-black/70 leading-relaxed flex items-center gap-2">
+            <HugeiconsIcon icon={MoreVerticalIcon} size={16} className="shrink-0" />
+            <span>
+              Tap your browser's <span className="font-bold">menu</span>, then choose{' '}
+              <span className="font-bold">Add to Home screen</span> or <span className="font-bold">Install app</span>.
+            </span>
+          </div>
+        )}
+
         <div className="flex items-center gap-2 mt-3">
-          <button
-            type="button"
-            onClick={handleInstall}
-            disabled={isInstalling}
-            className="tap-press flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-black px-3.5 py-2 sm:py-2.5 text-xs font-black text-white hover:bg-neutral-800 transition-all cursor-pointer disabled:opacity-60 shadow-md active:scale-95"
-          >
-            <span>{isInstalling ? 'Installing…' : 'Install App'}</span>
-            {!isInstalling && <HugeiconsIcon icon={ArrowRight01Icon} size={14} />}
-          </button>
-          <button
-            type="button"
-            onClick={handleDismiss}
-            className="tap-press px-3.5 py-2 sm:py-2.5 text-xs font-bold text-black/50 hover:text-black transition-colors cursor-pointer rounded-xl hover:bg-black/5 active:scale-95"
-          >
-            Later
-          </button>
+          {mode === 'native' ? (
+            <button
+              type="button"
+              onClick={handleInstall}
+              disabled={isInstalling}
+              className="tap-press flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-black px-3.5 py-2 sm:py-2.5 text-xs font-black text-white hover:bg-neutral-800 transition-all cursor-pointer disabled:opacity-60 shadow-md active:scale-95"
+            >
+              <span>{isInstalling ? 'Installing…' : 'Install App'}</span>
+              {!isInstalling && <HugeiconsIcon icon={ArrowRight01Icon} size={14} />}
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={handleDismiss}
+              className="tap-press flex-1 inline-flex items-center justify-center rounded-xl bg-black px-3.5 py-2 sm:py-2.5 text-xs font-black text-white hover:bg-neutral-800 transition-all cursor-pointer active:scale-95"
+            >
+              Got it
+            </button>
+          )}
+          {mode === 'native' && (
+            <button
+              type="button"
+              onClick={handleDismiss}
+              className="tap-press px-3.5 py-2 sm:py-2.5 text-xs font-bold text-black/50 hover:text-black transition-colors cursor-pointer rounded-xl hover:bg-black/5 active:scale-95"
+            >
+              Later
+            </button>
+          )}
         </div>
       </div>
     </div>,
