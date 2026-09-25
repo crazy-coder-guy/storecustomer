@@ -42,12 +42,14 @@ import { InstallAppPrompt } from './components/InstallAppPrompt'
 import { SplashScreen } from './components/SplashScreen'
 import { ScrollManager } from './components/ScrollManager'
 import { HapticFeedback } from './components/HapticFeedback'
+import { VisitTracker } from './components/VisitTracker'
 
 export function App() {
   return (
     <AuthProvider>
       <CartProvider>
         <PromptSlotProvider>
+          <VisitTracker />
           <SplashScreen />
           <HapticFeedback />
           <WishlistProvider>
