@@ -92,6 +92,12 @@ export function AllProductsPage() {
   const totalCount = productsData?.meta.total ?? 0
   const hasMore = products.length < totalCount
   const isLoadingMore = isFetching && page > 1
+  // `isLoading` from react-query is unreliable here: `placeholderData` keeps
+  // reporting the *previous* filter's result as "loaded" for an instant
+  // after a filter change clears `allItems`, which would otherwise flash
+  // "No products found" before the new page arrives. Base it on actual item
+  // count instead.
+  const showSkeleton = allItems.length === 0 && (isLoading || isFetching)
 
   function handleLoadMore() {
     setPage((p) => p + 1)
@@ -307,7 +313,7 @@ export function AllProductsPage() {
                 </div>
               </div>
 
-              {isLoading ? (
+              {showSkeleton ? (
                 <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-3 sm:gap-4 lg:gap-5">
                   {Array.from({ length: 10 }).map((_, i) => (
                     <div key={i} className="aspect-[3.6/3.9] rounded-2xl sm:rounded-3xl bg-gray-100 animate-pulse" />
@@ -337,7 +343,7 @@ export function AllProductsPage() {
                 </div>
               )}
 
-              {!isLoading && hasMore && (
+              {!showSkeleton && hasMore && (
                 <div className="pt-8 pb-4 flex justify-center">
                   <button
                     type="button"
