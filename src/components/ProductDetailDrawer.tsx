@@ -5,7 +5,6 @@ import { formatCurrency } from '../utils/formatCurrency'
 import { useProductDetail, PLACEHOLDER_PRODUCT_IMAGE } from '../hooks/queries'
 import { useCart } from '../context/CartContext'
 import { useWishlist } from '../context/WishlistContext'
-import { ShareModal } from './ShareModal'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
   Cancel01Icon,
@@ -46,7 +45,6 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false)
   const [isAdding, setIsAdding] = useState(false)
   const [addedSuccess, setAddedSuccess] = useState(false)
-  const [isShareOpen, setIsShareOpen] = useState(false)
 
   const colors = useMemo<ColorOption[]>(() => {
     if (!product) return []

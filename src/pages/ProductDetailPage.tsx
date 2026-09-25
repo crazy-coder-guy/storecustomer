@@ -8,7 +8,6 @@ import { useCart } from '../context/CartContext'
 import { useWishlist } from '../context/WishlistContext'
 import { useProductDetail, PLACEHOLDER_PRODUCT_IMAGE } from '../hooks/queries'
 import { Reveal } from '../components/Reveal'
-import { toast } from 'sonner'
 import { ShareModal } from '../components/ShareModal'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
