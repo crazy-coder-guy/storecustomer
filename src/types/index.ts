@@ -168,7 +168,7 @@ export interface OrderItemResponse {
 export interface Order {
   id: string
   orderNumber: string
-  customerId: string
+  userId: string
   customerName: string
   customerEmail: string
   customerPhone: string
