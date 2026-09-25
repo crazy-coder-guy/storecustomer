@@ -22,9 +22,29 @@ export function SplashScreen() {
   const [isMounted, setIsMounted] = useState(shouldShow)
 
   useEffect(() => {
-    if (!shouldShow) return
-    const fadeTimer = setTimeout(() => setIsFadingOut(true), SPLASH_DURATION_MS)
-    const removeTimer = setTimeout(() => setIsMounted(false), SPLASH_DURATION_MS + FADE_DURATION_MS)
+    // If not standalone, dismiss the HTML instant splash immediately
+    if (!shouldShow) {
+      const htmlSplash = document.getElementById('pwa-instant-splash')
+      if (htmlSplash) {
+        htmlSplash.classList.add('hidden-splash')
+        setTimeout(() => htmlSplash.remove(), 400)
+      }
+      return
+    }
+
+    // Standalone PWA mode: coordinate fadeout with HTML splash
+    const fadeTimer = setTimeout(() => {
+      setIsFadingOut(true)
+      const htmlSplash = document.getElementById('pwa-instant-splash')
+      if (htmlSplash) htmlSplash.classList.add('hidden-splash')
+    }, SPLASH_DURATION_MS)
+
+    const removeTimer = setTimeout(() => {
+      setIsMounted(false)
+      const htmlSplash = document.getElementById('pwa-instant-splash')
+      if (htmlSplash) htmlSplash.remove()
+    }, SPLASH_DURATION_MS + FADE_DURATION_MS)
+
     return () => {
       clearTimeout(fadeTimer)
       clearTimeout(removeTimer)
