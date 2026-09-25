@@ -73,6 +73,10 @@ export function useStorefrontProducts(params: ListStorefrontProductsParams) {
     queryKey: ['storefront-products', params],
     queryFn: () => listStorefrontProducts(params),
     staleTime: 30 * 1000,
+    // "Load More" only grows `limit` — keep the previous page's products on
+    // screen while the bigger page loads instead of flashing back to a
+    // full-grid skeleton.
+    placeholderData: (prev) => prev,
   })
 }
 

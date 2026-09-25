@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { Navbar } from '../components/Navbar'
 import { ProductCard, type ProductItem } from '../components/ProductCard'
@@ -8,8 +8,11 @@ import { useCart } from '../context/CartContext'
 import { useCategories, useProductCards, useSizes, useStorefrontProducts } from '../hooks/queries'
 import { resolveDefaultVariantId } from '../services/product.service'
 import { getErrorMessage } from '../services/api'
+import type { ProductListItem } from '../types'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { FilterIcon, Cancel01Icon, ArrowDown01Icon } from '@hugeicons/core-free-icons'
+
+const PAGE_SIZE = 24
 
 const FIT_OPTIONS: { value: string; label: string }[] = [
   { value: 'REGULAR', label: 'Regular' },
@@ -43,10 +46,24 @@ export function AllProductsPage() {
   const [sort, setSort] = useState(SORT_OPTIONS[0].value)
   const [sortBy, sortOrder] = sort.split(':') as [string, 'asc' | 'desc']
 
+  // The backend caps `limit` at 100 regardless of what's requested, so
+  // "show more" has to walk through real pages and accumulate them
+  // client-side rather than ever requesting one huge page.
+  const [page, setPage] = useState(1)
+  const [allItems, setAllItems] = useState<ProductListItem[]>([])
+  const lastMergedPageRef = useRef(0)
+
   const { data: categoriesData } = useCategories({ status: 'ACTIVE', limit: 100 })
   const { data: sizesData } = useSizes()
 
-  const { data: productsData, isLoading } = useStorefrontProducts({
+  // Any filter/sort change starts the results fresh from page one again.
+  useEffect(() => {
+    setPage(1)
+    setAllItems([])
+    lastMergedPageRef.current = 0
+  }, [categoryIds, sizeIds, fits, minPrice, maxPrice, inStockOnly, sortBy, sortOrder])
+
+  const { data: productsData, isLoading, isFetching } = useStorefrontProducts({
     category_id: categoryIds.length > 0 ? categoryIds : undefined,
     size_id: sizeIds.length > 0 ? sizeIds : undefined,
     fit: fits.length > 0 ? fits : undefined,
@@ -55,10 +72,30 @@ export function AllProductsPage() {
     in_stock: inStockOnly || undefined,
     sortBy,
     sortOrder,
-    limit: 100,
+    page,
+    limit: PAGE_SIZE,
   })
-  const { cards } = useProductCards(productsData?.items)
+
+  useEffect(() => {
+    if (!productsData) return
+    if (page === 1) {
+      setAllItems(productsData.items)
+      lastMergedPageRef.current = 1
+    } else if (lastMergedPageRef.current < page) {
+      setAllItems((prev) => [...prev, ...productsData.items])
+      lastMergedPageRef.current = page
+    }
+  }, [productsData, page])
+
+  const { cards } = useProductCards(allItems)
   const products: ProductItem[] = cards
+  const totalCount = productsData?.meta.total ?? 0
+  const hasMore = products.length < totalCount
+  const isLoadingMore = isFetching && page > 1
+
+  function handleLoadMore() {
+    setPage((p) => p + 1)
+  }
 
   const activeFilterCount =
     categoryIds.length + sizeIds.length + fits.length + (minPrice ? 1 : 0) + (maxPrice ? 1 : 0) + (inStockOnly ? 1 : 0)
@@ -246,7 +283,7 @@ export function AllProductsPage() {
                     <span>Filters{activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}</span>
                   </button>
                   <span className="hidden sm:inline text-xs font-bold text-black/60 uppercase tracking-wider">
-                    Showing {products.length} Products
+                    Showing {products.length} of {totalCount} Products
                   </span>
                 </div>
 
@@ -297,6 +334,26 @@ export function AllProductsPage() {
                       />
                     </Reveal>
                   ))}
+                </div>
+              )}
+
+              {!isLoading && hasMore && (
+                <div className="pt-8 pb-4 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={handleLoadMore}
+                    disabled={isLoadingMore}
+                    className="inline-flex items-center gap-2 rounded-2xl border border-black/20 bg-white px-8 py-3 text-xs font-black uppercase tracking-wider text-black hover:border-black hover:bg-black hover:text-white transition-all cursor-pointer disabled:cursor-wait disabled:opacity-60"
+                  >
+                    {isLoadingMore ? (
+                      <>
+                        <span className="h-3.5 w-3.5 rounded-full border-2 border-black/20 border-t-black animate-spin" />
+                        <span>Loading…</span>
+                      </>
+                    ) : (
+                      <span>Load More Products</span>
+                    )}
+                  </button>
                 </div>
               )}
             </div>
