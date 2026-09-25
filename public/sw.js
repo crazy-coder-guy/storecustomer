@@ -3,6 +3,19 @@
 // the browser will actually invoke to handle a push arriving while the site
 // isn't open in a tab.
 
+// Without these, an already-installed service worker stays active
+// indefinitely (browsers don't auto-swap a running SW for a new version
+// until every tab using it closes) — so an icon/path fix here would look
+// like it "did nothing" until skipWaiting/clients.claim force the new
+// version to take over immediately.
+self.addEventListener('install', () => {
+  self.skipWaiting()
+})
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(self.clients.claim())
+})
+
 self.addEventListener('push', (event) => {
   if (!event.data) return
 
@@ -18,8 +31,8 @@ self.addEventListener('push', (event) => {
   event.waitUntil(
     self.registration.showNotification(title, {
       body,
-      icon: '/fav.svg',
-      badge: '/fav.svg',
+      icon: '/favicon.png',
+      badge: '/favicon.png',
       data: { url },
     })
   )
