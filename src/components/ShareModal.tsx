@@ -38,8 +38,8 @@ export function ShareModal({
   price,
   mrp,
   discountPercent,
-  rating = 4.9,
-  reviewsCount = 128,
+  rating,
+  reviewsCount,
   colors = [],
 }: ShareModalProps) {
   const [copied, setCopied] = useState(false)
@@ -201,17 +201,19 @@ export function ShareModal({
                   )}
                 </div>
 
-                {/* Rating & Reviews */}
-                <div className="flex items-center gap-1.5 pt-0.5">
-                  <div className="flex items-center gap-1 text-[11px] font-bold text-neutral-800">
-                    <HugeiconsIcon icon={StarIcon} size={12} className="text-amber-500 fill-amber-500" />
-                    <span>{rating}</span>
+                {/* Rating & Reviews (only when the product actually has reviews) */}
+                {rating !== undefined && reviewsCount !== undefined && reviewsCount > 0 && (
+                  <div className="flex items-center gap-1.5 pt-0.5">
+                    <div className="flex items-center gap-1 text-[11px] font-bold text-neutral-800">
+                      <HugeiconsIcon icon={StarIcon} size={12} className="text-amber-500 fill-amber-500" />
+                      <span>{rating}</span>
+                    </div>
+                    <span className="text-neutral-300 text-[10px]">•</span>
+                    <span className="text-[11px] text-neutral-500 font-medium">
+                      {reviewsCount} reviews
+                    </span>
                   </div>
-                  <span className="text-neutral-300 text-[10px]">•</span>
-                  <span className="text-[11px] text-neutral-500 font-medium">
-                    {reviewsCount} reviews
-                  </span>
-                </div>
+                )}
               </div>
             </div>
 

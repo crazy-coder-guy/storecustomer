@@ -9,6 +9,7 @@ import { useWishlist } from '../context/WishlistContext'
 import { useProductDetail, PLACEHOLDER_PRODUCT_IMAGE } from '../hooks/queries'
 import { Reveal } from '../components/Reveal'
 import { ShareModal } from '../components/ShareModal'
+import { ProductReviews } from '../components/ProductReviews'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
   FavouriteIcon,
@@ -206,12 +207,12 @@ export function ProductDetailPage() {
           <div className="kaira-container">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 xl:gap-12 items-start">
 
-              {/* LEFT COLUMN: Sticky Gallery with Vertical Thumbnails */}
-              <div className="lg:col-span-7 lg:sticky lg:top-24">
+              {/* LEFT COLUMN: Completely Sticky Gallery on Desktop */}
+              <div className="lg:col-span-7 lg:sticky lg:top-20 lg:self-start">
                 <Reveal animation="fade-right" duration={700}>
                   <div className="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 items-start">
                     {/* Vertical Thumbnails List */}
-                    <div className="flex sm:flex-col gap-2.5 sm:gap-3 overflow-x-auto sm:overflow-y-auto w-full sm:w-[84px] shrink-0 scrollbar-none p-1">
+                    <div className="flex sm:flex-col gap-2.5 sm:gap-3 overflow-x-auto sm:overflow-y-auto w-full sm:w-[84px] shrink-0 scrollbar-none p-1 sm:max-h-[calc(100vh-6rem)]">
                   {images.map((img, idx) => {
                     const isSelected = selectedImage === img
                     return (
@@ -239,7 +240,7 @@ export function ProductDetailPage() {
                 </div>
 
                 {/* Main Image Showcase - Proportionate height without empty gap */}
-                <div className="relative flex-1 w-full aspect-[3.8/4.5] overflow-hidden rounded-3xl bg-[#f2f2f2] shadow-xs select-none">
+                <div className="relative flex-1 w-full aspect-[3.8/4.5] lg:max-h-[calc(100vh-6rem)] overflow-hidden rounded-3xl bg-[#f2f2f2] shadow-xs select-none">
                   {/* Top-Right Floating Actions: Share + Wishlist */}
                   <div className="absolute right-4 top-4 sm:right-5 sm:top-5 z-20 flex items-center gap-2">
                     {/* Share Button */}
@@ -581,6 +582,13 @@ export function ProductDetailPage() {
                     )}
                   </div>
                 </div>
+
+                {/* PRODUCT REVIEWS CONTINUATION */}
+                <ProductReviews
+                  productId={product.id}
+                  productName={product.name}
+                  productImage={images[0]}
+                />
               </Reveal>
             </div>
           </div>
@@ -700,8 +708,6 @@ export function ProductDetailPage() {
           mrp={effectiveMrp}
           discountPercent={discountPercent}
           colors={colors}
-          rating={4.9}
-          reviewsCount={128}
         />
       )}
 

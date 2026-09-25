@@ -1,4 +1,5 @@
-import { useParams } from 'react-router-dom'
+import { useMemo, useState } from 'react'
+import { useParams, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
@@ -11,12 +12,16 @@ import {
   Location01Icon,
   Copy01Icon,
   Download01Icon,
+  StarIcon,
 } from '@hugeicons/core-free-icons'
 import { toast } from 'sonner'
 import { Navbar } from '../components/Navbar'
 import { Footer } from '../components/Footer'
 import { LiquidButton } from '../components/LiquidButton'
 import { Skeleton } from '../components/Skeleton'
+import { WriteReviewModal } from '../components/WriteReviewModal'
+import { useAuth } from '../context/AuthContext'
+import { useReviewableProducts } from '../hooks/queries'
 import { getOrder } from '../services/order.service'
 import { formatCurrency } from '../utils/formatCurrency'
 import { formatDate } from '../utils/formatDate'
@@ -61,11 +66,23 @@ const STATUS_CONFIG: Record<
 
 export function OrderDetailPage() {
   const { orderId } = useParams<{ orderId: string }>()
+  const { user } = useAuth()
   const { data: order, isLoading, isError } = useQuery({
     queryKey: ['order', orderId],
     queryFn: () => getOrder(orderId as string),
     enabled: Boolean(orderId),
   })
+  const [reviewTarget, setReviewTarget] = useState<{
+    productId: string
+    productName: string
+    productImage: string | null
+  } | null>(null)
+
+  const { data: reviewableProducts = [] } = useReviewableProducts(Boolean(user))
+  const reviewableProductIds = useMemo(
+    () => new Set(reviewableProducts.map((r) => r.productId)),
+    [reviewableProducts]
+  )
 
   const itemsTotal = order?.items?.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0) ?? 0
   const deliveryFee = order ? Math.max(0, order.totalAmount - itemsTotal) : 0
@@ -294,24 +311,33 @@ export function OrderDetailPage() {
                           key={item.id}
                           className="flex items-center gap-5 py-5 first:pt-0 last:pb-0"
                         >
-                          {/* Garment Image */}
-                          <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-2xl bg-neutral-100 border border-black/10 overflow-hidden shrink-0 flex items-center justify-center">
+                          {/* Garment Image - Clickable to Product Detail */}
+                          <Link
+                            to={`/product/${item.productId}`}
+                            className="h-20 w-20 sm:h-24 sm:w-24 rounded-2xl bg-neutral-100 border border-black/10 overflow-hidden shrink-0 flex items-center justify-center group cursor-pointer hover:border-black/30 transition-all"
+                            title={`View ${item.productName}`}
+                          >
                             {item.productImageUrl ? (
                               <img
                                 src={item.productImageUrl}
                                 alt={item.productName}
-                                className="h-full w-full object-cover"
+                                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                               />
                             ) : (
                               <HugeiconsIcon icon={PackageIcon} size={28} className="text-black/30" />
                             )}
-                          </div>
+                          </Link>
 
                           {/* Garment Meta matching ProductDetailPage */}
                           <div className="min-w-0 flex-1 space-y-1">
-                            <h3 className="text-base sm:text-lg font-black text-black tracking-tight leading-snug truncate">
-                              {item.productName}
-                            </h3>
+                            <Link
+                              to={`/product/${item.productId}`}
+                              className="group block"
+                            >
+                              <h3 className="text-base sm:text-lg font-black text-black tracking-tight leading-snug truncate group-hover:text-black/75 hover:underline underline-offset-2 transition-colors">
+                                {item.productName}
+                              </h3>
+                            </Link>
                             <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-black/60">
                               <span className="flex items-center gap-1.5">
                                 <span
@@ -331,10 +357,26 @@ export function OrderDetailPage() {
                           </div>
 
                           {/* Line Subtotal */}
-                          <div className="shrink-0 text-right">
-                            <span className="text-base sm:text-lg font-black text-black">
+                          <div className="shrink-0 text-right space-y-2">
+                            <span className="text-base sm:text-lg font-black text-black block">
                               {formatCurrency(item.unitPrice * item.quantity)}
                             </span>
+                            {order.status === 'DELIVERED' && reviewableProductIds.has(item.productId) && (
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setReviewTarget({
+                                    productId: item.productId,
+                                    productName: item.productName,
+                                    productImage: item.productImageUrl,
+                                  })
+                                }
+                                className="inline-flex items-center gap-1.5 rounded-xl border border-black/15 px-3 py-1.5 text-xs font-bold text-black hover:border-black hover:bg-black hover:text-white transition-all cursor-pointer"
+                              >
+                                <HugeiconsIcon icon={StarIcon} size={13} />
+                                <span>Rate & Review</span>
+                              </button>
+                            )}
                           </div>
                         </div>
                       ))}
@@ -417,6 +459,17 @@ export function OrderDetailPage() {
       </div>
 
       <Footer />
+
+      {reviewTarget && order && (
+        <WriteReviewModal
+          isOpen={Boolean(reviewTarget)}
+          onClose={() => setReviewTarget(null)}
+          productId={reviewTarget.productId}
+          orderId={order.id}
+          productName={reviewTarget.productName}
+          productImage={reviewTarget.productImage}
+        />
+      )}
     </div>
   )
 }

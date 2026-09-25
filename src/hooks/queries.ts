@@ -12,6 +12,7 @@ import { listSizes } from '../services/size.service'
 import { getStorefrontSettings, listFeaturedProducts } from '../services/storefront.service'
 import { searchProducts } from '../services/search.service'
 import { listAddresses } from '../services/address.service'
+import { listProductReviews, listReviewableProducts } from '../services/review.service'
 import type { ProductListItem } from '../types'
 
 // A tiny inline gray placeholder, used only when a product genuinely has no images yet.
@@ -118,6 +119,24 @@ export function useAddresses(enabled = true) {
   return useQuery({
     queryKey: ['addresses'],
     queryFn: listAddresses,
+    enabled,
+    staleTime: 30 * 1000,
+  })
+}
+
+export function useProductReviews(productId: string | undefined, limit = 5) {
+  return useQuery({
+    queryKey: ['product-reviews', productId, limit],
+    queryFn: () => listProductReviews(productId as string, 1, limit),
+    enabled: Boolean(productId),
+    staleTime: 30 * 1000,
+  })
+}
+
+export function useReviewableProducts(enabled = true) {
+  return useQuery({
+    queryKey: ['reviewable-products'],
+    queryFn: listReviewableProducts,
     enabled,
     staleTime: 30 * 1000,
   })

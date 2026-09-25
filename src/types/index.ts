@@ -153,6 +153,8 @@ export interface Address {
 
 export interface OrderItemResponse {
   id: string
+  productId: string
+  productSlug: string
   productImageUrl: string | null
   productName: string
   colorName: string
@@ -221,4 +223,36 @@ export interface CartSummary {
 export interface CartResponse {
   items: CartItemResponse[]
   summary: CartSummary
+}
+
+export interface Review {
+  id: string
+  rating: number
+  comment: string
+  images: string[]
+  video: string | null
+  createdAt: string
+  reviewerName: string
+  reviewerPhoto: string | null
+  verifiedPurchase: boolean
+}
+
+export interface ReviewSummary {
+  average: number
+  count: number
+  breakdown: Record<'1' | '2' | '3' | '4' | '5', number>
+}
+
+export interface ReviewsResponse {
+  items: Review[]
+  meta: PaginationMeta
+  summary: ReviewSummary
+}
+
+export interface ReviewableProduct {
+  orderId: string
+  orderNumber: string
+  productId: string
+  productName: string
+  productImage: string | null
 }

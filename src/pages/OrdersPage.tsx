@@ -15,11 +15,14 @@ import {
   Cancel01Icon,
   ArrowDown01Icon,
   ArrowUp01Icon,
+  StarIcon,
 } from '@hugeicons/core-free-icons'
 import { Navbar } from '../components/Navbar'
 import { Footer } from '../components/Footer'
 import { LiquidButton } from '../components/LiquidButton'
+import { WriteReviewModal } from '../components/WriteReviewModal'
 import { useAuth } from '../context/AuthContext'
+import { useReviewableProducts } from '../hooks/queries'
 import { listMyOrders } from '../services/order.service'
 import { formatCurrency } from '../utils/formatCurrency'
 import { formatDate } from '../utils/formatDate'
@@ -70,6 +73,18 @@ export function OrdersPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [isSigningIn, setIsSigningIn] = useState(false)
   const [expandedOrders, setExpandedOrders] = useState<Record<string, boolean>>({})
+  const [reviewTarget, setReviewTarget] = useState<{
+    productId: string
+    orderId: string
+    productName: string
+    productImage: string | null
+  } | null>(null)
+
+  const { data: reviewableProducts = [] } = useReviewableProducts(Boolean(user))
+  const reviewableProductIds = useMemo(
+    () => new Set(reviewableProducts.map((r) => r.productId)),
+    [reviewableProducts]
+  )
 
   function toggleOrderExpand(orderId: string) {
     setExpandedOrders((prev) => ({
@@ -412,13 +427,17 @@ export function OrdersPage() {
                                       key={item.id}
                                       className="flex items-center gap-4 sm:gap-5"
                                     >
-                                      {/* Thumbnail */}
-                                      <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl bg-neutral-100 border border-black/10 overflow-hidden shrink-0 flex items-center justify-center">
+                                      {/* Thumbnail - Clickable to Product Detail */}
+                                      <Link
+                                        to={`/product/${item.productId}`}
+                                        className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl bg-neutral-100 border border-black/10 overflow-hidden shrink-0 flex items-center justify-center group cursor-pointer hover:border-black/30 transition-all"
+                                        title={`View ${item.productName}`}
+                                      >
                                         {item.productImageUrl ? (
                                           <img
                                             src={item.productImageUrl}
                                             alt={item.productName}
-                                            className="h-full w-full object-cover pointer-events-none select-none"
+                                            className="h-full w-full object-cover pointer-events-none select-none transition-transform duration-300 group-hover:scale-105"
                                             draggable={false}
                                           />
                                         ) : (
@@ -428,13 +447,18 @@ export function OrdersPage() {
                                             className="text-black/30"
                                           />
                                         )}
-                                      </div>
+                                      </Link>
 
                                       {/* Item Info */}
                                       <div className="min-w-0 flex-1 space-y-1">
-                                        <h4 className="text-base sm:text-lg font-black text-black tracking-tight leading-snug truncate">
-                                          {item.productName}
-                                        </h4>
+                                        <Link
+                                          to={`/product/${item.productId}`}
+                                          className="group block"
+                                        >
+                                          <h4 className="text-base sm:text-lg font-black text-black tracking-tight leading-snug truncate group-hover:text-black/75 hover:underline underline-offset-2 transition-colors">
+                                            {item.productName}
+                                          </h4>
+                                        </Link>
                                         <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-black/60">
                                           <span className="flex items-center gap-1.5">
                                             <span
@@ -453,6 +477,23 @@ export function OrdersPage() {
                                         <p className="text-base font-black text-black">
                                           {formatCurrency(item.unitPrice * item.quantity)}
                                         </p>
+                                        {order.status === 'DELIVERED' && reviewableProductIds.has(item.productId) && (
+                                          <button
+                                            type="button"
+                                            onClick={() =>
+                                              setReviewTarget({
+                                                productId: item.productId,
+                                                orderId: order.id,
+                                                productName: item.productName,
+                                                productImage: item.productImageUrl,
+                                              })
+                                            }
+                                            className="inline-flex items-center gap-1.5 rounded-xl border border-black/15 px-3 py-1.5 text-xs font-bold text-black hover:border-black hover:bg-black hover:text-white transition-all cursor-pointer"
+                                          >
+                                            <HugeiconsIcon icon={StarIcon} size={13} />
+                                            <span>Rate & Review</span>
+                                          </button>
+                                        )}
                                       </div>
                                     </div>
                                   ))}
@@ -529,6 +570,17 @@ export function OrdersPage() {
       </div>
 
       <Footer />
+
+      {reviewTarget && (
+        <WriteReviewModal
+          isOpen={Boolean(reviewTarget)}
+          onClose={() => setReviewTarget(null)}
+          productId={reviewTarget.productId}
+          orderId={reviewTarget.orderId}
+          productName={reviewTarget.productName}
+          productImage={reviewTarget.productImage}
+        />
+      )}
     </div>
   )
 }
