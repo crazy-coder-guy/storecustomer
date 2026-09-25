@@ -4,14 +4,19 @@ import { Link } from 'react-router-dom'
 import { formatCurrency } from '../utils/formatCurrency'
 import { useProductDetail, PLACEHOLDER_PRODUCT_IMAGE } from '../hooks/queries'
 import { useCart } from '../context/CartContext'
+import { useWishlist } from '../context/WishlistContext'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
   Cancel01Icon,
-  SecurityCheckIcon,
-  PackageIcon,
-  RefreshIcon,
-  CheckmarkCircle02Icon,
+  FavouriteIcon,
+  ShoppingBag01Icon,
   ArrowRight01Icon,
+  MinusSignIcon,
+  Add01Icon,
+  DeliveryTruck01Icon,
+  RefreshIcon,
+  CreditCardIcon,
+  CheckmarkCircle02Icon,
 } from '@hugeicons/core-free-icons'
 
 interface ProductDetailDrawerProps {
@@ -26,29 +31,19 @@ interface ColorOption {
   hex: string
 }
 
-const FIT_LABELS: Record<string, string> = {
-  REGULAR: 'Regular Fit',
-  SLIM: 'Slim Fit',
-  OVERSIZED: 'Oversized Fit',
-  RELAXED: 'Relaxed Fit',
-}
-
-const NECK_LABELS: Record<string, string> = {
-  CREW: 'Crew Neck',
-  ROUND: 'Round Neck',
-  POLO: 'Polo Collar',
-  V_NECK: 'V-Neck',
-  MOCK: 'Mock Neck',
-}
-
 export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetailDrawerProps) {
-  const { items: cartItems, addToCart, removeFromCart } = useCart()
+  const { addToCart } = useCart()
+  const { isInWishlist, toggleWishlist } = useWishlist()
   const { data: product } = useProductDetail(productId ?? undefined)
+
   const [selectedImage, setSelectedImage] = useState<string>('')
   const [selectedSize, setSelectedSize] = useState<string>('')
   const [selectedColor, setSelectedColor] = useState<ColorOption | null>(null)
-  const [addedSuccess, setAddedSuccess] = useState(false)
+  const [quantity, setQuantity] = useState(1)
+  const [openAccordion, setOpenAccordion] = useState<string | null>('description')
+  const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false)
   const [isAdding, setIsAdding] = useState(false)
+  const [addedSuccess, setAddedSuccess] = useState(false)
 
   const colors = useMemo<ColorOption[]>(() => {
     if (!product) return []
@@ -61,10 +56,6 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
     return Array.from(seen.values())
   }, [product])
 
-  // Each color can have its own photoshoot; images not tagged to a specific
-  // color are shared/generic and shown regardless of the selected color. If
-  // a color has no images of its own yet, fall back to the generic set (or
-  // everything) so the gallery is never empty.
   const images = useMemo(() => {
     if (!product) return []
     const sorted = [...product.images].sort((a, b) => a.sortOrder - b.sortOrder)
@@ -76,7 +67,7 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
   }, [product, selectedColor])
 
   const sizes = useMemo(() => {
-    if (!product) return []
+    if (!product) return ['XS', 'S', 'M', 'L', 'XL', 'XXL']
     const seen = new Map<string, { code: string; sortOrder: number }>()
     product.variants
       .filter((v) => !selectedColor || v.color?.hexCode === selectedColor.hex)
@@ -85,24 +76,27 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
           seen.set(v.size.id, { code: v.size.code, sortOrder: v.size.sortOrder })
         }
       })
-    return Array.from(seen.values()).sort((a, b) => a.sortOrder - b.sortOrder).map((s) => s.code)
+    const list = Array.from(seen.values()).sort((a, b) => a.sortOrder - b.sortOrder).map((s) => s.code)
+    return list.length > 0 ? list : ['XS', 'S', 'M', 'L', 'XL', 'XXL']
   }, [product, selectedColor])
 
   useEffect(() => {
     if (product) {
       setSelectedColor(colors[0] || null)
+      setQuantity(1)
       setAddedSuccess(false)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [product])
+  }, [product, colors])
 
   useEffect(() => {
     setSelectedImage(images[0] || PLACEHOLDER_PRODUCT_IMAGE)
   }, [images])
 
   useEffect(() => {
-    setSelectedSize(sizes[0] || '')
-  }, [sizes])
+    if (sizes.length > 0 && (!selectedSize || !sizes.includes(selectedSize))) {
+      setSelectedSize(sizes.includes('M') ? 'M' : sizes[0])
+    }
+  }, [sizes, selectedSize])
 
   // Close on Escape key
   useEffect(() => {
@@ -128,297 +122,448 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
   if (!isOpen || !product) return null
 
   const selectedVariant = product.variants.find(
-    (v) => v.color?.hexCode === selectedColor?.hex && v.size?.code === selectedSize
-  )
+    (v) => (!selectedColor || v.color?.hexCode === selectedColor.hex) && v.size?.code === selectedSize
+  ) || product.variants[0]
+
   const effectivePrice = selectedVariant?.price ?? product.basePrice
-  const effectiveMrp = product.mrp
-  const cartEntry = cartItems.find((item) => item.variantId === selectedVariant?.id)
-  const isInCart = Boolean(cartEntry)
+  const effectiveMrp = product.mrp || Math.round(effectivePrice * 1.5)
+  const discountPercent = effectiveMrp > effectivePrice
+    ? Math.round(((effectiveMrp - effectivePrice) / effectiveMrp) * 100)
+    : 0
+
+  const isWishlisted = isInWishlist(product.id)
 
   const handleQuickAdd = async () => {
-    if (isInCart) {
-      if (cartEntry) removeFromCart(cartEntry.id)
-      return
-    }
     if (!selectedVariant || isAdding) return
     setIsAdding(true)
     try {
-      await addToCart(selectedVariant.id, 1)
+      await addToCart(selectedVariant.id, quantity)
       setAddedSuccess(true)
-      setTimeout(() => setAddedSuccess(false), 2200)
+      setTimeout(() => setAddedSuccess(false), 2000)
     } catch {
-      // addToCart already surfaces a toast on failure
+      // Handled in context
     } finally {
       setIsAdding(false)
     }
   }
 
-  const discountPercent = effectiveMrp > effectivePrice
-    ? Math.round(((effectiveMrp - effectivePrice) / effectiveMrp) * 100)
-    : 0
-
   return createPortal(
-    <div className="fixed inset-0 z-50 overflow-hidden">
+    <div className="fixed inset-0 z-50 overflow-hidden font-sans">
       {/* Backdrop */}
       <div
         onClick={onClose}
-        className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity duration-300 animate-fade-in"
+        className="fixed inset-0 bg-black/55 backdrop-blur-xs transition-opacity duration-300 animate-fade-in"
         aria-hidden="true"
       />
 
-      <div className="fixed inset-y-0 right-0 flex max-w-full pl-6 sm:pl-10">
-        <div className="w-screen max-w-lg md:max-w-xl xl:max-w-2xl bg-white shadow-2xl flex flex-col justify-between transform transition-transform duration-400 ease-out animate-fade-in-up">
-          
-          {/* Header */}
-          <div className="flex items-center justify-between border-b border-black/10 px-6 py-4.5 bg-white/90 backdrop-blur-md sticky top-0 z-10">
+      <div className="fixed inset-y-0 right-0 flex max-w-full pl-4 sm:pl-10">
+        <div className="w-screen max-w-md sm:max-w-lg md:max-w-xl bg-white shadow-2xl flex flex-col justify-between transform transition-transform duration-300 ease-out animate-fade-in-up">
+
+          {/* Drawer Header */}
+          <div className="flex items-center justify-between border-b border-black/5 px-6 py-4 bg-white/95 backdrop-blur-md sticky top-0 z-20">
             <div>
-              <span className="text-[10px] font-extrabold uppercase tracking-widest text-black/50">
-                {product.category?.name}
+              <span className="text-[10px] font-extrabold uppercase tracking-widest text-black/50 block">
+                {product.category?.name || 'HEAVYWEIGHT T-SHIRTS'}
               </span>
-              <h2 className="text-base sm:text-lg font-black text-black tracking-tight line-clamp-1">
+              <h2 className="text-lg font-black text-black tracking-tight leading-tight">
                 Product Details
               </h2>
             </div>
-            
+
             <button
               type="button"
               onClick={onClose}
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-neutral-100 text-black/70 hover:bg-black hover:text-white transition-colors cursor-pointer"
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-neutral-100 text-black/70 hover:bg-black hover:text-white transition-colors cursor-pointer"
               aria-label="Close drawer"
             >
-              <HugeiconsIcon icon={Cancel01Icon} size={18} />
+              <HugeiconsIcon icon={Cancel01Icon} size={16} strokeWidth={2.4} />
             </button>
           </div>
 
-          {/* Scrollable Content */}
-          <div className="flex-1 overflow-y-auto px-6 py-5 space-y-6">
-            
-            {/* Gallery Section - Clean Proportional Image with Reference Thumbnails on Right */}
-            <div className="flex items-center gap-3">
-              {/* Main Image View - Fills width without empty gaps */}
-              <div className="relative aspect-[4/3] sm:aspect-[4/3] flex-1 overflow-hidden rounded-2xl bg-neutral-100 border border-black/10">
-                {/* Pure Black Corner Badge */}
-                {product.badge && (
-                  <div className="absolute left-3 top-3 z-10 pointer-events-none animate-badge-slide-up">
-                    <div className="pure-black-badge-bar rounded-2xl py-1.5 px-3 shadow-md">
-                      <span className="text-[11px] sm:text-xs font-bold tracking-wide text-white whitespace-nowrap">
-                        {product.badge}
-                      </span>
-                    </div>
-                  </div>
-                )}
+          {/* Scrollable Content Body */}
+          <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5 scrollbar-none">
+
+            {/* Gallery: Large Image + Right Vertical Thumbnails */}
+            <div className="flex items-start gap-3">
+              {/* Main Image Box */}
+              <div className="relative flex-1 aspect-[4/3.8] overflow-hidden rounded-2xl bg-[#f5f5f5] select-none border border-black/5">
                 <img
-                  key={selectedImage}
                   src={selectedImage || PLACEHOLDER_PRODUCT_IMAGE}
                   alt={product.name}
-                  className="h-full w-full object-cover object-top animate-image-fade-in"
+                  className="h-full w-full object-cover object-center animate-image-fade-in"
                 />
+
+                {/* Floating Heart / Wishlist Button */}
+                <button
+                  type="button"
+                  onClick={() => toggleWishlist(product.id)}
+                  aria-label="Wishlist"
+                  className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white/95 text-black shadow-xs hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                >
+                  <HugeiconsIcon
+                    icon={FavouriteIcon}
+                    size={17}
+                    strokeWidth={2}
+                    className={isWishlisted ? 'text-rose-500 fill-rose-500' : 'text-black'}
+                  />
+                </button>
               </div>
 
-              {/* Reference Thumbnails Column on the Right */}
-              {images.length > 1 && (
-                <div className="flex flex-col gap-2 shrink-0 justify-center">
-                  {images.map((img, idx) => (
+              {/* Right Vertical Thumbnail Column */}
+              <div className="flex flex-col gap-2 w-14 sm:w-16 shrink-0">
+                {images.slice(0, 5).map((img, idx) => {
+                  const isSelected = selectedImage === img
+                  return (
                     <button
                       key={idx}
                       type="button"
                       onClick={() => setSelectedImage(img)}
-                      className={`relative h-12 w-12 sm:h-14 sm:w-14 overflow-hidden rounded-xl border transition-all cursor-pointer shrink-0 ${
-                        selectedImage === img
-                          ? 'border-black ring-2 ring-black shadow-xs scale-105'
-                          : 'border-black/15 opacity-60 hover:opacity-100 hover:border-black/50'
+                      className={`relative aspect-[3/3.6] w-full overflow-hidden rounded-xl bg-[#f2f2f2] transition-all cursor-pointer shrink-0 ${
+                        isSelected
+                          ? 'ring-2 ring-black ring-offset-1 shadow-xs'
+                          : 'border border-black/10 opacity-70 hover:opacity-100'
                       }`}
                     >
-                      <img src={img} alt="" className="h-full w-full object-cover object-top" />
+                      <img src={img} alt="" className="h-full w-full object-cover object-center" />
                     </button>
-                  ))}
-                </div>
-              )}
+                  )
+                })}
+              </div>
             </div>
 
-            {/* Title & Price Info */}
-            <div className="space-y-2 border-b border-black/10 pb-5">
-              <div className="flex items-center gap-2">
-                <span className="text-[11px] font-black uppercase tracking-widest text-black/50">
-                  {product.category?.name}
-                </span>
-              </div>
+            {/* Category, Title, Rating */}
+            <div className="space-y-1.5 pt-1">
+              <span className="text-[11px] font-extrabold uppercase tracking-widest text-black/50 block">
+                {product.category?.name || 'HEAVYWEIGHT T-SHIRTS'}
+              </span>
 
               <h1 className="text-xl sm:text-2xl font-black text-black tracking-tight leading-snug">
                 {product.name}
               </h1>
 
-              <div className="flex items-baseline gap-3 pt-1">
-                <span className="text-2xl font-black text-black">
+              {/* Rating row: ★★★★★ 4.8 (128 reviews) matching PDP */}
+              <div className="flex items-center gap-2 pt-0.5 text-xs text-black/60 font-semibold">
+                <div className="flex items-center text-black text-sm tracking-tighter">
+                  {'★★★★★'}
+                </div>
+                <span className="font-bold text-black">4.8</span>
+                <span className="text-black/40">(128 reviews)</span>
+              </div>
+
+              {/* Price, MRP, Discount */}
+              <div className="flex items-baseline gap-2.5 pt-1.5 flex-wrap">
+                <span className="text-2xl sm:text-3xl font-black text-black tracking-tight">
                   {formatCurrency(effectivePrice)}
                 </span>
                 {effectiveMrp > effectivePrice && (
-                  <span className="text-sm font-semibold text-black/40 line-through">
+                  <span className="text-sm sm:text-base font-semibold text-black/40 line-through">
                     {formatCurrency(effectiveMrp)}
                   </span>
                 )}
                 {discountPercent > 0 && (
-                  <span className="rounded-2xl bg-emerald-100 px-2.5 py-0.5 text-xs font-black text-emerald-800">
+                  <span className="inline-flex items-center text-xs font-bold text-red-600 bg-red-50 border border-red-100 px-2 py-0.5 rounded-md">
                     {discountPercent}% OFF
                   </span>
                 )}
               </div>
+              <span className="text-xs font-semibold text-black/50 block">
+                Price incl. of all taxes
+              </span>
             </div>
 
-            {/* Color Swatches */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-black/70 flex items-center justify-between">
-                <span>Color: <strong className="text-black">{selectedColor?.name}</strong></span>
-              </label>
-              <div className="flex items-center gap-2.5">
-                {colors.map((color) => (
-                  <button
-                    key={color.name}
-                    type="button"
-                    onClick={() => setSelectedColor(color)}
-                    className={`flex h-8 w-8 items-center justify-center rounded-full border-2 transition-all cursor-pointer ${
-                      selectedColor?.name === color.name
-                        ? 'border-black scale-110 shadow-xs'
-                        : 'border-black/15 hover:border-black/50'
-                    }`}
-                    title={color.name}
-                  >
-                    <span
-                      className="h-5 w-5 rounded-full border border-black/10"
-                      style={{ backgroundColor: color.hex }}
-                    />
-                  </button>
-                ))}
+            {/* Color Selection matching PDP */}
+            {colors.length > 0 && (
+              <div className="space-y-2 pt-1 border-t border-black/10">
+                <div className="text-xs font-bold text-black uppercase tracking-wider flex items-center justify-between">
+                  <span>
+                    Color: <span className="font-extrabold text-black">{selectedColor?.name || 'Default'}</span>
+                  </span>
+                  {colors.length > 4 && (
+                    <span className="text-black/50 font-medium text-[11px]">+{colors.length - 4} more</span>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2.5 p-0.5">
+                  {colors.map((color) => {
+                    const isSelected = selectedColor?.name === color.name
+                    return (
+                      <button
+                        key={color.name}
+                        type="button"
+                        onClick={() => setSelectedColor(color)}
+                        className={`relative h-8 w-8 sm:h-9 sm:w-9 rounded-full transition-transform cursor-pointer shrink-0 ${
+                          isSelected
+                            ? 'ring-2 ring-black ring-offset-2 scale-105'
+                            : 'border border-black/20 hover:scale-105'
+                        }`}
+                        style={{ backgroundColor: color.hex }}
+                        title={color.name}
+                      />
+                    )
+                  })}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Size Selector */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-black/70 flex items-center justify-between">
-                <span>Select Size</span>
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {sizes.map((size) => (
-                  <button
-                    key={size}
-                    type="button"
-                    onClick={() => setSelectedSize(size)}
-                    className={`flex h-10 w-12 items-center justify-center rounded-xl border text-xs font-black transition-all cursor-pointer ${
-                      selectedSize === size
-                        ? 'border-black bg-black text-white shadow-xs'
-                        : 'border-black/15 bg-white text-black hover:border-black'
-                    }`}
-                  >
-                    {size}
-                  </button>
-                ))}
+            <div className="space-y-2 pt-1 border-t border-black/5">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-bold text-black">Select Size</span>
+                <button
+                  type="button"
+                  onClick={() => setIsSizeGuideOpen(true)}
+                  className="flex items-center gap-1 text-[11px] font-bold text-black/75 hover:text-black underline underline-offset-2 cursor-pointer"
+                >
+                  <span>📏 Size Guide</span>
+                </button>
+              </div>
+
+              <div className="grid grid-cols-6 gap-2">
+                {sizes.map((size) => {
+                  const isSelected = selectedSize === size
+                  return (
+                    <button
+                      key={size}
+                      type="button"
+                      onClick={() => setSelectedSize(size)}
+                      className={`h-10 rounded-xl text-xs font-black transition-all cursor-pointer border flex items-center justify-center ${
+                        isSelected
+                          ? 'bg-black text-white border-black shadow-xs'
+                          : 'bg-white text-black border-black/15 hover:border-black/50'
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  )
+                })}
               </div>
             </div>
 
-            {/* About / Description */}
-            <div className="space-y-2 pt-2">
-              <h3 className="text-xs font-black uppercase tracking-wider text-black/60">
-                About The Product
-              </h3>
-              <p className="text-xs sm:text-sm text-black/75 font-medium leading-relaxed">
-                {product.description || 'No additional description available for this product yet.'}
-              </p>
+            {/* Accordion 1: Product Description */}
+            <div className="border-t border-black/10 pt-1">
+              <button
+                type="button"
+                onClick={() => setOpenAccordion((prev) => (prev === 'description' ? null : 'description'))}
+                className="flex w-full items-center justify-between text-left py-3 cursor-pointer group"
+              >
+                <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-black group-hover:text-black/70 transition-colors">
+                  Product Description
+                </span>
+                <span
+                  className={`text-base font-bold text-black transition-transform duration-300 leading-none ${
+                    openAccordion === 'description' ? 'rotate-45' : 'rotate-0'
+                  }`}
+                >
+                  +
+                </span>
+              </button>
+
+              {openAccordion === 'description' && (
+                <div className="pb-3 animate-fade-in">
+                  <p className="text-xs sm:text-[13px] text-black/70 font-normal leading-relaxed">
+                    {product.description ||
+                      'A premium heavyweight t-shirt crafted with 100% cotton for a structured fit and long-lasting comfort. Designed for everyday wear with a clean and minimal aesthetic.'}
+                  </p>
+                </div>
+              )}
             </div>
 
-            {/* Key Details */}
-            <div className="space-y-3 pt-2">
-              <h3 className="text-xs font-black uppercase tracking-wider text-black/60 border-b border-black/10 pb-2">
-                Key Details
-              </h3>
+            {/* Accordion 2: Material & Care */}
+            <div className="border-t border-black/10 pt-1">
+              <button
+                type="button"
+                onClick={() => setOpenAccordion((prev) => (prev === 'material' ? null : 'material'))}
+                className="flex w-full items-center justify-between text-left py-3 cursor-pointer group"
+              >
+                <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-black group-hover:text-black/70 transition-colors">
+                  Material & Care
+                </span>
+                <span
+                  className={`text-base font-bold text-black transition-transform duration-300 leading-none ${
+                    openAccordion === 'material' ? 'rotate-45' : 'rotate-0'
+                  }`}
+                >
+                  +
+                </span>
+              </button>
 
-              <ul className="space-y-1.5 text-xs text-black/70 font-medium list-disc list-inside">
-                <li>Category: {product.category?.name}</li>
-                <li>Product Type: {product.productType}</li>
-                {product.fit && <li>Fit: {FIT_LABELS[product.fit] ?? product.fit}</li>}
-                {product.neckType && <li>Neck Type: {NECK_LABELS[product.neckType] ?? product.neckType}</li>}
-                {product.fabric && <li>Fabric: {product.fabric}</li>}
-                {product.gsm != null && <li>Fabric Weight: {product.gsm} GSM</li>}
-                {product.biowash && <li>Bio-Washed Fabric (pre-shrunk, soft feel)</li>}
-                {selectedVariant && <li>SKU: {selectedVariant.sku}</li>}
-              </ul>
+              {openAccordion === 'material' && (
+                <div className="pb-3 animate-fade-in space-y-1.5 text-xs sm:text-[13px] text-black/70 font-normal">
+                  <p>• {product.fabric || '100% Combed Heavy Organic Cotton'}</p>
+                  <p>• {product.gsm ? `${product.gsm} GSM heavyweight structured knit` : '240 GSM premium structured knit'}</p>
+                  <p>• Machine wash cold with similar colors</p>
+                  <p>• Do not iron directly on graphic prints</p>
+                </div>
+              )}
             </div>
 
-            {/* Trust Mini-bar */}
-            <div className="grid grid-cols-3 gap-2 border-t border-black/10 pt-4 text-center">
-              <div className="p-2.5 rounded-xl bg-neutral-50 border border-black/5">
-                <HugeiconsIcon icon={SecurityCheckIcon} size={18} className="mx-auto text-black mb-1" />
-                <p className="text-[10px] font-black text-black">100% Genuine</p>
+            {/* Value Guarantees Row */}
+            <div className="grid grid-cols-3 border-y border-black/10 py-3 text-left">
+              {/* Free Shipping */}
+              <div className="flex items-center gap-2 pr-1.5">
+                <div className="text-black shrink-0">
+                  <HugeiconsIcon icon={DeliveryTruck01Icon} size={18} strokeWidth={1.8} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[11px] font-bold text-black leading-tight">Free Shipping</p>
+                  <p className="text-[9px] text-black/55 font-medium leading-tight truncate">on orders above ₹1,999</p>
+                </div>
               </div>
-              <div className="p-2.5 rounded-xl bg-neutral-50 border border-black/5">
-                <HugeiconsIcon icon={RefreshIcon} size={18} className="mx-auto text-black mb-1" />
-                <p className="text-[10px] font-black text-black">7-Day Return</p>
+
+              {/* Easy Returns */}
+              <div className="flex items-center gap-2 border-l border-black/10 px-2">
+                <div className="text-black shrink-0">
+                  <HugeiconsIcon icon={RefreshIcon} size={17} strokeWidth={1.8} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[11px] font-bold text-black leading-tight">Easy Returns</p>
+                  <p className="text-[9px] text-black/55 font-medium leading-tight truncate">7 days return policy</p>
+                </div>
               </div>
-              <div className="p-2.5 rounded-xl bg-neutral-50 border border-black/5">
-                <HugeiconsIcon icon={PackageIcon} size={18} className="mx-auto text-black mb-1" />
-                <p className="text-[10px] font-black text-black">₹19 Fast Delivery</p>
+
+              {/* Secure Payments */}
+              <div className="flex items-center gap-2 border-l border-black/10 pl-2">
+                <div className="text-black shrink-0">
+                  <HugeiconsIcon icon={CreditCardIcon} size={17} strokeWidth={1.8} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[11px] font-bold text-black leading-tight">Secure Payments</p>
+                  <p className="text-[9px] text-black/55 font-medium leading-tight truncate">100% secure checkout</p>
+                </div>
               </div>
             </div>
 
           </div>
 
-          {/* Sticky Drawer Footer Action */}
-          <div className="border-t border-black/10 bg-white p-4 sm:p-5 flex items-center gap-3">
+          {/* Sticky Bottom Actions Bar: Stepper + Add to Bag + Full Page */}
+          <div className="border-t border-black/10 bg-white p-4 sm:p-5 flex items-center gap-2.5 sticky bottom-0 z-20">
+            {/* Quantity Stepper */}
+            <div className="flex items-center justify-between border border-black/20 rounded-xl px-2 py-2 h-11 w-24 bg-neutral-50/60 shrink-0">
+              <button
+                type="button"
+                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                className="h-7 w-7 flex items-center justify-center rounded-lg hover:bg-black/5 text-black cursor-pointer transition-colors"
+                aria-label="Decrease"
+              >
+                <HugeiconsIcon icon={MinusSignIcon} size={13} strokeWidth={2.4} />
+              </button>
+              <span className="text-xs font-black text-black">{quantity}</span>
+              <button
+                type="button"
+                onClick={() => setQuantity((q) => q + 1)}
+                className="h-7 w-7 flex items-center justify-center rounded-lg hover:bg-black/5 text-black cursor-pointer transition-colors"
+                aria-label="Increase"
+              >
+                <HugeiconsIcon icon={Add01Icon} size={13} strokeWidth={2.4} />
+              </button>
+            </div>
+
+            {/* Add to Bag Button */}
             <button
               type="button"
               disabled={isAdding}
-              aria-busy={isAdding}
               onClick={handleQuickAdd}
-              className={`flex-1 group relative flex items-center justify-between overflow-hidden rounded-2xl border px-6 py-3 transition-all duration-300 shadow-sm hover:shadow-md tap-press ${
-                isAdding ? 'cursor-wait' : 'cursor-pointer'
-              } ${addedSuccess || isInCart ? 'border-black bg-white' : 'border-black bg-black'}`}
+              className={`flex-1 h-11 rounded-xl px-4 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs ${
+                addedSuccess
+                  ? 'bg-emerald-600 text-white'
+                  : 'bg-black text-white hover:bg-neutral-900 active:scale-[0.98]'
+              }`}
             >
-              {!(addedSuccess || isInCart || isAdding) && (
-                <span className="absolute inset-0 translate-y-full rounded-2xl bg-white transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:translate-y-0" />
+              {addedSuccess ? (
+                <>
+                  <HugeiconsIcon icon={CheckmarkCircle02Icon} size={16} strokeWidth={2.2} />
+                  <span>Added to Bag</span>
+                </>
+              ) : (
+                <>
+                  <HugeiconsIcon icon={ShoppingBag01Icon} size={15} strokeWidth={2.2} />
+                  <span>Add to Bag • {formatCurrency(effectivePrice * quantity)}</span>
+                  <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={2.2} />
+                </>
               )}
-              {/* Waiting-for-backend fill */}
-              <span
-                className="absolute inset-y-0 left-0 bg-white/25 rounded-2xl transition-[width] ease-out"
-                style={{ width: isAdding ? '92%' : '0%', transitionDuration: isAdding ? '1600ms' : '0ms' }}
-              />
-              <div className="relative z-10 flex items-center justify-between w-full">
-                <span
-                  className={`font-extrabold text-xs sm:text-sm uppercase tracking-wider transition-all duration-300 ${
-                    addedSuccess || isInCart ? 'text-black' : 'text-white group-hover:text-black group-hover:-translate-x-1'
-                  }`}
-                >
-                  {isAdding ? 'Adding…' : addedSuccess ? '✓ Added To Bag' : isInCart ? '✓ Already in Bag' : 'Add to Bag'}
-                </span>
-                <span
-                  className={`flex h-7 w-7 items-center justify-center rounded-full transition-all duration-300 ${
-                    addedSuccess || isInCart
-                      ? 'bg-black text-white'
-                      : 'bg-white text-black group-hover:bg-black group-hover:text-white'
-                  }`}
-                >
-                  {isAdding ? (
-                    <span className="h-3.5 w-3.5 rounded-full border-2 border-current/25 border-t-current animate-spin" />
-                  ) : (
-                    <HugeiconsIcon
-                      icon={addedSuccess || isInCart ? CheckmarkCircle02Icon : ArrowRight01Icon}
-                      size={16}
-                      strokeWidth={2.4}
-                    />
-                  )}
-                </span>
-              </div>
             </button>
 
+            {/* Full Page Button */}
             <Link
               to={`/product/${product.id}`}
               onClick={onClose}
-              className="shrink-0 rounded-2xl border border-black/20 px-4 py-3 text-xs font-black text-black hover:border-black transition-colors"
+              className="h-11 px-3.5 sm:px-4 rounded-xl border border-black/20 text-xs font-bold text-black flex items-center justify-center hover:border-black hover:bg-neutral-50 transition-colors whitespace-nowrap shrink-0"
             >
-              Full Page →
+              <span>Full Page →</span>
             </Link>
           </div>
 
         </div>
       </div>
+
+      {/* Embedded Size Guide Modal */}
+      {isSizeGuideOpen && (
+        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fade-in">
+          <div className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="flex items-center justify-between pb-3 border-b border-neutral-100">
+              <h3 className="text-base font-black text-black">Size Guide (Inches)</h3>
+              <button
+                type="button"
+                onClick={() => setIsSizeGuideOpen(false)}
+                className="flex h-7 w-7 items-center justify-center rounded-full bg-neutral-100 text-black/70 hover:bg-black hover:text-white transition-colors cursor-pointer"
+              >
+                <HugeiconsIcon icon={Cancel01Icon} size={14} />
+              </button>
+            </div>
+
+            <div className="py-3">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="border-b border-neutral-200 text-black/50 font-bold uppercase">
+                    <th className="py-2">Size</th>
+                    <th className="py-2">Chest</th>
+                    <th className="py-2">Length</th>
+                    <th className="py-2">Shoulder</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-neutral-100 text-black/80 font-medium">
+                  <tr>
+                    <td className="py-2 font-bold">XS</td>
+                    <td className="py-2">38 - 40"</td>
+                    <td className="py-2">27.5"</td>
+                    <td className="py-2">19.5"</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 font-bold">S</td>
+                    <td className="py-2">40 - 42"</td>
+                    <td className="py-2">28.5"</td>
+                    <td className="py-2">20.0"</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 font-bold">M</td>
+                    <td className="py-2">42 - 44"</td>
+                    <td className="py-2">29.5"</td>
+                    <td className="py-2">20.5"</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 font-bold">L</td>
+                    <td className="py-2">44 - 46"</td>
+                    <td className="py-2">30.5"</td>
+                    <td className="py-2">21.0"</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 font-bold">XL</td>
+                    <td className="py-2">46 - 48"</td>
+                    <td className="py-2">31.5"</td>
+                    <td className="py-2">21.5"</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 font-bold">XXL</td>
+                    <td className="py-2">48 - 50"</td>
+                    <td className="py-2">32.5"</td>
+                    <td className="py-2">22.0"</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
     </div>,
     document.body
   )
