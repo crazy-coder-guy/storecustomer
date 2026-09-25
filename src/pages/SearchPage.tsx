@@ -10,6 +10,7 @@ import {
 } from '@hugeicons/core-free-icons'
 import { useCart } from '../context/CartContext'
 import { useSearchProducts, PLACEHOLDER_PRODUCT_IMAGE } from '../hooks/queries'
+import { Reveal } from '../components/Reveal'
 import { formatCurrency } from '../utils/formatCurrency'
 
 const POPULAR_SEARCHES = [
@@ -202,68 +203,74 @@ export function SearchPage() {
               </div>
             ) : (
               <div className="space-y-3">
-                {products.map((product) => {
+                {products.map((product, idx) => {
                   const hasDiscount = product.mrp && product.mrp > product.basePrice
                   const discountPercent = hasDiscount
                     ? Math.round(((product.mrp - product.basePrice) / product.mrp) * 100)
                     : 0
 
                   return (
-                    <Link
+                    <Reveal
                       key={product.id}
-                      to={`/product/${product.id}`}
-                      className="group flex items-center gap-3.5 rounded-2xl border border-black/10 bg-white p-3 transition-all duration-300 hover:shadow-md hover:border-black/20 active:scale-[0.99] cursor-pointer"
+                      animation="fade-up"
+                      delay={Math.min(idx * 50, 300)}
+                      duration={500}
                     >
-                      <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-neutral-100 border border-black/5">
-                        {product.badge && (
-                          <span className="absolute left-1.5 top-1.5 z-10 rounded-2xl bg-black px-2 py-0.5 text-[9px] font-bold text-white tracking-normal shadow-xs">
-                            {product.badge}
-                          </span>
-                        )}
-                        <img
-                          src={product.image || PLACEHOLDER_PRODUCT_IMAGE}
-                          alt={product.name}
-                          className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
-                        />
-                      </div>
-
-                      <div className="flex flex-1 min-w-0 flex-col justify-between py-0.5">
-                        <div>
-                          <div className="flex items-start justify-between gap-1">
-                            <h4 className="text-sm font-bold text-black leading-snug truncate group-hover:text-black">
-                              {product.name}
-                            </h4>
-                          </div>
-                          <p className="text-[11px] font-medium text-black/50 truncate mt-0.5">
-                            {product.categoryName}
-                          </p>
-                        </div>
-
-                        <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-black/5">
-                          <div className="flex items-baseline gap-1.5">
-                            <span className="text-sm font-black text-black">
-                              {formatCurrency(product.basePrice)}
+                      <Link
+                        to={`/product/${product.id}`}
+                        className="group flex items-center gap-3.5 rounded-2xl border border-black/10 bg-white p-3 transition-all duration-300 hover:shadow-md hover:border-black/20 active:scale-[0.99] cursor-pointer"
+                      >
+                        <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-neutral-100 border border-black/5">
+                          {product.badge && (
+                            <span className="absolute left-1.5 top-1.5 z-10 rounded-2xl bg-black px-2 py-0.5 text-[9px] font-bold text-white tracking-normal shadow-xs">
+                              {product.badge}
                             </span>
-                            {hasDiscount && (
-                              <>
-                                <span className="text-[11px] text-black/40 line-through">
-                                  {formatCurrency(product.mrp)}
-                                </span>
-                                {discountPercent > 0 && (
-                                  <span className="text-[10px] font-bold text-emerald-600">
-                                    {discountPercent}% off
-                                  </span>
-                                )}
-                              </>
-                            )}
+                          )}
+                          <img
+                            src={product.image || PLACEHOLDER_PRODUCT_IMAGE}
+                            alt={product.name}
+                            className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                          />
+                        </div>
+
+                        <div className="flex flex-1 min-w-0 flex-col justify-between py-0.5">
+                          <div>
+                            <div className="flex items-start justify-between gap-1">
+                              <h4 className="text-sm font-bold text-black leading-snug truncate group-hover:text-black">
+                                {product.name}
+                              </h4>
+                            </div>
+                            <p className="text-[11px] font-medium text-black/50 truncate mt-0.5">
+                              {product.categoryName}
+                            </p>
                           </div>
 
-                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-black/5 text-black/70 group-hover:bg-black group-hover:text-white transition-all duration-200">
-                            <HugeiconsIcon icon={ArrowRight01Icon} size={15} />
+                          <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-black/5">
+                            <div className="flex items-baseline gap-1.5">
+                              <span className="text-sm font-black text-black">
+                                {formatCurrency(product.basePrice)}
+                              </span>
+                              {hasDiscount && (
+                                <>
+                                  <span className="text-[11px] text-black/40 line-through">
+                                    {formatCurrency(product.mrp)}
+                                  </span>
+                                  {discountPercent > 0 && (
+                                    <span className="text-[10px] font-bold text-emerald-600">
+                                      {discountPercent}% off
+                                    </span>
+                                  )}
+                                </>
+                              )}
+                            </div>
+
+                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-black/5 text-black/70 group-hover:bg-black group-hover:text-white transition-all duration-200">
+                              <HugeiconsIcon icon={ArrowRight01Icon} size={15} />
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </Link>
+                      </Link>
+                    </Reveal>
                   )
                 })}
               </div>

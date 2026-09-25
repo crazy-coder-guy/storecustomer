@@ -170,7 +170,7 @@ export function OrdersPage() {
 
         <main className="py-6 sm:py-10">
           <div className="kaira-container max-w-5xl mx-auto px-4 sm:px-6">
-            
+
             {/* Top Section: Category Eyebrow, Title & Subtitle matching ProductDetailPage */}
             <div className="space-y-4 pb-6 border-b border-black/10">
               <div className="space-y-2">
@@ -218,17 +218,15 @@ export function OrdersPage() {
                         key={tab.id}
                         type="button"
                         onClick={() => setActiveTab(tab.id)}
-                        className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-extrabold uppercase transition-all whitespace-nowrap cursor-pointer ${
-                          activeTab === tab.id
+                        className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-extrabold uppercase transition-all whitespace-nowrap cursor-pointer ${activeTab === tab.id
                             ? 'bg-black text-white shadow-md'
                             : 'bg-white border border-black/20 text-black hover:border-black'
-                        }`}
+                          }`}
                       >
                         <span>{tab.label}</span>
                         <span
-                          className={`rounded-2xl px-1.5 py-0.2 text-[10px] font-black ${
-                            activeTab === tab.id ? 'bg-white/20 text-white' : 'bg-black/10 text-black/70'
-                          }`}
+                          className={`rounded-2xl px-1.5 py-0.2 text-[10px] font-black ${activeTab === tab.id ? 'bg-white/20 text-white' : 'bg-black/10 text-black/70'
+                            }`}
                         >
                           {tab.count}
                         </span>
@@ -416,11 +414,10 @@ export function OrdersPage() {
                               </span>
 
                               <span
-                                className={`rounded-2xl px-2.5 py-0.5 text-xs font-extrabold uppercase tracking-wider ${
-                                  order.paymentStatus === 'PAID'
+                                className={`rounded-2xl px-2.5 py-0.5 text-xs font-extrabold uppercase tracking-wider ${order.paymentStatus === 'PAID'
                                     ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/50'
                                     : 'bg-amber-50 text-amber-700 border border-amber-200/50'
-                                }`}
+                                  }`}
                               >
                                 {order.paymentStatus === 'PAID' ? 'Paid' : 'Pending'}
                               </span>

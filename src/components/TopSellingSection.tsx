@@ -56,7 +56,7 @@ export function TopSellingSection({ onAddToCart }: TopSellingSectionProps) {
     <section id="shop" className="py-16 sm:py-24 bg-white">
       <div className="kaira-container">
         {/* Section Header */}
-        <Reveal className="mb-10 sm:mb-14 border-b border-black/5 pb-6">
+        <Reveal animation="fade-up" duration={700} className="mb-10 sm:mb-14 border-b border-black/5 pb-6">
           <div>
             <span className="text-[11px] font-extrabold uppercase tracking-widest text-black/40">Curated Favorites</span>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-black tracking-tight mt-1">
@@ -75,7 +75,12 @@ export function TopSellingSection({ onAddToCart }: TopSellingSectionProps) {
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3.5 sm:gap-5 lg:gap-6">
             {products.map((product, idx) => (
-              <Reveal key={product.id} delay={(idx % 5) * 80} strength="soft">
+              <Reveal
+                key={product.id}
+                animation="fade-up"
+                delay={(idx % 5) * 90}
+                duration={700}
+              >
                 <ProductCard
                   product={product}
                   imageAspectRatio="aspect-[3.6/3.55]"

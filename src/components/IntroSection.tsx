@@ -36,7 +36,7 @@ export function IntroSection() {
     <section className="relative overflow-hidden bg-white text-black py-16 sm:py-24 border-t border-black/5">
       <div className="kaira-container">
         {/* Editorial Header */}
-        <Reveal className="max-w-3xl mx-auto text-center space-y-4 mb-14 sm:mb-16">
+        <Reveal animation="fade-up" duration={750} className="max-w-3xl mx-auto text-center space-y-4 mb-14 sm:mb-16">
           <div className="flex items-center justify-center gap-3 mb-2">
             <span className="w-8 sm:w-12 h-px bg-black/25" />
             <span className="text-[11px] sm:text-xs font-bold uppercase tracking-[0.2em] text-black/60">
@@ -62,7 +62,7 @@ export function IntroSection() {
         </Reveal>
 
         {/* 4 Pillars - Refined Borderless Feature Strip */}
-        <Reveal delay={120} strength="soft">
+        <Reveal animation="fade-up" delay={150} duration={800}>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-0 lg:divide-x lg:divide-black/10 pt-6 sm:pt-8 border-t border-black/10">
             {PILLARS.map((pillar) => (
               <div

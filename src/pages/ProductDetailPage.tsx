@@ -7,6 +7,7 @@ import { formatCurrency } from '../utils/formatCurrency'
 import { useCart } from '../context/CartContext'
 import { useWishlist } from '../context/WishlistContext'
 import { useProductDetail, PLACEHOLDER_PRODUCT_IMAGE } from '../hooks/queries'
+import { Reveal } from '../components/Reveal'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
   FavouriteIcon,
@@ -195,10 +196,11 @@ export function ProductDetailPage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 xl:gap-12 items-start">
 
               {/* LEFT COLUMN: Sticky Gallery with Vertical Thumbnails */}
-              <div className="lg:col-span-7 lg:sticky lg:top-24 flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 items-start">
-                
-                {/* Vertical Thumbnails List */}
-                <div className="flex sm:flex-col gap-2.5 sm:gap-3 overflow-x-auto sm:overflow-y-auto w-full sm:w-[84px] shrink-0 scrollbar-none p-1">
+              <div className="lg:col-span-7 lg:sticky lg:top-24">
+                <Reveal animation="fade-right" duration={700}>
+                  <div className="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 items-start">
+                    {/* Vertical Thumbnails List */}
+                    <div className="flex sm:flex-col gap-2.5 sm:gap-3 overflow-x-auto sm:overflow-y-auto w-full sm:w-[84px] shrink-0 scrollbar-none p-1">
                   {images.map((img, idx) => {
                     const isSelected = selectedImage === img
                     return (
@@ -282,9 +284,12 @@ export function ProductDetailPage() {
                   />
                 </div>
               </div>
+            </Reveal>
+          </div>
 
               {/* RIGHT COLUMN: Product Information & Purchase Controls (Naturally extends the page) */}
-              <div className="lg:col-span-5 space-y-3.5">
+              <div className="lg:col-span-5">
+                <Reveal animation="fade-left" duration={700} delay={100} className="space-y-3.5">
                 
                 {/* Header Information: Subtitle + Title + Reviews + Pricing (Badge removed) */}
                 <div className="space-y-1.5">
@@ -546,12 +551,12 @@ export function ProductDetailPage() {
                     )}
                   </div>
                 </div>
-
-              </div>
+              </Reveal>
             </div>
           </div>
-        </main>
-      </div>
+        </div>
+      </main>
+    </div>
 
       {/* Image Zoom Modal */}
       {isZoomOpen && (

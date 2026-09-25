@@ -5,6 +5,7 @@ import { Navbar } from '../components/Navbar'
 import { Footer } from '../components/Footer'
 import { ProductCard, type ProductItem } from '../components/ProductCard'
 import { ProductDetailDrawer } from '../components/ProductDetailDrawer'
+import { Reveal } from '../components/Reveal'
 import { useCart } from '../context/CartContext'
 import { useCategories, useProductCards, useProducts } from '../hooks/queries'
 import { resolveDefaultVariantId } from '../services/product.service'
@@ -54,7 +55,7 @@ export function CategoryProductsPage() {
         {/* Compact Integrated Header Bar */}
         <section className="py-6 sm:py-8 border-b border-black/10">
           <div className="kaira-container">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <Reveal animation="fade-up" duration={700} className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="space-y-1">
                 <div className="flex items-center gap-3">
                   <h1 className="text-2xl sm:text-4xl font-black text-black tracking-tight">
@@ -72,7 +73,7 @@ export function CategoryProductsPage() {
                     : category?.description || 'Exceptional modern garments tailored with heavy organic cottons and modern silhouettes.'}
                 </p>
               </div>
-            </div>
+            </Reveal>
           </div>
         </section>
 
@@ -98,13 +99,19 @@ export function CategoryProductsPage() {
               </div>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3.5 sm:gap-5 lg:gap-6">
-                {products.map((product) => (
-                  <ProductCard
+                {products.map((product, idx) => (
+                  <Reveal
                     key={product.id}
-                    product={product}
-                    onAddToCart={handleAdd}
-                    onOpenDetail={(id) => setSelectedDrawerProductId(id)}
-                  />
+                    animation="fade-up"
+                    delay={(idx % 5) * 80}
+                    duration={650}
+                  >
+                    <ProductCard
+                      product={product}
+                      onAddToCart={handleAdd}
+                      onOpenDetail={(id) => setSelectedDrawerProductId(id)}
+                    />
+                  </Reveal>
                 ))}
               </div>
             )}

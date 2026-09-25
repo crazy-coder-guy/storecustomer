@@ -32,7 +32,64 @@ button:not(:disabled):active,
   animation: imageFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-/* Scroll reveal — rise + fade only */
+/* =============================================================
+   AOS (ANIMATE ON SCROLL) LUXURY ANIMATION ENGINE
+   Silky smooth cubic-bezier physics tailored for luxury streetwear.
+   ============================================================= */
+.aos-init {
+  will-change: opacity, transform;
+  transition-property: opacity, transform;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* 1. Fade Up (standard editorial rise) */
+.aos-fade-up {
+  opacity: 0;
+  transform: translate3d(0, 32px, 0) scale(0.99);
+}
+
+/* 2. Fade Up Soft (micro-rise for cards and grid items) */
+.aos-fade-up-soft {
+  opacity: 0;
+  transform: translate3d(0, 16px, 0) scale(0.995);
+}
+
+/* 3. Fade Down (subtle dropdown for headers/banners) */
+.aos-fade-down {
+  opacity: 0;
+  transform: translate3d(0, -28px, 0);
+}
+
+/* 4. Fade Left (slide in from right) */
+.aos-fade-left {
+  opacity: 0;
+  transform: translate3d(36px, 0, 0);
+}
+
+/* 5. Fade Right (slide in from left) */
+.aos-fade-right {
+  opacity: 0;
+  transform: translate3d(-36px, 0, 0);
+}
+
+/* 6. Zoom In (editorial focus zoom) */
+.aos-zoom-in {
+  opacity: 0;
+  transform: scale(0.94);
+}
+
+/* 7. Pure Fade */
+.aos-fade {
+  opacity: 0;
+}
+
+/* Active animated state */
+.aos-animate {
+  opacity: 1 !important;
+  transform: translate3d(0, 0, 0) scale(1) !important;
+}
+
+/* Backward compatibility for legacy .reveal elements */
 .reveal {
   opacity: 0;
   transform: translateY(28px) scale(0.985);

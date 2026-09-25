@@ -3,6 +3,7 @@ import { toast } from 'sonner'
 import { Navbar } from '../components/Navbar'
 import { ProductCard, type ProductItem } from '../components/ProductCard'
 import { ProductDetailDrawer } from '../components/ProductDetailDrawer'
+import { Reveal } from '../components/Reveal'
 import { useCart } from '../context/CartContext'
 import { useCategories, useProductCards, useSizes, useStorefrontProducts } from '../hooks/queries'
 import { resolveDefaultVariantId } from '../services/product.service'
@@ -281,14 +282,20 @@ export function AllProductsPage() {
                 </div>
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-3 sm:gap-4 lg:gap-5">
-                  {products.map((product) => (
-                    <ProductCard
+                  {products.map((product, idx) => (
+                    <Reveal
                       key={product.id}
-                      product={product}
-                      compact
-                      onAddToCart={handleAdd}
-                      onOpenDetail={(id) => setSelectedDrawerProductId(id)}
-                    />
+                      animation="fade-up"
+                      delay={(idx % 5) * 60}
+                      duration={650}
+                    >
+                      <ProductCard
+                        product={product}
+                        compact
+                        onAddToCart={handleAdd}
+                        onOpenDetail={(id) => setSelectedDrawerProductId(id)}
+                      />
+                    </Reveal>
                   ))}
                 </div>
               )}

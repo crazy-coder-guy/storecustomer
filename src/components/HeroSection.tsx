@@ -18,7 +18,7 @@ export function HeroSection({ onShopClick }: HeroSectionProps) {
     <section className="relative overflow-hidden bg-white pt-4 pb-2 sm:py-6 lg:py-8">
       <div className="kaira-container">
         <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:gap-8 lg:grid-cols-2 lg:items-center">
-          <Reveal className="space-y-4 sm:space-y-6 lg:space-y-7">
+          <Reveal animation="fade-right" duration={800} className="space-y-4 sm:space-y-6 lg:space-y-7">
             <div className="inline-flex items-center gap-2 rounded-2xl border border-black/15 bg-white px-4 py-1.5 text-xs sm:text-sm font-bold text-black shadow-2xs">
               <span className="h-1.5 w-1.5 rounded-full bg-black animate-pulse" />
               <span>New Season Collection</span>
@@ -49,7 +49,7 @@ export function HeroSection({ onShopClick }: HeroSectionProps) {
           </Reveal>
 
           {/* Hero Banner Image */}
-          <Reveal className="relative overflow-hidden" delay={150}>
+          <Reveal animation="fade-left" duration={900} delay={150} className="relative overflow-hidden">
             <img
               src={bannerImg}
               alt="Kaiira Fashion Banner"
