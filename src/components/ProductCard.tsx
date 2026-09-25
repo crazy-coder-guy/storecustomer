@@ -24,15 +24,6 @@ interface ProductCardProps {
   imageAspectRatio?: string
 }
 
-// Fallback dummy colors if a product hasn't configured variant colors yet,
-// ensuring the palette circles seen in reference mockup are faithfully displayed
-const DEFAULT_PREVIEW_PALETTES = [
-  ['#1b3f33', '#4a4f54', '#1d2a44', '#f5f0e6'], // Forest Green, Charcoal, Navy, Cream
-  ['#111111', '#a8a8a8', '#633e21', '#ecd9bd'], // Black, Silver, Brown, Tan
-  ['#7e57c2', '#9e9e9e', '#f8f8f8', '#111111'], // Lavender/Purple, Ash, White, Black
-  ['#f7f4ea', '#9e9e9e', '#111111', '#1e3a2b'], // Cream, Grey, Black, Pine Green
-]
-
 function getFitLabel(fit?: string | null): string {
   if (!fit) return 'Oversized'
   switch (fit.toUpperCase()) {
@@ -107,15 +98,10 @@ export function ProductCard({
       ? Math.round(((product.mrp - product.price) / product.mrp) * 100)
       : null
 
-  // Ensure color swatches
-  let swatches = product.colors && product.colors.length > 0 ? product.colors : []
+  // Real color swatches only — no fabricated fallback palette.
+  let swatches = product.colors ?? []
   let extraCount = 0
-  if (swatches.length === 0) {
-    // Generate deterministic aesthetic palette based on product id
-    const hash = product.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
-    swatches = DEFAULT_PREVIEW_PALETTES[hash % DEFAULT_PREVIEW_PALETTES.length]
-    extraCount = (hash % 3) + 2
-  } else if (swatches.length > 4) {
+  if (swatches.length > 4) {
     extraCount = swatches.length - 4
     swatches = swatches.slice(0, 4)
   }
@@ -209,23 +195,25 @@ export function ProductCard({
             )}
           </div>
 
-          {/* Color Swatches Row + count */}
-          <div className="flex items-center gap-1.5 pt-2">
-            <div className="flex items-center gap-1.5">
-              {swatches.map((hex, i) => (
-                <span
-                  key={i}
-                  className="h-3 w-3 sm:h-3.5 sm:w-3.5 rounded-full border border-black/10 shadow-2xs shrink-0"
-                  style={{ backgroundColor: hex }}
-                />
-              ))}
+          {/* Color Swatches Row + count (only when the product has real configured colors) */}
+          {swatches.length > 0 && (
+            <div className="flex items-center gap-1.5 pt-2">
+              <div className="flex items-center gap-1.5">
+                {swatches.map((hex, i) => (
+                  <span
+                    key={i}
+                    className="h-3 w-3 sm:h-3.5 sm:w-3.5 rounded-full border border-black/10 shadow-2xs shrink-0"
+                    style={{ backgroundColor: hex }}
+                  />
+                ))}
+              </div>
+              {extraCount > 0 && (
+                <span className="text-[10px] sm:text-[11px] font-bold text-neutral-400 shrink-0">
+                  +{extraCount}
+                </span>
+              )}
             </div>
-            {extraCount > 0 && (
-              <span className="text-[10px] sm:text-[11px] font-bold text-neutral-400 shrink-0">
-                +{extraCount}
-              </span>
-            )}
-          </div>
+          )}
 
           {/* Subtitle / Attributes: e.g. "Oversized | Drop Shoulder" */}
           <div className="flex items-center gap-1.5 pt-1.5 text-[11px] sm:text-[12px] text-neutral-500 font-medium tracking-tight">

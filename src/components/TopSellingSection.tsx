@@ -27,6 +27,7 @@ export function TopSellingSection({ onAddToCart }: TopSellingSectionProps) {
       price: fp.product.basePrice,
       mrp: fp.product.mrp,
       image: primary?.imageUrl ?? PLACEHOLDER_PRODUCT_IMAGE,
+      colors: fp.product.colors.map((c) => c.hexCode),
       badge: fp.product.badge,
       fit: fp.product.fit,
       fabric: fp.product.fabric,

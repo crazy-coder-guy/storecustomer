@@ -129,7 +129,7 @@ export interface FeaturedProduct {
   productId: string
   sortOrder: number
   createdAt: string
-  product: Product & { category: Category; images: ProductImage[] }
+  product: Product & { category: Category; images: ProductImage[]; colors: Color[] }
 }
 
 export type OrderStatus = 'PENDING' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED'
