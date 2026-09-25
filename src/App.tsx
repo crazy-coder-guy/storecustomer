@@ -27,6 +27,7 @@ import { TermsOfServicePage } from './pages/TermsOfServicePage'
 import { SecurityPage } from './pages/SecurityPage'
 import { GoogleOneTapPrompt } from './components/GoogleOneTapPrompt'
 import { NotificationPermissionPrompt } from './components/NotificationPermissionPrompt'
+import { InstallAppPrompt } from './components/InstallAppPrompt'
 import { ScrollManager } from './components/ScrollManager'
 import { HapticFeedback } from './components/HapticFeedback'
 
@@ -69,6 +70,7 @@ export function App() {
           </WishlistProvider>
           <GoogleOneTapPrompt />
           <NotificationPermissionPrompt />
+          <InstallAppPrompt />
           <Toaster position="top-center" />
         </PromptSlotProvider>
       </CartProvider>

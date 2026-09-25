@@ -53,7 +53,7 @@ export function TopSellingSection({ onAddToCart }: TopSellingSectionProps) {
   if (!isLoading && products.length === 0) return null
 
   return (
-    <section id="shop" className="py-16 sm:py-24 bg-white">
+    <section id="shop" className="pt-8 pb-16 sm:pt-10 sm:pb-24 bg-white">
       <div className="kaira-container">
         {/* Section Header */}
         <Reveal animation="fade-up" duration={700} className="mb-10 sm:mb-14 border-b border-black/5 pb-6">

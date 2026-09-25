@@ -33,10 +33,10 @@ const PILLARS = [
 
 export function IntroSection() {
   return (
-    <section className="relative overflow-hidden bg-white text-black py-16 sm:py-24 border-t border-black/5">
+    <section className="relative overflow-hidden bg-white text-black py-12 sm:pt-20 sm:pb-12 border-t border-black/5">
       <div className="kaira-container">
         {/* Editorial Header */}
-        <Reveal animation="fade-up" duration={750} className="max-w-3xl mx-auto text-center space-y-4 mb-0 sm:mb-16">
+        <Reveal animation="fade-up" duration={750} className="max-w-3xl mx-auto text-center space-y-4 mb-0 sm:mb-12">
           <div className="flex items-center justify-center gap-3 mb-2">
             <span className="w-8 sm:w-12 h-px bg-black/25" />
             <span className="text-[11px] sm:text-xs font-bold uppercase tracking-[0.2em] text-black/60">
