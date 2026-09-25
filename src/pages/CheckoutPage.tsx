@@ -1,25 +1,34 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { toast } from 'sonner'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { SecurityCheckIcon } from '@hugeicons/core-free-icons'
+import {
+  SecurityCheckIcon,
+  CheckmarkCircle02Icon,
+  UserIcon,
+  CallIcon,
+  Mail01Icon,
+  Location01Icon,
+  ArrowRight01Icon,
+} from '@hugeicons/core-free-icons'
 import { Navbar } from '../components/Navbar'
 import { Footer } from '../components/Footer'
-import { LiquidButton } from '../components/LiquidButton'
 import { useCart } from '../context/CartContext'
+import { useAuth } from '../context/AuthContext'
+import { useAddresses } from '../hooks/queries'
 import { formatCurrency } from '../utils/formatCurrency'
 import { PLACEHOLDER_PRODUCT_IMAGE } from '../hooks/queries'
 import { openRazorpayCheckout } from '../utils/razorpay'
 import { createOrder } from '../services/order.service'
 import { createRazorpayOrder, verifyPayment } from '../services/payment.service'
 import { getErrorMessage } from '../services/api'
+import type { Address } from '../types'
 
 const schema = z.object({
   customerName: z.string().min(1, 'Full name is required'),
-  customerEmail: z.string().email('Enter a valid email'),
   customerPhone: z.string().min(10, 'Enter a valid phone number'),
   shippingAddress: z.string().min(10, 'Enter your complete delivery address'),
 })
@@ -28,14 +37,46 @@ type CheckoutFormValues = z.infer<typeof schema>
 
 export function CheckoutPage() {
   const navigate = useNavigate()
+  const { user } = useAuth()
   const { items, cartCount, subtotal, totalDiscount, deliveryFee, finalTotal, clearCart } = useCart()
+  const { data: savedAddresses } = useAddresses(Boolean(user))
   const [isPlacingOrder, setIsPlacingOrder] = useState(false)
+  const [selectedAddressId, setSelectedAddressId] = useState<string | 'new' | null>(null)
 
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<CheckoutFormValues>({ resolver: zodResolver(schema) })
+
+  // Default to the most recently used saved address; fall back to the
+  // editable "new address" form when the shopper has none saved yet.
+  useEffect(() => {
+    if (selectedAddressId !== null) return
+    if (savedAddresses && savedAddresses.length > 0) {
+      selectAddress(savedAddresses[0])
+    } else if (savedAddresses) {
+      setSelectedAddressId('new')
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [savedAddresses])
+
+  function selectAddress(address: Address) {
+    setSelectedAddressId(address.id)
+    setValue('customerName', address.name)
+    setValue('customerPhone', address.phone)
+    setValue('shippingAddress', address.shippingAddress)
+  }
+
+  function selectNewAddress() {
+    setSelectedAddressId('new')
+    setValue('customerName', '')
+    setValue('customerPhone', '')
+    setValue('shippingAddress', '')
+  }
+
+  const isUsingSavedAddress = selectedAddressId !== null && selectedAddressId !== 'new'
 
   if (items.length === 0) {
     return <Navigate to="/cart" replace />
@@ -59,7 +100,7 @@ export function CheckoutPage() {
         order_id: razorpayOrder.razorpayOrderId,
         prefill: {
           name: values.customerName,
-          email: values.customerEmail,
+          email: user?.email ?? '',
           contact: values.customerPhone,
         },
         theme: { color: '#000000' },
@@ -100,151 +141,268 @@ export function CheckoutPage() {
 
         <main className="py-6 sm:py-8 lg:py-10">
           <div className="kaira-container">
-            <div className="mb-6">
-              <span className="text-[11px] font-extrabold uppercase tracking-widest text-black/40">
-                Almost There
-              </span>
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-black tracking-tight mt-0.5">
+            {/* Header */}
+            <div className="mb-6 sm:mb-8">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-black tracking-tight">
                 Checkout
               </h1>
+              <p className="text-xs sm:text-sm text-neutral-500 font-medium mt-1">
+                Almost there! Complete your details to place your order.
+              </p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-start">
-              {/* Left: Shipping form */}
-              <form
-                onSubmit={handleSubmit(onSubmit)}
-                className="lg:col-span-7 xl:col-span-8 rounded-3xl border border-black/10 bg-white p-6 sm:p-7 shadow-xs space-y-5"
-              >
-                <h2 className="text-xl font-black text-black tracking-tight border-b border-black/10 pb-4">
-                  Delivery Details
-                </h2>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-xs font-extrabold uppercase tracking-wider text-black/60">
-                      Full Name
-                    </label>
-                    <input
-                      {...register('customerName')}
-                      className="mt-1.5 w-full rounded-xl border border-black/15 bg-white px-4 py-2.5 text-sm font-medium focus:border-black focus:outline-none"
-                      placeholder="Jane Doe"
-                    />
-                    {errors.customerName && (
-                      <p className="mt-1 text-xs text-red-500 font-semibold">{errors.customerName.message}</p>
-                    )}
-                  </div>
-                  <div>
-                    <label className="text-xs font-extrabold uppercase tracking-wider text-black/60">
-                      Phone Number
-                    </label>
-                    <input
-                      {...register('customerPhone')}
-                      className="mt-1.5 w-full rounded-xl border border-black/15 bg-white px-4 py-2.5 text-sm font-medium focus:border-black focus:outline-none"
-                      placeholder="98765 43210"
-                    />
-                    {errors.customerPhone && (
-                      <p className="mt-1 text-xs text-red-500 font-semibold">{errors.customerPhone.message}</p>
-                    )}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-xs font-extrabold uppercase tracking-wider text-black/60">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    {...register('customerEmail')}
-                    className="mt-1.5 w-full rounded-xl border border-black/15 bg-white px-4 py-2.5 text-sm font-medium focus:border-black focus:outline-none"
-                    placeholder="jane@example.com"
-                  />
-                  {errors.customerEmail && (
-                    <p className="mt-1 text-xs text-red-500 font-semibold">{errors.customerEmail.message}</p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="text-xs font-extrabold uppercase tracking-wider text-black/60">
-                    Shipping Address
-                  </label>
-                  <textarea
-                    rows={3}
-                    {...register('shippingAddress')}
-                    className="mt-1.5 w-full rounded-xl border border-black/15 bg-white px-4 py-2.5 text-sm font-medium focus:border-black focus:outline-none resize-none"
-                    placeholder="House no, street, city, state, PIN code"
-                  />
-                  {errors.shippingAddress && (
-                    <p className="mt-1 text-xs text-red-500 font-semibold">{errors.shippingAddress.message}</p>
-                  )}
-                </div>
-
-                <div className="flex items-center gap-2 rounded-xl bg-neutral-50 border border-black/5 p-3.5 text-[11px] font-semibold text-black/60">
-                  <HugeiconsIcon icon={SecurityCheckIcon} size={16} className="shrink-0" />
-                  <span>Payments are securely processed by Razorpay. We never store your card details.</span>
-                </div>
-
-                <LiquidButton
-                  type="submit"
-                  variant="primary"
-                  disabled={isPlacingOrder}
-                  className="w-full justify-center"
-                >
-                  {isPlacingOrder ? 'Processing…' : `Pay ${formatCurrency(finalTotal)}`}
-                </LiquidButton>
-              </form>
-
-              {/* Right: Order summary */}
-              <div className="lg:col-span-5 xl:col-span-4 lg:sticky lg:top-24 space-y-4">
-                <div className="rounded-3xl border border-black/10 bg-white p-6 sm:p-7 shadow-sm space-y-6">
-                  <h2 className="text-xl font-black text-black tracking-tight border-b border-black/10 pb-4">
-                    Order Summary
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+              {/* Left Column: Delivery Details card */}
+              <div className="lg:col-span-7 rounded-2xl border border-black/10 bg-white p-6 sm:p-7 shadow-xs">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+                  <h2 className="text-base sm:text-lg font-bold text-black border-b border-black/5 pb-3">
+                    Delivery Details
                   </h2>
 
-                  <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
-                    {items.map((item) => (
-                      <div key={item.id} className="flex gap-3 items-center">
-                        <div className="relative h-14 w-12 shrink-0 overflow-hidden rounded-lg bg-neutral-100 border border-black/10">
+                  {/* Saved addresses picker if available */}
+                  {savedAddresses && savedAddresses.length > 0 && (
+                    <div className="space-y-2 pb-2">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-semibold text-neutral-700">
+                          Saved Addresses
+                        </label>
+                        {selectedAddressId !== 'new' && (
+                          <button
+                            type="button"
+                            onClick={selectNewAddress}
+                            className="text-xs font-bold text-black underline underline-offset-2 hover:opacity-75 cursor-pointer"
+                          >
+                            + Enter New Address
+                          </button>
+                        )}
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        {savedAddresses.map((address) => (
+                          <button
+                            key={address.id}
+                            type="button"
+                            onClick={() => selectAddress(address)}
+                            className={`w-full text-left p-3 rounded-xl border transition-colors cursor-pointer flex justify-between items-start ${
+                              selectedAddressId === address.id
+                                ? 'border-black bg-neutral-50'
+                                : 'border-neutral-200 hover:border-neutral-300'
+                            }`}
+                          >
+                            <div className="min-w-0 pr-2">
+                              <p className="text-xs font-bold text-black truncate">{address.name}</p>
+                              <p className="text-[11px] text-neutral-500 font-medium">{address.phone}</p>
+                              <p className="text-[11px] text-neutral-600 line-clamp-2 mt-0.5">{address.shippingAddress}</p>
+                            </div>
+                            {selectedAddressId === address.id && (
+                              <HugeiconsIcon icon={CheckmarkCircle02Icon} size={16} className="text-black shrink-0 mt-0.5" />
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Full Name & Phone Number in 2-column grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-neutral-800 mb-1.5">
+                        Full Name
+                      </label>
+                      <div className="relative flex items-center">
+                        <HugeiconsIcon
+                          icon={UserIcon}
+                          size={18}
+                          className="absolute left-3.5 text-neutral-400 pointer-events-none"
+                        />
+                        <input
+                          {...register('customerName')}
+                          readOnly={isUsingSavedAddress}
+                          className={`w-full h-11 rounded-xl border border-neutral-200 pl-10 pr-3.5 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:border-black transition-colors ${
+                            isUsingSavedAddress ? 'bg-neutral-50 cursor-not-allowed' : 'bg-white'
+                          }`}
+                          placeholder="Jane Doe"
+                        />
+                      </div>
+                      {errors.customerName && (
+                        <p className="mt-1 text-xs text-red-500 font-medium">{errors.customerName.message}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-neutral-800 mb-1.5">
+                        Phone Number
+                      </label>
+                      <div className="relative flex items-center">
+                        <HugeiconsIcon
+                          icon={CallIcon}
+                          size={18}
+                          className="absolute left-3.5 text-neutral-400 pointer-events-none"
+                        />
+                        <input
+                          {...register('customerPhone')}
+                          readOnly={isUsingSavedAddress}
+                          className={`w-full h-11 rounded-xl border border-neutral-200 pl-10 pr-3.5 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:border-black transition-colors ${
+                            isUsingSavedAddress ? 'bg-neutral-50 cursor-not-allowed' : 'bg-white'
+                          }`}
+                          placeholder="98765 43210"
+                        />
+                      </div>
+                      {errors.customerPhone && (
+                        <p className="mt-1 text-xs text-red-500 font-medium">{errors.customerPhone.message}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Email Address */}
+                  <div>
+                    <label className="block text-xs font-semibold text-neutral-800 mb-1.5">
+                      Email Address
+                    </label>
+                    <div className="relative flex items-center">
+                      <HugeiconsIcon
+                        icon={Mail01Icon}
+                        size={18}
+                        className="absolute left-3.5 text-neutral-400 pointer-events-none"
+                      />
+                      <input
+                        type="email"
+                        readOnly
+                        value={user?.email ?? ''}
+                        className="w-full h-11 rounded-xl border border-neutral-200 pl-10 pr-3.5 text-sm text-neutral-900 placeholder:text-neutral-400 bg-neutral-50 cursor-not-allowed focus:outline-none"
+                        placeholder="jane@example.com"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Shipping Address */}
+                  <div>
+                    <label className="block text-xs font-semibold text-neutral-800 mb-1.5">
+                      Shipping Address
+                    </label>
+                    <div className="relative flex items-center">
+                      <HugeiconsIcon
+                        icon={Location01Icon}
+                        size={18}
+                        className="absolute left-3.5 text-neutral-400 pointer-events-none"
+                      />
+                      <input
+                        {...register('shippingAddress')}
+                        readOnly={isUsingSavedAddress}
+                        className={`w-full h-11 rounded-xl border border-neutral-200 pl-10 pr-3.5 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:border-black transition-colors ${
+                          isUsingSavedAddress ? 'bg-neutral-50 cursor-not-allowed' : 'bg-white'
+                        }`}
+                        placeholder="House no, street, city, state, PIN code"
+                      />
+                    </div>
+                    {errors.shippingAddress && (
+                      <p className="mt-1 text-xs text-red-500 font-medium">{errors.shippingAddress.message}</p>
+                    )}
+                  </div>
+
+                  {/* Hidden inputs when using saved address so form validation and values pass cleanly */}
+                  {isUsingSavedAddress && (
+                    <>
+                      <input type="hidden" {...register('customerName')} />
+                      <input type="hidden" {...register('customerPhone')} />
+                      <input type="hidden" {...register('shippingAddress')} />
+                    </>
+                  )}
+
+                  {/* Security badge banner */}
+                  <div className="flex items-center gap-2.5 rounded-xl bg-neutral-50/80 border border-neutral-100 px-4 py-3 text-xs text-neutral-500">
+                    <HugeiconsIcon icon={SecurityCheckIcon} size={17} className="shrink-0 text-neutral-400" />
+                    <span>Payments are securely processed by Razorpay. We never store your card details.</span>
+                  </div>
+
+                  {/* Submit Button: Pay {finalTotal} with inner circular arrow button */}
+                  <button
+                    type="submit"
+                    disabled={isPlacingOrder}
+                    className="w-full h-12 bg-black hover:bg-neutral-800 active:scale-[0.99] transition-all text-white rounded-full pl-6 pr-2 flex items-center justify-between font-bold text-sm cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    <span>{isPlacingOrder ? 'Processing…' : `Pay ${formatCurrency(finalTotal)}`}</span>
+                    <span className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center shrink-0">
+                      <HugeiconsIcon icon={ArrowRight01Icon} size={16} strokeWidth={2.5} />
+                    </span>
+                  </button>
+                </form>
+              </div>
+
+              {/* Right Column: Order Summary (open, clean style matching screenshot) */}
+              <div className="lg:col-span-5 lg:sticky lg:top-24 space-y-6 pt-1 lg:pt-0">
+                <div className="flex items-baseline gap-2">
+                  <h2 className="text-base sm:text-lg font-bold text-black tracking-tight">
+                    Order Summary
+                  </h2>
+                  <span className="text-xs sm:text-sm font-medium text-neutral-400">
+                    ({cartCount} items)
+                  </span>
+                </div>
+
+                {/* Items list */}
+                <div className="space-y-4 max-h-[380px] overflow-y-auto pr-1">
+                  {items.map((item) => (
+                    <div key={item.id} className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="h-12 w-12 shrink-0 rounded-lg overflow-hidden bg-neutral-100 border border-neutral-100">
                           <img
                             src={item.image ?? PLACEHOLDER_PRODUCT_IMAGE}
                             alt={item.name}
                             className="h-full w-full object-cover object-top"
                           />
-                          <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-black text-[9px] font-black text-white">
-                            {item.quantity}
-                          </span>
                         </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="text-xs font-bold text-black line-clamp-1">{item.name}</p>
-                          <p className="text-[10px] text-black/50 font-semibold">
+                        <div className="min-w-0">
+                          <p className="text-xs sm:text-sm font-bold text-black truncate leading-tight">
+                            {item.name}
+                          </p>
+                          <p className="text-[11px] text-neutral-400 font-medium mt-0.5">
                             {item.color.name} / {item.size}
                           </p>
+                          <p className="text-[11px] text-neutral-500 font-medium mt-0.5">
+                            {item.quantity} × {formatCurrency(item.price)}
+                          </p>
                         </div>
-                        <span className="text-xs font-black text-black shrink-0">
+                      </div>
+
+                      <div className="text-right shrink-0">
+                        <span className="text-xs sm:text-sm font-bold text-black">
                           {formatCurrency(item.price * item.quantity)}
                         </span>
                       </div>
-                    ))}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Pricing Breakdown */}
+                <div className="border-t border-neutral-100 pt-4 space-y-2 text-xs sm:text-sm font-medium text-neutral-600">
+                  <div className="flex justify-between items-center">
+                    <span>Bag Total ({cartCount} items)</span>
+                    <span className="text-black font-semibold">
+                      {formatCurrency(subtotal + totalDiscount)}
+                    </span>
                   </div>
 
-                  <div className="space-y-3 text-xs sm:text-sm font-semibold text-black/70 border-t border-black/10 pt-4">
-                    <div className="flex justify-between">
-                      <span>Bag Total ({cartCount} items)</span>
-                      <span className="font-black text-black">{formatCurrency(subtotal + totalDiscount)}</span>
+                  {totalDiscount > 0 && (
+                    <div className="flex justify-between items-center text-emerald-600 font-medium">
+                      <span>Bag Discount</span>
+                      <span className="font-semibold">-{formatCurrency(totalDiscount)}</span>
                     </div>
-                    {totalDiscount > 0 && (
-                      <div className="flex justify-between text-emerald-600">
-                        <span>Bag Discount</span>
-                        <span className="font-black">-{formatCurrency(totalDiscount)}</span>
-                      </div>
-                    )}
-                    <div className="flex justify-between">
-                      <span>Delivery Fee</span>
-                      <span className="font-black text-black">{formatCurrency(deliveryFee)}</span>
-                    </div>
-                    <div className="flex justify-between items-baseline border-t border-black/10 pt-4 text-base sm:text-lg font-black text-black">
-                      <span>Total Payable</span>
-                      <span>{formatCurrency(finalTotal)}</span>
-                    </div>
+                  )}
+
+                  <div className="flex justify-between items-center">
+                    <span>Delivery Fee</span>
+                    <span className="text-black font-semibold">
+                      {deliveryFee === 0 ? '₹0' : formatCurrency(deliveryFee)}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between items-center border-t border-neutral-100 pt-4 mt-4">
+                    <span className="text-sm sm:text-base font-bold text-black">
+                      Total Payable
+                    </span>
+                    <span className="text-lg sm:text-xl font-extrabold text-black tracking-tight">
+                      {formatCurrency(finalTotal)}
+                    </span>
                   </div>
                 </div>
               </div>

@@ -137,10 +137,18 @@ export type PaymentStatus = 'PAID' | 'UNPAID' | 'REFUNDED'
 
 export interface CreateOrderInput {
   customerName: string
-  customerEmail: string
   customerPhone: string
   shippingAddress: string
   items: { variantId: string; quantity: number }[]
+}
+
+export interface Address {
+  id: string
+  userId: string
+  name: string
+  phone: string
+  shippingAddress: string
+  createdAt: string
 }
 
 export interface OrderItemResponse {
@@ -199,4 +207,18 @@ export interface CartItemResponse {
   color: { name: string; hex: string }
   quantity: number
   stockQuantity: number
+}
+
+export interface CartSummary {
+  subtotal: number
+  mrpTotal: number
+  discount: number
+  deliveryFee: number
+  total: number
+  freeDeliveryThreshold: number
+}
+
+export interface CartResponse {
+  items: CartItemResponse[]
+  summary: CartSummary
 }

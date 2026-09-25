@@ -4,9 +4,18 @@ import { toast } from 'sonner'
 import { useAuth } from './AuthContext'
 import * as cartService from '../services/cart.service'
 import { getErrorMessage } from '../services/api'
-import type { CartItemResponse } from '../types'
+import type { CartItemResponse, CartSummary } from '../types'
 
 export type CartItem = CartItemResponse
+
+const EMPTY_SUMMARY: CartSummary = {
+  subtotal: 0,
+  mrpTotal: 0,
+  discount: 0,
+  deliveryFee: 0,
+  total: 0,
+  freeDeliveryThreshold: 0,
+}
 
 interface CartContextType {
   items: CartItem[]
@@ -35,7 +44,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     enabled: Boolean(user),
   })
 
-  const items = data ?? []
+  const items = data?.items ?? []
+  const summary = data?.summary ?? EMPTY_SUMMARY
 
   const addMutation = useMutation({
     mutationFn: ({ variantId, quantity }: { variantId: string; quantity: number }) =>
@@ -64,11 +74,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
   })
 
   const cartCount = items.reduce((sum, item) => sum + item.quantity, 0)
-  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
-  const mrpTotal = items.reduce((sum, item) => sum + item.mrp * item.quantity, 0)
-  const totalDiscount = Math.max(0, mrpTotal - subtotal)
-  const deliveryFee = items.length === 0 ? 0 : 19
-  const finalTotal = subtotal + deliveryFee
+  const subtotal = summary.subtotal
+  const totalDiscount = summary.discount
+  const deliveryFee = summary.deliveryFee
+  const finalTotal = summary.total
 
   async function addToCart(variantId: string, quantity = 1) {
     try {

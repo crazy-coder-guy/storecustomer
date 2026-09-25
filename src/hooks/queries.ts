@@ -11,6 +11,7 @@ import { listColors } from '../services/color.service'
 import { listSizes } from '../services/size.service'
 import { getStorefrontSettings, listFeaturedProducts } from '../services/storefront.service'
 import { searchProducts } from '../services/search.service'
+import { listAddresses } from '../services/address.service'
 import type { ProductListItem } from '../types'
 
 // A tiny inline gray placeholder, used only when a product genuinely has no images yet.
@@ -109,6 +110,15 @@ export function useProductDetail(id: string | undefined) {
     queryKey: ['product', id],
     queryFn: () => getProduct(id as string),
     enabled: Boolean(id),
+    staleTime: 30 * 1000,
+  })
+}
+
+export function useAddresses(enabled = true) {
+  return useQuery({
+    queryKey: ['addresses'],
+    queryFn: listAddresses,
+    enabled,
     staleTime: 30 * 1000,
   })
 }

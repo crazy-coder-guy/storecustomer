@@ -22,6 +22,7 @@ button:not(:disabled):active,
     opacity: 0;
     transform: scale(1.02);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -135,62 +136,71 @@ button:not(:disabled):active,
 
 /* Baseline: Small Mobile (< 380px, e.g. iPhone SE, compact Androids) */
 html {
-  font-size: 93.75%; /* 15px base */
+  font-size: 93.75%;
+  /* 15px base */
 }
 
 /* Medium & Standard Mobile (380px - 639px, e.g. iPhone 13/14/15/16, Galaxy S23) */
 @media (min-width: 380px) {
   html {
-    font-size: 100%; /* 16px standard base */
+    font-size: 100%;
+    /* 16px standard base */
   }
 }
 
 /* Large Mobile / Phablet (640px - 767px) */
 @media (min-width: 640px) {
   html {
-    font-size: 100%; /* 16px base */
+    font-size: 100%;
+    /* 16px base */
   }
 }
 
 /* Tablet Portrait (768px - 1023px in portrait orientation, e.g. iPad 10", iPad Air) */
 @media (min-width: 768px) and (orientation: portrait) {
   html {
-    font-size: 97%; /* 15.5px base: keeps vertical layouts clean and readable */
+    font-size: 97%;
+    /* 15.5px base: keeps vertical layouts clean and readable */
   }
 }
 
 /* Tablet Landscape (768px - 1023px in landscape orientation, e.g. iPad rotated) */
 @media (min-width: 768px) and (orientation: landscape) and (max-width: 1023px) {
   html {
-    font-size: 93.75%; /* 15px base: leaves vertical headroom for hero & cards */
+    font-size: 93.75%;
+    /* 15px base: leaves vertical headroom for hero & cards */
   }
 }
 
 /* Small Laptop / Compact Display (1024px - 1279px, e.g. MacBook Air 13", iPad Pro 12.9" Landscape) */
 @media (min-width: 1024px) {
   html {
-    font-size: 98%; /* ~15.7px base: ensures full hero fits gracefully above fold */
+    font-size: 98%;
+    /* ~15.7px base: ensures full hero fits gracefully above fold */
   }
 }
 
 /* Medium Laptop / Standard FHD Monitor (1280px - 1535px, e.g. MacBook Pro 14"/16", 1080p display) */
 @media (min-width: 1280px) {
   html {
-    font-size: 102%; /* ~16.3px base */
+    font-size: 102%;
+    /* ~16.3px base */
   }
 }
 
 /* Large Desktop / QHD Display (1536px - 1919px) */
 @media (min-width: 1536px) {
   html {
-    font-size: 108%; /* ~17.3px base */
+    font-size: 108%;
+    /* ~17.3px base */
   }
 }
 
 /* Ultra-Wide / 4K / High-Res Desktop (1920px+) */
 @media (min-width: 1920px) {
   html {
-    font-size: 114%; /* ~18.2px base: premium large screen proportion */
+    font-size: 114%;
+    /* ~18.2px base: premium large screen proportion */
   }
 }
 
@@ -260,6 +270,7 @@ body {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -274,6 +285,7 @@ body {
     opacity: 0;
     transform: translateY(28px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -305,6 +317,7 @@ body {
   0% {
     transform: translateX(0%);
   }
+
   100% {
     transform: translateX(-50%);
   }
@@ -326,18 +339,23 @@ body {
 
 /* 8s Refined Luxury Shimmer & Letter Stroke Wave on KAIRA */
 @keyframes letterDrawWave {
-  0%, 70% {
+
+  0%,
+  70% {
     stroke-dashoffset: 0;
     opacity: 1;
   }
+
   75% {
     stroke-dashoffset: 70;
     opacity: 0.25;
   }
+
   85% {
     stroke-dashoffset: 0;
     opacity: 1;
   }
+
   100% {
     stroke-dashoffset: 0;
     opacity: 1;
@@ -390,6 +408,7 @@ body {
     transform: scale(0.6);
     opacity: 0;
   }
+
   100% {
     transform: scale(1);
     opacity: 1;
@@ -415,6 +434,7 @@ body {
     opacity: 0;
     transform: translateY(-8px) scale(0.985);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -432,6 +452,7 @@ body {
   0% {
     transform: translateX(100%);
   }
+
   100% {
     transform: translateX(0%);
   }
@@ -450,6 +471,7 @@ body {
     transform: translateY(-16px) scale(0.97);
     filter: blur(4px);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -469,6 +491,7 @@ body {
     opacity: 0;
     transform: translateY(24px) scale(0.96);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0) scale(1);

@@ -192,7 +192,7 @@ export function ProductDetailPage() {
         <Navbar />
 
         <main className="py-4 sm:py-6 lg:py-8">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="kaira-container">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 xl:gap-12 items-start">
 
               {/* LEFT COLUMN: Sticky Gallery with Vertical Thumbnails */}
