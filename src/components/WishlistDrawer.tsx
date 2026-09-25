@@ -149,9 +149,10 @@ export function WishlistDrawer() {
               /* Saved Items - Clean Borderless List View with Dividers */
               <div className="divide-y divide-black/10">
                 {wishlistProducts.map((product) => {
-                  const hasDiscount = product.mrp && product.mrp > product.price
+                  const mrp = product.mrp
+                  const hasDiscount = typeof mrp === 'number' && mrp > product.price
                   const discountPercent = hasDiscount
-                    ? Math.round(((product.mrp - product.price) / product.mrp) * 100)
+                    ? Math.round(((mrp - product.price) / mrp) * 100)
                     : null
 
                   return (
@@ -212,9 +213,9 @@ export function WishlistDrawer() {
                             <span className="text-sm font-black text-black">
                               {formatCurrency(product.price)}
                             </span>
-                            {hasDiscount && (
+                            {hasDiscount && mrp && (
                               <span className="text-[11px] font-semibold text-black/40 line-through">
-                                {formatCurrency(product.mrp)}
+                                {formatCurrency(mrp)}
                               </span>
                             )}
                             {discountPercent && (
