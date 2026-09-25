@@ -61,14 +61,14 @@ export function ScrollWipeKaira({
           Studio Edition • Premium Apparel
         </div>
 
-        {/* Big Giant "KAIRA" Typography with Smooth Horizontal/Vertical Wipe Mask */}
+        {/* Big Giant "KAIIRA" Typography with Smooth Horizontal/Vertical Wipe Mask */}
         <div className="relative w-full flex items-center justify-center overflow-hidden py-2 sm:py-4">
           {/* Base Background Ghost Outline / Faint Track */}
           <div
             className="text-[18vw] sm:text-[19vw] lg:text-[21vw] font-black tracking-tighter leading-none text-neutral-100 uppercase"
             aria-hidden="true"
           >
-            KAIRA
+            KAIIRA
           </div>
 
           {/* Foreground Active Black Text that wipes across smoothly */}
@@ -79,7 +79,7 @@ export function ScrollWipeKaira({
               WebkitClipPath: `polygon(0 0, ${wipePercentage}% 0, ${wipePercentage}% 100%, 0 100%)`,
             }}
           >
-            KAIRA
+            KAIIRA
           </div>
         </div>
 

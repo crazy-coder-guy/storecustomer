@@ -7,12 +7,12 @@ interface KairaLogoProps {
 export function KairaLogo({ className = 'h-7 sm:h-9 text-black', height = 36, animated = false }: KairaLogoProps) {
   return (
     <svg
-      viewBox="0 0 220 44"
+      viewBox="0 0 236 44"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={`${className} ${animated ? 'kaira-logo-animated' : ''}`}
       style={{ height: `${height}px`, width: 'auto' }}
-      aria-label="Kaira Logo"
+      aria-label="Kaiira Logo"
     >
       {/* K */}
       <path
@@ -43,24 +43,33 @@ export function KairaLogo({ className = 'h-7 sm:h-9 text-black', height = 36, an
         className={animated ? 'kaira-letter-path kaira-path-3' : ''}
       />
 
-      {/* R (Futuristic Curved R) */}
+      {/* I */}
       <path
-        d="M112 36V8H132C142 8 142 22 132 22H112M125 22C132 22 137 27 141 36"
+        d="M112 8V36"
         stroke="currentColor"
         strokeWidth="4.5"
         strokeLinecap="round"
-        strokeLinejoin="round"
         className={animated ? 'kaira-letter-path kaira-path-4' : ''}
       />
 
-      {/* A (Matching Accent Lambda) */}
+      {/* R (Futuristic Curved R) */}
       <path
-        d="M156 36L172 8L188 36"
+        d="M128 36V8H148C158 8 158 22 148 22H128M141 22C148 22 153 27 157 36"
         stroke="currentColor"
         strokeWidth="4.5"
         strokeLinecap="round"
         strokeLinejoin="round"
         className={animated ? 'kaira-letter-path kaira-path-5' : ''}
+      />
+
+      {/* A (Matching Accent Lambda) */}
+      <path
+        d="M172 36L188 8L204 36"
+        stroke="currentColor"
+        strokeWidth="4.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className={animated ? 'kaira-letter-path kaira-path-6' : ''}
       />
     </svg>
   )

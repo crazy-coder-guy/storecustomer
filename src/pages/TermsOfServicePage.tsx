@@ -31,7 +31,7 @@ export function TermsOfServicePage() {
                 1. Overview & Acceptance
               </h2>
               <p>
-                By accessing or purchasing from KAIRA Apparel, you agree to be bound by the terms and conditions outlined below. Please read these terms carefully before placing an order.
+                By accessing or purchasing from KAIIRA Apparel, you agree to be bound by the terms and conditions outlined below. Please read these terms carefully before placing an order.
               </p>
             </section>
 
@@ -67,7 +67,7 @@ export function TermsOfServicePage() {
                 5. Intellectual Property
               </h2>
               <p>
-                All logos, typography, graphics, product photography, and brand design elements on KAIRA Apparel are the exclusive property of KAIRA Apparel Inc. Unauthorized copying or redistribution is strictly prohibited.
+                All logos, typography, graphics, product photography, and brand design elements on KAIIRA Apparel are the exclusive property of KAIIRA Apparel Inc. Unauthorized copying or redistribution is strictly prohibited.
               </p>
             </section>
           </div>

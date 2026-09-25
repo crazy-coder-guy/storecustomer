@@ -71,7 +71,7 @@ export function OrderConfirmationPage() {
             <div className="space-y-2">
               <h1 className="text-3xl font-black tracking-tight text-black">Order Placed Successfully!</h1>
               <p className="text-sm text-black/60 font-medium">
-                Thank you for shopping with Kaira, {order.customerName.split(' ')[0]}. A confirmation has
+                Thank you for shopping with Kaiira, {order.customerName.split(' ')[0]}. A confirmation has
                 been sent to {order.customerEmail}.
               </p>
             </div>

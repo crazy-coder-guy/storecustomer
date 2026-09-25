@@ -29,6 +29,8 @@ export function TopSellingSection({ onAddToCart }: TopSellingSectionProps) {
       mrp: fp.product.mrp,
       image: primary?.imageUrl ?? PLACEHOLDER_PRODUCT_IMAGE,
       badge: fp.product.badge,
+      fit: fp.product.fit,
+      fabric: fp.product.fabric,
     }
   })
 
@@ -71,19 +73,20 @@ export function TopSellingSection({ onAddToCart }: TopSellingSectionProps) {
           </Link>
         </Reveal>
 
-        {/* Product Cards Grid: 2 columns on mobile, 2 on tablet, 4 on desktop */}
+        {/* Product Cards Grid: 2 columns on mobile, 3 on sm/md, 4 on desktop, 5 on large screens (xl/2xl) */}
         {isLoading ? (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="aspect-[4/4.2] rounded-xl sm:rounded-2xl bg-gray-100 animate-pulse" />
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3.5 sm:gap-5 lg:gap-6">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="aspect-[3.6/3.55] rounded-2xl sm:rounded-3xl bg-gray-100 animate-pulse" />
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3.5 sm:gap-5 lg:gap-6">
             {products.map((product, idx) => (
-              <Reveal key={product.id} delay={(idx % 4) * 90} strength="soft">
+              <Reveal key={product.id} delay={(idx % 5) * 80} strength="soft">
                 <ProductCard
                   product={product}
+                  imageAspectRatio="aspect-[3.6/3.55]"
                   onAddToCart={handleAdd}
                   onOpenDetail={(id) => setSelectedDrawerProductId(id)}
                 />

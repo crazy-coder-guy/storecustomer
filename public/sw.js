@@ -10,10 +10,10 @@ self.addEventListener('push', (event) => {
   try {
     payload = event.data.json()
   } catch {
-    payload = { title: 'Kaira', body: event.data.text() }
+    payload = { title: 'Kaiira', body: event.data.text() }
   }
 
-  const { title = 'Kaira', body = '', url = '/' } = payload
+  const { title = 'Kaiira', body = '', url = '/' } = payload
 
   event.waitUntil(
     self.registration.showNotification(title, {

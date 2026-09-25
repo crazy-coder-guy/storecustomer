@@ -54,7 +54,7 @@ export function CheckoutPage() {
         key: razorpayOrder.keyId,
         amount: razorpayOrder.amount,
         currency: razorpayOrder.currency,
-        name: 'Kaira',
+        name: 'Kaiira',
         description: `Order ${razorpayOrder.orderNumber}`,
         order_id: razorpayOrder.razorpayOrderId,
         prefill: {

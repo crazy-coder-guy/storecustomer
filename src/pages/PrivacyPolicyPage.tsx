@@ -20,7 +20,7 @@ export function PrivacyPolicyPage() {
               Privacy Policy
             </h1>
             <p className="text-sm font-semibold text-black/60">
-              Last updated: September 2026 • Effective for all KAIRA Apparel users
+              Last updated: September 2026 • Effective for all KAIIRA Apparel users
             </p>
           </div>
 
@@ -31,7 +31,7 @@ export function PrivacyPolicyPage() {
                 1. Information We Collect
               </h2>
               <p>
-                At KAIRA Apparel, we respect your privacy and are committed to protecting your personal data. When you visit our website, place an order, or create an account, we may collect the following information:
+                At KAIIRA Apparel, we respect your privacy and are committed to protecting your personal data. When you visit our website, place an order, or create an account, we may collect the following information:
               </p>
               <ul className="list-disc pl-5 space-y-2 text-black/70">
                 <li>Personal identification details (Name, Email Address, Phone Number).</li>
@@ -84,7 +84,7 @@ export function PrivacyPolicyPage() {
                 5. Your Rights & Control
               </h2>
               <p>
-                You have the right to inspect, update, or request the deletion of your personal data at any time. If you wish to delete your account or opt out of promotional emails, please contact us at <a href="mailto:privacy@kairaapparel.com" className="font-bold underline text-black">privacy@kairaapparel.com</a>.
+                You have the right to inspect, update, or request the deletion of your personal data at any time. If you wish to delete your account or opt out of promotional emails, please contact us at <a href="mailto:privacy@kaiiraapparel.com" className="font-bold underline text-black">privacy@kaiiraapparel.com</a>.
               </p>
             </section>
           </div>

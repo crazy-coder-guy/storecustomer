@@ -12,7 +12,7 @@ export function HeroSection({ onShopClick }: HeroSectionProps) {
   const heroTitle = settings?.heroTitle || 'Modern Essentials for Everyday Style'
   const heroSubtitle =
     settings?.heroSubtitle ||
-    'Discover refined apparel crafted with exceptional fabrics and minimal aesthetics. Designed by Kaira.'
+    'Discover refined apparel crafted with exceptional fabrics and minimal aesthetics. Designed by Kaiira.'
 
   return (
     <section className="relative overflow-hidden bg-white pt-4 pb-2 sm:py-6 lg:py-8">
@@ -51,7 +51,7 @@ export function HeroSection({ onShopClick }: HeroSectionProps) {
           <Reveal className="relative overflow-hidden" delay={150}>
             <img
               src={bannerImg}
-              alt="Kaira Fashion Banner"
+              alt="Kaiira Fashion Banner"
               className="w-full h-auto object-contain max-w-full"
             />
             {/* Bottom White Linear Gradient Fade Out */}

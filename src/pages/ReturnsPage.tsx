@@ -48,7 +48,7 @@ export function ReturnsPage() {
               Easy Returns. Free Exchanges.
             </h1>
             <p className="text-base sm:text-lg text-black/75 font-medium leading-relaxed">
-              Every KAIRA purchase comes with a 7-day no-questions-asked return and free size exchange guarantee.
+              Every KAIIRA purchase comes with a 7-day no-questions-asked return and free size exchange guarantee.
             </p>
           </div>
 

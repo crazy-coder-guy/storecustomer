@@ -380,10 +380,10 @@ export function OrderDetailPage() {
                       <p className="font-medium">
                         Reach out to our concierge at{' '}
                         <a
-                          href="mailto:care@kairaapparel.com"
+                          href="mailto:care@kaiiraapparel.com"
                           className="font-bold text-black underline underline-offset-2"
                         >
-                          care@kairaapparel.com
+                          care@kaiiraapparel.com
                         </a>{' '}
                         quoting reference #{order.orderNumber}.
                       </p>

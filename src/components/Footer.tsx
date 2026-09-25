@@ -74,7 +74,7 @@ export function Footer() {
             <Link to="/security" className="hover:text-white transition-colors">Security</Link>
           </div>
           <div>
-            © {new Date().getFullYear()} Kaira Apparel Inc. All rights reserved.
+            © {new Date().getFullYear()} Kaiira Apparel Inc. All rights reserved.
           </div>
         </div>
       </div>

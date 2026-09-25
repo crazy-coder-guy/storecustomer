@@ -188,7 +188,7 @@ export function GoogleOneTapPrompt() {
         {/* Main Body */}
         <div className="py-3 space-y-0.5">
           <h4 className="text-lg font-black text-black tracking-tight leading-snug">
-            Welcome to Kaira
+            Welcome to Kaiira
           </h4>
           <p className="text-xs sm:text-sm font-medium text-black/60 leading-relaxed">
             Access your shopping bag, saved wishlist, and tracked orders.
@@ -233,7 +233,7 @@ export function GoogleOneTapPrompt() {
 
         {/* Subtle Google Disclaimer */}
         <div className="pt-2.5 text-xs font-normal text-black/50 text-center leading-normal">
-          <span>To continue, Google shares your profile and email with Kaira.</span>
+          <span>To continue, Google shares your profile and email with Kaiira.</span>
         </div>
       </aside>
     </>,

@@ -4,7 +4,7 @@ interface VelocityScrollProps {
 }
 
 export function VelocityScroll({
-  text = 'KAIRA • MODERN ESSENTIALS • NEW SEASON COLLECTION • PREMIUM QUALITY • MINIMALIST APPAREL • EXPRESS SHIPPING •',
+  text = 'KAIIRA • MODERN ESSENTIALS • NEW SEASON COLLECTION • PREMIUM QUALITY • MINIMALIST APPAREL • EXPRESS SHIPPING •',
   className = '',
 }: VelocityScrollProps) {
   const repeatedText = `${text} ${text} `

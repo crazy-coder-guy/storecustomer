@@ -1,5 +1,6 @@
 import { Navbar } from '../components/Navbar'
 import { HeroSection } from '../components/HeroSection'
+import { IntroSection } from '../components/IntroSection'
 import { TopSellingSection } from '../components/TopSellingSection'
 import { CategoriesSection } from '../components/CategoriesSection'
 import { VelocityScroll } from '../components/VelocityScroll'
@@ -16,10 +17,13 @@ export function HomePage() {
         <main>
           <HeroSection />
 
+          {/* Introducing The New Site / Premium Quality Section */}
+          <IntroSection />
+
           {/* Top Selling T-Shirts Cards Section */}
           <TopSellingSection />
           {/* Velocity Scroll Marquee */}
-          <VelocityScroll text="KAIRA • MODERN ESSENTIALS • NEW SEASON COLLECTION • PREMIUM QUALITY • MINIMALIST APPAREL • EXPRESS SHIPPING •" />
+          <VelocityScroll text="KAIIRA • MODERN ESSENTIALS • NEW SEASON COLLECTION • PREMIUM QUALITY • MINIMALIST APPAREL • EXPRESS SHIPPING •" />
           {/* Curated Category Showcase Section */}
           <CategoriesSection />
         </main>

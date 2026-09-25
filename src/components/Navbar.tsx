@@ -183,7 +183,7 @@ export function Navbar({ cartCount: propCartCount, wishlistCount: propWishlistCo
             <Link
               to="/"
               className="group flex items-center hover:opacity-90 transition-opacity shrink-0"
-              aria-label="Kaira Home"
+              aria-label="Kaiira Home"
             >
               <KairaLogo
                 animated={true}

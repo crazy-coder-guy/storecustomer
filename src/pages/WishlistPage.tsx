@@ -79,14 +79,14 @@ export function WishlistPage() {
               </div>
             </div>
           ) : isLoading ? (
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3.5 sm:gap-5 lg:gap-6">
               {Array.from({ length: wishlistIds.length }).map((_, i) => (
-                <div key={i} className="aspect-[4/4.2] rounded-xl sm:rounded-2xl bg-gray-100 animate-pulse" />
+                <div key={i} className="aspect-[3.6/4.05] rounded-2xl sm:rounded-3xl bg-gray-100 animate-pulse" />
               ))}
             </div>
           ) : (
-            /* Canonical ProductCard Grid matching Home & Category Pages: 2 cols on mobile, 4 on desktop */
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
+            /* Canonical ProductCard Grid matching Home & Category Pages: 2 cols on mobile, 3 on sm/md, 4 on desktop, 5 on large screens */
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3.5 sm:gap-5 lg:gap-6">
               {wishlistProducts.map((product) => (
                 <ProductCard
                   key={product.id}

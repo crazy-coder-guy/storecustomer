@@ -124,7 +124,7 @@ export function OrdersPage() {
     e.stopPropagation()
 
     const invoiceData = {
-      invoiceTitle: 'KAIRA APPAREL — OFFICIAL ORDER SUMMARY',
+      invoiceTitle: 'KAIIRA APPAREL — OFFICIAL ORDER SUMMARY',
       orderNumber: order.orderNumber,
       orderId: order.id,
       datePlaced: order.createdAt,
@@ -146,8 +146,8 @@ export function OrdersPage() {
       })),
       totalAmount: order.totalAmount,
       currency: 'INR',
-      terms: 'Thank you for choosing KAIRA. Goods once inspected are eligible for 7-day hassle-free exchange.',
-      contactSupport: 'care@kairaapparel.com',
+      terms: 'Thank you for choosing KAIIRA. Goods once inspected are eligible for 7-day hassle-free exchange.',
+      contactSupport: 'care@kaiiraapparel.com',
     }
 
     const blob = new Blob([JSON.stringify(invoiceData, null, 2)], {
@@ -156,7 +156,7 @@ export function OrdersPage() {
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
-    link.download = `kaira-order-${order.orderNumber}.json`
+    link.download = `kaiira-order-${order.orderNumber}.json`
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)

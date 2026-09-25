@@ -318,6 +318,11 @@ body {
   animation-delay: 0.48s;
 }
 
+.kaira-path-6 {
+  animation: letterDrawWave 8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation-delay: 0.6s;
+}
+
 /* -------------------------------------------------------------
    PURE BLACK CORNER BADGE
    Bold, minimalist, opaque pure black pill anchored top-left of

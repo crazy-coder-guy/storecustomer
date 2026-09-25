@@ -87,9 +87,9 @@ export function CategoryProductsPage() {
             </div>
 
             {isLoading ? (
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
-                {Array.from({ length: 8 }).map((_, i) => (
-                  <div key={i} className="aspect-[4/4.2] rounded-xl sm:rounded-2xl bg-gray-100 animate-pulse" />
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3.5 sm:gap-5 lg:gap-6">
+                {Array.from({ length: 10 }).map((_, i) => (
+                  <div key={i} className="aspect-[3.6/4.05] rounded-2xl sm:rounded-3xl bg-gray-100 animate-pulse" />
                 ))}
               </div>
             ) : products.length === 0 ? (
@@ -97,7 +97,7 @@ export function CategoryProductsPage() {
                 No products found in this category yet.
               </div>
             ) : (
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3.5 sm:gap-5 lg:gap-6">
                 {products.map((product) => (
                   <ProductCard
                     key={product.id}

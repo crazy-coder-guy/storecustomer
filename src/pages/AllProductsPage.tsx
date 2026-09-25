@@ -270,9 +270,9 @@ export function AllProductsPage() {
               </div>
 
               {isLoading ? (
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 lg:gap-6">
-                  {Array.from({ length: 8 }).map((_, i) => (
-                    <div key={i} className="aspect-[4/3.4] rounded-xl sm:rounded-2xl bg-gray-100 animate-pulse" />
+                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-3 sm:gap-4 lg:gap-5">
+                  {Array.from({ length: 10 }).map((_, i) => (
+                    <div key={i} className="aspect-[3.6/3.9] rounded-2xl sm:rounded-3xl bg-gray-100 animate-pulse" />
                   ))}
                 </div>
               ) : products.length === 0 ? (
@@ -280,7 +280,7 @@ export function AllProductsPage() {
                   No products match these filters. Try clearing some of them.
                 </div>
               ) : (
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 lg:gap-6">
+                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-3 sm:gap-4 lg:gap-5">
                   {products.map((product) => (
                     <ProductCard
                       key={product.id}

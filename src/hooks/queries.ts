@@ -29,6 +29,8 @@ export interface ProductCardData {
   image: string
   colors?: string[]
   badge?: string | null
+  fit?: string | null
+  fabric?: string | null
 }
 
 export function useStorefrontSettings() {
@@ -125,6 +127,8 @@ function toProductCardData(p: ProductListItem): ProductCardData {
     image: primary?.imageUrl ?? PLACEHOLDER_PRODUCT_IMAGE,
     colors,
     badge: p.badge,
+    fit: p.fit,
+    fabric: p.fabric,
   }
 }
 

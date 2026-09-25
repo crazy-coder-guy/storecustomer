@@ -85,26 +85,26 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
 
   function handleDownloadAccountData() {
     const summary = {
-      brand: 'KAIRA Apparel',
+      brand: 'KAIIRA Apparel',
       user: {
         name: user?.name ?? 'Valued Customer',
         email: user?.email ?? 'Unknown',
         uid: user?.uid ?? '',
-        membership: 'KAIRA Member',
+        membership: 'KAIIRA Member',
       },
       bagSummary: {
         totalCartItems: cartCount,
         wishlistItemsCount: wishlistCount,
       },
       exportTimestamp: new Date().toISOString(),
-      customerCare: 'care@kairaapparel.com',
+      customerCare: 'care@kaiiraapparel.com',
     }
 
     const blob = new Blob([JSON.stringify(summary, null, 2)], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `kaira-account-summary-${(user?.name || 'customer').toLowerCase().replace(/\s+/g, '-')}.json`
+    a.download = `kaiira-account-summary-${(user?.name || 'customer').toLowerCase().replace(/\s+/g, '-')}.json`
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
@@ -177,7 +177,7 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
                   <HugeiconsIcon icon={UserIcon} size={36} />
                 </div>
                 <div className="space-y-1.5 max-w-xs mx-auto">
-                  <h3 className="text-xl font-black text-black">Welcome to KAIRA</h3>
+                  <h3 className="text-xl font-black text-black">Welcome to KAIIRA</h3>
                   <p className="text-xs sm:text-sm font-medium text-black/60 leading-relaxed">
                     Sign in with Google to view your order history, manage your bag, and access personalized features.
                   </p>
@@ -228,7 +228,7 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
                     </p>
                     <div className="mt-2 inline-flex items-center gap-1.5 rounded-2xl bg-black px-2.5 py-0.5 text-[10px] font-bold text-white tracking-wide">
                       <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                      <span>KAIRA Member</span>
+                      <span>KAIIRA Member</span>
                     </div>
                   </div>
                 </div>

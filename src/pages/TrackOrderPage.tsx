@@ -27,7 +27,7 @@ export function TrackOrderPage() {
     {
       status: 'Order Placed & Confirmed',
       date: '21 Sep 2026, 04:30 PM',
-      location: 'KAIRA Central Studio, Surat',
+      location: 'KAIIRA Central Studio, Surat',
       completed: true,
     },
     {
@@ -242,7 +242,7 @@ export function TrackOrderPage() {
               <span className="text-xs font-extrabold uppercase tracking-widest text-black/40">Customer Support</span>
               <h4 className="text-lg font-black text-black">Need Direct Help?</h4>
               <p className="text-sm text-black/70 font-medium leading-relaxed">
-                Reach our concierge desk directly at <span className="font-bold text-black">care@kairaapparel.com</span> for manual order lookups.
+                Reach our concierge desk directly at <span className="font-bold text-black">care@kaiiraapparel.com</span> for manual order lookups.
               </p>
             </div>
           </div>

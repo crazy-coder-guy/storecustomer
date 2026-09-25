@@ -167,7 +167,7 @@ export function ContactPage() {
           <div className="space-y-1.5">
             <span className="text-xs font-extrabold uppercase tracking-widest text-black/40">Direct Inbox</span>
             <h4 className="text-xl font-black text-black">Email Support</h4>
-            <p className="text-sm text-black/70 font-medium">care@kairaapparel.com</p>
+            <p className="text-sm text-black/70 font-medium">care@kaiiraapparel.com</p>
           </div>
           <div className="space-y-1.5">
             <span className="text-xs font-extrabold uppercase tracking-widest text-black/40">Instant Chat</span>

@@ -43,7 +43,7 @@ export function AboutPage() {
             <div className="overflow-hidden rounded-2xl border border-black/10 shadow-lg">
               <img
                 src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1200&auto=format&fit=crop"
-                alt="Kaira Studio Workshop"
+                alt="Kaiira Studio Workshop"
                 className="w-full h-80 sm:h-96 md:h-[450px] object-cover hover:scale-105 transition-transform duration-700"
               />
             </div>
@@ -52,7 +52,7 @@ export function AboutPage() {
                 Designed in Minimal Tones. Built to Last.
               </h2>
               <p className="text-base sm:text-lg text-black/75 leading-relaxed">
-                At Kaira, we eliminate unnecessary clutter. Every seam, cut, and fabric choice is engineered to offer unmatched durability and effortless aesthetic harmony.
+                At Kaiira, we eliminate unnecessary clutter. Every seam, cut, and fabric choice is engineered to offer unmatched durability and effortless aesthetic harmony.
               </p>
               <p className="text-base sm:text-lg text-black/75 leading-relaxed">
                 We work directly with certified organic cotton mills and ethical artisans across the globe to guarantee transparent sourcing and zero-compromise quality.
@@ -67,7 +67,7 @@ export function AboutPage() {
         </section>
 
         {/* Velocity Text Ticker */}
-        <VelocityScroll text="SUSTAINABLE MATERIALS • ETHICAL CRAFTSMANSHIP • TIMELESS SILHOUETTES • ZERO WASTE PACKAGING • DESIGNED BY KAIRA •" />
+        <VelocityScroll text="SUSTAINABLE MATERIALS • ETHICAL CRAFTSMANSHIP • TIMELESS SILHOUETTES • ZERO WASTE PACKAGING • DESIGNED BY KAIIRA •" />
 
         {/* Core Values Grid */}
         <section className="py-20 bg-gray-50/50">
@@ -75,7 +75,7 @@ export function AboutPage() {
             <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
               <h2 className="text-3xl sm:text-5xl font-black text-black">Our Core Pillars</h2>
               <p className="text-base sm:text-lg text-black/70">
-                The standard that defines every garment we create at Kaira.
+                The standard that defines every garment we create at Kaiira.
               </p>
             </div>
 
