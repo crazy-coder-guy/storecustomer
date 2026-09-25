@@ -202,7 +202,7 @@ export function WishlistDrawer() {
                           onClick={() => handleProductClick(product.id)}
                           className="text-left w-full cursor-pointer block"
                         >
-                          <h4 className="text-sm font-bold text-black truncate hover:underline underline-offset-2">
+                          <h4 className="text-xs sm:text-sm font-bold text-black line-clamp-2 leading-snug hover:underline underline-offset-2">
                             {product.name}
                           </h4>
                         </button>

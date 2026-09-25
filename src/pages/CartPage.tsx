@@ -133,7 +133,7 @@ export function CartPage() {
                               <button
                                 type="button"
                                 onClick={() => setSelectedDrawerProductId(item.productId)}
-                                className="block text-left text-sm sm:text-lg font-black text-black hover:opacity-75 transition-opacity truncate leading-snug cursor-pointer"
+                                className="block text-left text-sm sm:text-base font-black text-black hover:opacity-75 transition-opacity line-clamp-2 leading-snug cursor-pointer"
                               >
                                 {item.name}
                               </button>
