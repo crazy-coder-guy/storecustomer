@@ -1,12 +1,43 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { toast } from 'sonner'
 import { KairaLogo } from './KairaLogo'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
   ArrowRight01Icon,
   Mail01Icon,
+  CheckmarkCircle02Icon,
 } from '@hugeicons/core-free-icons'
+import { subscribeNewsletter } from '../services/newsletter.service'
+import { getErrorMessage } from '../services/api'
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export function Footer() {
+  const [email, setEmail] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSubscribed, setIsSubscribed] = useState(false)
+
+  async function handleSubscribe(e: React.FormEvent) {
+    e.preventDefault()
+    if (!EMAIL_PATTERN.test(email.trim())) {
+      toast.error('Enter a valid email address')
+      return
+    }
+
+    setIsSubmitting(true)
+    try {
+      const { alreadySubscribed } = await subscribeNewsletter(email.trim())
+      toast.success(alreadySubscribed ? "You're already on the list" : "You're on the list!")
+      setIsSubscribed(true)
+      setEmail('')
+    } catch (error) {
+      toast.error(getErrorMessage(error))
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   return (
     <footer className="border-t border-black/10 bg-neutral-950 text-white font-sans">
      
@@ -42,25 +73,36 @@ export function Footer() {
             <p className="text-xs text-white/60 leading-relaxed">
               Be the first to know about new arrivals, private sales, and limited releases.
             </p>
-            <form onSubmit={(e) => e.preventDefault()} className="relative flex items-center pt-1">
-              <div className="relative w-full">
-                <input
-                  type="email"
-                  placeholder="Enter your email"
-                  className="w-full rounded-2xl border border-white/20 bg-white/5 py-2.5 pl-10 pr-24 text-xs font-semibold text-white placeholder:text-white/40 focus:border-white focus:bg-white/10 focus:outline-none transition-all"
-                />
-                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40">
-                  <HugeiconsIcon icon={Mail01Icon} size={15} />
-                </div>
+            {isSubscribed ? (
+              <div className="flex items-center gap-2 rounded-2xl border border-emerald-400/30 bg-emerald-400/10 px-4 py-2.5 text-xs font-bold text-emerald-300">
+                <HugeiconsIcon icon={CheckmarkCircle02Icon} size={15} />
+                <span>You're subscribed — welcome to the list.</span>
               </div>
-              <button
-                type="submit"
-                className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1 rounded-2xl bg-white px-3.5 py-1.5 text-xs font-black text-black hover:bg-neutral-200 transition-colors cursor-pointer shadow-xs"
-              >
-                <span>Join</span>
-                <HugeiconsIcon icon={ArrowRight01Icon} size={12} />
-              </button>
-            </form>
+            ) : (
+              <form onSubmit={handleSubscribe} className="relative flex items-center pt-1">
+                <div className="relative w-full">
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter your email"
+                    disabled={isSubmitting}
+                    className="w-full rounded-2xl border border-white/20 bg-white/5 py-2.5 pl-10 pr-24 text-xs font-semibold text-white placeholder:text-white/40 focus:border-white focus:bg-white/10 focus:outline-none transition-all disabled:opacity-60"
+                  />
+                  <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40">
+                    <HugeiconsIcon icon={Mail01Icon} size={15} />
+                  </div>
+                </div>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1 rounded-2xl bg-white px-3.5 py-1.5 text-xs font-black text-black hover:bg-neutral-200 transition-colors cursor-pointer shadow-xs disabled:cursor-wait disabled:opacity-70"
+                >
+                  <span>{isSubmitting ? 'Joining…' : 'Join'}</span>
+                  {!isSubmitting && <HugeiconsIcon icon={ArrowRight01Icon} size={12} />}
+                </button>
+              </form>
+            )}
           </div>
         </div>
 
