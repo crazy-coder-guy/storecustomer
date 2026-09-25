@@ -398,28 +398,29 @@ body {
   animation-delay: 0.6s;
 }
 
-/* One-shot "draw itself in" version of the same stroke technique, for
+/* One-shot "draw itself in" version of the same per-letter stagger, for
    places (the splash screen) only on screen briefly — the navbar's loop
    sits fully drawn 70% of the time, so a short-lived view of it rarely
-   catches the shimmer moment and just looks static. */
-@keyframes letterDrawIn {
+   catches the shimmer moment and just looks static. Uses opacity+transform
+   only (never stroke-dashoffset) — those are compositor-only properties
+   the GPU can animate directly, so this stays smooth even on the weakest
+   phones during the heaviest moment of the page (initial app boot), unlike
+   stroke-dashoffset which forces a repaint of the path geometry every frame. */
+@keyframes letterFadeIn {
   0% {
-    stroke-dashoffset: 70;
     opacity: 0;
-  }
-  40% {
-    opacity: 1;
+    transform: translateY(6px) scale(0.96);
   }
   100% {
-    stroke-dashoffset: 0;
     opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
 
 .kaira-drawin-path {
-  stroke-dasharray: 70;
-  stroke-dashoffset: 70;
-  animation: letterDrawIn 900ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  opacity: 0;
+  transform-origin: center;
+  animation: letterFadeIn 420ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
 .kaira-drawin-path-1 {
@@ -427,23 +428,23 @@ body {
 }
 
 .kaira-drawin-path-2 {
-  animation-delay: 0.1s;
+  animation-delay: 0.06s;
 }
 
 .kaira-drawin-path-3 {
-  animation-delay: 0.2s;
+  animation-delay: 0.12s;
 }
 
 .kaira-drawin-path-4 {
-  animation-delay: 0.3s;
+  animation-delay: 0.18s;
 }
 
 .kaira-drawin-path-5 {
-  animation-delay: 0.4s;
+  animation-delay: 0.24s;
 }
 
 .kaira-drawin-path-6 {
-  animation-delay: 0.5s;
+  animation-delay: 0.3s;
 }
 
 /* -------------------------------------------------------------

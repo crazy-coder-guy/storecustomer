@@ -140,7 +140,7 @@ export function InstallAppPrompt() {
 
         <div className="flex items-start gap-3 pr-7">
           <div className="flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-xl sm:rounded-2xl border border-black/10 shadow-inner overflow-hidden bg-black">
-            <img src="/favicon.png" alt="" className="h-full w-full object-cover" />
+            <img src="/icon-192.png" alt="" className="h-full w-full object-cover" />
           </div>
 
           <div className="min-w-0 flex-1">
