@@ -15,6 +15,7 @@ import { CheckoutPage } from './pages/CheckoutPage'
 import { OrderConfirmationPage } from './pages/OrderConfirmationPage'
 import { OrdersPage } from './pages/OrdersPage'
 import { OrderDetailPage } from './pages/OrderDetailPage'
+import { ExchangeRequestsPage } from './pages/ExchangeRequestsPage'
 import { SearchPage } from './pages/SearchPage'
 import { WishlistDrawer } from './components/WishlistDrawer'
 import { useWishlist } from './context/WishlistContext'
@@ -68,6 +69,7 @@ export function App() {
                 <Route path="/order-confirmation/:orderId" element={<OrderConfirmationPage />} />
                 <Route path="/orders" element={<OrdersPage />} />
                 <Route path="/orders/:orderId" element={<OrderDetailPage />} />
+                <Route path="/exchanges" element={<ExchangeRequestsPage />} />
                 <Route path="/search" element={<SearchPage />} />
                 <Route path="/wishlist" element={<WishlistRedirect />} />
                 <Route path="/favourites" element={<WishlistRedirect />} />

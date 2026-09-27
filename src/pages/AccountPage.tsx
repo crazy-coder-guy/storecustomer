@@ -8,6 +8,7 @@ import {
   ShoppingBag01Icon,
   FavouriteIcon,
   PackageIcon,
+  Alert02Icon,
 } from '@hugeicons/core-free-icons'
 import { Navbar } from '../components/Navbar'
 import { Footer } from '../components/Footer'
@@ -57,8 +58,8 @@ export function AccountPage() {
                   <Skeleton className="mt-4 h-5 w-40 rounded mx-auto" />
                   <Skeleton className="mt-2 h-3.5 w-52 rounded mx-auto" />
                 </div>
-                <div className="grid grid-cols-3 gap-3">
-                  {Array.from({ length: 3 }).map((_, i) => (
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {Array.from({ length: 4 }).map((_, i) => (
                     <Skeleton key={i} className="h-24 rounded-2xl" />
                   ))}
                 </div>
@@ -108,7 +109,7 @@ export function AccountPage() {
                   <p className="text-sm text-black/50 font-medium">{user.email}</p>
                 </div>
 
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <button
                     type="button"
                     onClick={() => navigate('/orders')}
@@ -116,6 +117,14 @@ export function AccountPage() {
                   >
                     <HugeiconsIcon icon={PackageIcon} size={22} />
                     <span className="text-xs font-black uppercase tracking-wider">My Orders</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => navigate('/exchanges')}
+                    className="flex flex-col items-center gap-2 rounded-2xl border border-black/10 bg-neutral-50/60 p-5 hover:border-black transition-colors cursor-pointer"
+                  >
+                    <HugeiconsIcon icon={Alert02Icon} size={22} />
+                    <span className="text-xs font-black uppercase tracking-wider">Exchanges</span>
                   </button>
                   <button
                     type="button"

@@ -256,3 +256,38 @@ export interface ReviewableProduct {
   productName: string
   productImage: string | null
 }
+
+export type ExchangeReason = 'DAMAGED' | 'DEFECTIVE' | 'WRONG_ITEM' | 'SIZE_FIT' | 'OTHER'
+export type ExchangeRequestStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'COMPLETED' | 'CANCELLED'
+
+export interface ExchangeEligibleItem {
+  orderItemId: string
+  orderId: string
+  orderNumber: string
+  productId: string
+  productName: string
+  productImage: string | null
+  colorName: string
+  colorHex: string
+  sizeCode: string
+}
+
+export interface ExchangeRequest {
+  id: string
+  orderId: string
+  orderNumber: string
+  orderItemId: string
+  productId: string
+  productName: string
+  productImage: string | null
+  colorName: string
+  colorHex: string
+  sizeCode: string
+  reason: ExchangeReason
+  description: string
+  images: string[]
+  status: ExchangeRequestStatus
+  adminNote: string | null
+  createdAt: string
+  updatedAt: string
+}

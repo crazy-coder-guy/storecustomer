@@ -13,6 +13,7 @@ import { getStorefrontSettings, listFeaturedProducts } from '../services/storefr
 import { searchProducts } from '../services/search.service'
 import { listAddresses } from '../services/address.service'
 import { listProductReviews, listReviewableProducts } from '../services/review.service'
+import { listEligibleExchangeItems, listMyExchangeRequests } from '../services/exchange.service'
 import type { ProductListItem } from '../types'
 
 // A tiny inline gray placeholder, used only when a product genuinely has no images yet.
@@ -141,6 +142,24 @@ export function useReviewableProducts(enabled = true) {
   return useQuery({
     queryKey: ['reviewable-products'],
     queryFn: listReviewableProducts,
+    enabled,
+    staleTime: 30 * 1000,
+  })
+}
+
+export function useEligibleExchangeItems(enabled = true) {
+  return useQuery({
+    queryKey: ['exchange-eligible-items'],
+    queryFn: listEligibleExchangeItems,
+    enabled,
+    staleTime: 30 * 1000,
+  })
+}
+
+export function useMyExchangeRequests(enabled = true) {
+  return useQuery({
+    queryKey: ['my-exchange-requests'],
+    queryFn: listMyExchangeRequests,
     enabled,
     staleTime: 30 * 1000,
   })

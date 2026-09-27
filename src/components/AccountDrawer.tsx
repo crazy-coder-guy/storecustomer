@@ -12,7 +12,6 @@ import {
   PackageIcon,
   ArrowRight01Icon,
   SecurityCheckIcon,
-  Download01Icon,
 } from '@hugeicons/core-free-icons'
 import { useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
@@ -81,34 +80,6 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
   function handleNavigate(path: string) {
     onClose()
     navigate(path)
-  }
-
-  function handleDownloadAccountData() {
-    const summary = {
-      brand: 'KAIIRA',
-      user: {
-        name: user?.name ?? 'Valued Customer',
-        email: user?.email ?? 'Unknown',
-        uid: user?.uid ?? '',
-        membership: 'KAIIRA Member',
-      },
-      bagSummary: {
-        totalCartItems: cartCount,
-        wishlistItemsCount: wishlistCount,
-      },
-      exportTimestamp: new Date().toISOString(),
-      customerCare: 'hello.kaiiraofficial@gmail.com',
-    }
-
-    const blob = new Blob([JSON.stringify(summary, null, 2)], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `kaiira-account-summary-${(user?.name || 'customer').toLowerCase().replace(/\s+/g, '-')}.json`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
   }
 
   return createPortal(
@@ -303,30 +274,6 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
                           </p>
                           <p className="text-xs text-black/45 font-medium mt-0.5">
                             View order history & status
-                          </p>
-                        </div>
-                      </div>
-                      <span className="text-black/40 group-hover:text-black group-hover:translate-x-1 transition-all">
-                        <HugeiconsIcon icon={ArrowRight01Icon} size={18} strokeWidth={2} />
-                      </span>
-                    </button>
-
-                    {/* Download Account & Order History Summary */}
-                    <button
-                      type="button"
-                      onClick={handleDownloadAccountData}
-                      className="group w-full flex items-center justify-between py-4 px-2 hover:bg-black/[0.02] transition-colors cursor-pointer text-left"
-                    >
-                      <div className="flex items-center gap-3.5">
-                        <span className="text-black/60 group-hover:text-black transition-colors">
-                          <HugeiconsIcon icon={Download01Icon} size={20} />
-                        </span>
-                        <div>
-                          <p className="text-sm font-bold text-black group-hover:translate-x-0.5 transition-transform">
-                            Download Account Summary
-                          </p>
-                          <p className="text-xs text-black/45 font-medium mt-0.5">
-                            Export profile details & order summary
                           </p>
                         </div>
                       </div>

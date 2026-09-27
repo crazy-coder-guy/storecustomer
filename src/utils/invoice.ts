@@ -3,11 +3,54 @@ import { formatCurrency } from './formatCurrency'
 import { formatDate } from './formatDate'
 import { PLACEHOLDER_PRODUCT_IMAGE } from '../hooks/queries'
 
+function generateBarcodeSvg(text: string): string {
+  // Code 39 barcode encoding mapping
+  const CODE39_MAP: Record<string, string> = {
+    '0': '000110100', '1': '100100001', '2': '001100001', '3': '101100000',
+    '4': '000110001', '5': '100110000', '6': '001110000', '7': '000100101',
+    '8': '100100100', '9': '001100100', 'A': '100001001', 'B': '001001001',
+    'C': '101001000', 'D': '000011001', 'E': '100011000', 'F': '001011000',
+    'G': '000001101', 'H': '100001100', 'I': '001001100', 'J': '000011100',
+    'K': '100000011', 'L': '001000011', 'M': '101000010', 'N': '000010011',
+    'O': '100010010', 'P': '001010010', 'Q': '000000111', 'R': '100000110',
+    'S': '001000110', 'T': '000010110', 'U': '110000001', 'V': '011000001',
+    'W': '111000000', 'X': '010010001', 'Y': '110010000', 'Z': '011010000',
+    '-': '010000101', '*': '010010100'
+  }
+
+  const cleanVal = text.toUpperCase().replace(/[^A-Z0-9-]/g, '') || 'ORD'
+  const fullPattern = `*${cleanVal}*`
+  
+  let x = 0
+  const narrowWidth = 1.6
+  const wideWidth = 4.2
+  const barHeight = 34
+  let paths = ''
+
+  for (let i = 0; i < fullPattern.length; i++) {
+    const char = fullPattern[i]
+    const pattern = CODE39_MAP[char] || CODE39_MAP['-']
+    for (let j = 0; j < 9; j++) {
+      const isBar = j % 2 === 0
+      const width = pattern[j] === '1' ? wideWidth : narrowWidth
+      if (isBar) {
+        paths += `<rect x="${x.toFixed(1)}" y="0" width="${width.toFixed(1)}" height="${barHeight}" fill="#111111" />`
+      }
+      x += width
+    }
+    x += narrowWidth // Inter-character gap
+  }
+
+  return `<svg viewBox="0 0 ${x.toFixed(1)} ${barHeight}" xmlns="http://www.w3.org/2000/svg" style="height: 34px; width: auto; max-width: 170px; display: inline-block;">
+    ${paths}
+  </svg>`
+}
+
 export function generateInvoiceHtml(order: Order): string {
   const itemsHtml = (order.items || [])
     .map(
       (item, idx) => `
-      <tr style="border-bottom: 1px solid #f1f1f1;">
+      <tr style="border-bottom: 1px solid #f1f1f1; page-break-inside: avoid; break-inside: avoid;">
         <td style="padding: 16px 12px; font-weight: 700; color: #111; vertical-align: top; width: 32px;">
           ${idx + 1}
         </td>
@@ -51,20 +94,22 @@ export function generateInvoiceHtml(order: Order): string {
     0
   )
 
+  const barcodeSvg = generateBarcodeSvg(order.orderNumber || order.id || 'KAIIRA')
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Invoice #${order.orderNumber} — KAIIRA</title>
+  <title>Tax Invoice — KAIIRA</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
     body {
-      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: #ffffff;
       color: #111111;
       padding: 40px;
@@ -74,71 +119,45 @@ export function generateInvoiceHtml(order: Order): string {
       max-width: 820px;
       margin: 0 auto;
       background: #ffffff;
+      position: relative;
     }
     .brand-header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
       border-bottom: 2px solid #111111;
-      padding-bottom: 24px;
+      padding-bottom: 20px;
       margin-bottom: 30px;
-    }
-    .brand-logo {
-      font-size: 32px;
-      font-weight: 900;
-      letter-spacing: -0.05em;
-      text-transform: uppercase;
-      color: #000000;
-      line-height: 1;
-    }
-    .brand-tagline {
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: #666666;
-      margin-top: 6px;
+      page-break-inside: avoid;
+      break-inside: avoid;
     }
     .invoice-meta {
       text-align: right;
     }
     .invoice-title {
       font-size: 22px;
-      font-weight: 900;
+      font-weight: 800;
       letter-spacing: -0.02em;
-      text-transform: uppercase;
       color: #111111;
     }
-    .invoice-id {
-      font-size: 14px;
+    .invoice-status {
+      font-size: 12px;
       font-weight: 700;
-      color: #555555;
-      margin-top: 2px;
-    }
-    .status-badge {
-      display: inline-block;
-      margin-top: 6px;
-      padding: 4px 12px;
-      font-size: 10px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      border-radius: 9999px;
-      background: #ecfdf5;
       color: #059669;
-      border: 1px solid #a7f3d0;
+      margin-top: 2px;
+      margin-bottom: 6px;
     }
     .info-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 32px;
       margin-bottom: 32px;
+      page-break-inside: avoid;
+      break-inside: avoid;
     }
     .info-box-title {
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 800;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
       color: #888888;
       margin-bottom: 8px;
     }
@@ -158,11 +177,16 @@ export function generateInvoiceHtml(order: Order): string {
       border-collapse: collapse;
       margin-bottom: 28px;
     }
+    thead {
+      display: table-header-group;
+    }
+    tr {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
     th {
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 800;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
       color: #666666;
       border-bottom: 2px solid #111111;
       padding: 12px;
@@ -171,6 +195,8 @@ export function generateInvoiceHtml(order: Order): string {
       display: flex;
       justify-content: flex-end;
       margin-bottom: 32px;
+      page-break-inside: avoid;
+      break-inside: avoid;
     }
     .totals-table {
       width: 320px;
@@ -192,23 +218,20 @@ export function generateInvoiceHtml(order: Order): string {
       color: #111111;
     }
     .terms-box {
-      border-radius: 12px;
-      border: 1px solid #e5e5e5;
-      background: #fafafa;
-      padding: 16px 20px;
+      margin-top: 24px;
       margin-bottom: 32px;
+      page-break-inside: avoid;
+      break-inside: avoid;
     }
     .terms-title {
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
       color: #111111;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
     }
     .terms-text {
       font-size: 11px;
-      color: #666666;
+      color: #555555;
       line-height: 1.6;
     }
     .invoice-footer {
@@ -220,6 +243,8 @@ export function generateInvoiceHtml(order: Order): string {
       font-size: 11px;
       color: #777777;
       font-weight: 500;
+      page-break-inside: avoid;
+      break-inside: avoid;
     }
     .print-button {
       background: #111111;
@@ -228,19 +253,40 @@ export function generateInvoiceHtml(order: Order): string {
       border-radius: 9999px;
       padding: 10px 24px;
       font-size: 13px;
-      font-weight: 800;
+      font-weight: 700;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       margin-bottom: 24px;
+      transition: background 0.2s ease;
+    }
+    .print-button:hover {
+      background: #333333;
     }
     @media print {
+      @page {
+        margin: 12mm 15mm;
+        size: auto;
+      }
       body {
         padding: 0;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
       }
       .no-print {
         display: none !important;
+      }
+      tr {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+      thead {
+        display: table-header-group !important;
+      }
+      .totals-area, .terms-box, .invoice-footer, .brand-header, .info-grid {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
       }
     }
   </style>
@@ -249,20 +295,33 @@ export function generateInvoiceHtml(order: Order): string {
   <div class="invoice-container">
     <div class="no-print" style="text-align: right;">
       <button class="print-button" onclick="window.print()">
-        🖨️ Print / Save as PDF
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 6 2 18 2 18 9"></polyline>
+          <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+          <rect x="6" y="14" width="12" height="8"></rect>
+        </svg>
+        <span>Print / Save as PDF</span>
       </button>
     </div>
 
     <!-- Header -->
     <div class="brand-header">
       <div>
-        <div class="brand-logo">KAIIRA</div>
-        <div class="brand-tagline">Heavyweight Apparel Studio</div>
+        <svg viewBox="0 0 236 44" fill="none" xmlns="http://www.w3.org/2000/svg" style="height: 32px; width: auto; color: #000000;" aria-label="Kaiira Logo">
+          <path d="M10 8V36M32 8L11 22L32 36" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M48 36L64 8L80 36" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M96 8V36" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" />
+          <path d="M112 8V36" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" />
+          <path d="M128 36V8H148C158 8 158 22 148 22H128M141 22C148 22 153 27 157 36" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M172 36L188 8L204 36" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
       </div>
       <div class="invoice-meta">
         <div class="invoice-title">Tax Invoice</div>
-        <div class="invoice-id">#${order.orderNumber}</div>
-        <div class="status-badge">${order.paymentStatus === 'PAID' ? 'PAID & CONFIRMED' : 'PAYMENT PENDING'}</div>
+        <div class="invoice-status">Status: ${order.paymentStatus === 'PAID' ? 'Paid' : 'Pending'}</div>
+        <div style="margin-top: 6px;">
+          ${barcodeSvg}
+        </div>
       </div>
     </div>
 
@@ -313,7 +372,7 @@ export function generateInvoiceHtml(order: Order): string {
         </div>
         <div class="totals-row">
           <span>Shipping & Delivery</span>
-          <span style="color: #059669; font-weight: 700;">FREE</span>
+          <span style="color: #059669; font-weight: 700;">Free</span>
         </div>
         <div class="totals-row">
           <span>GST / Taxes</span>
@@ -328,17 +387,15 @@ export function generateInvoiceHtml(order: Order): string {
 
     <!-- Policy & Notes -->
     <div class="terms-box">
-      <div class="terms-title">7-Day Exchange Policy Notice</div>
+      <div class="terms-title">KAIIRA – Terms & Conditions</div>
       <div class="terms-text">
-        All KAIIRA garments are crafted with heavyweight premium cotton. We provide a <strong>7-Day Exchange Policy</strong> for size or color replacements on all unworn items with intact studio tags. Please note that monetary returns/refunds are not offered.
-        <br />
-        For any exchange requests or support inquiries, contact us directly at <strong>hello.kaiiraofficial@gmail.com</strong> quoting your Order #${order.orderNumber}.
+        All orders are subject to KAIIRA’s terms and policies. Goods once sold will be eligible for return or exchange only as per KAIIRA’s Return and Exchange Policy. Customers are requested to check the product details, size, color, and other information before placing an order. Products must be returned in their original condition, unused, unwashed, and with all original tags and packaging intact. Return or exchange requests must be raised within the time period specified in KAIIRA’s Return and Exchange Policy. Products damaged due to improper use, washing, or handling may not be eligible for return or exchange. Refunds, where applicable, will be processed according to KAIIRA’s refund policy. KAIIRA reserves the right to accept or reject return and exchange requests based on the applicable policy. Shipping and return charges, where applicable, will be handled according to the respective policy.
       </div>
     </div>
 
     <!-- Footer -->
     <div class="invoice-footer">
-      <div>KAIIRA APPAREL INC. • Crafted For Longevity</div>
+      <div>KAIIRA • Crafted For Longevity</div>
       <div>hello.kaiiraofficial@gmail.com</div>
     </div>
   </div>
@@ -359,7 +416,7 @@ export function openPrintableInvoice(order: Order) {
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
-    link.download = `Invoice-${order.orderNumber}.html`
+    link.download = `Invoice.html`
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)

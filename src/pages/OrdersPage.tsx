@@ -16,13 +16,15 @@ import {
   ArrowDown01Icon,
   ArrowUp01Icon,
   StarIcon,
+  Alert02Icon,
 } from '@hugeicons/core-free-icons'
 import { Navbar } from '../components/Navbar'
 import { Footer } from '../components/Footer'
 import { LiquidButton } from '../components/LiquidButton'
 import { WriteReviewModal } from '../components/WriteReviewModal'
+import { RequestExchangeModal } from '../components/RequestExchangeModal'
 import { useAuth } from '../context/AuthContext'
-import { useReviewableProducts } from '../hooks/queries'
+import { useReviewableProducts, useEligibleExchangeItems, useMyExchangeRequests } from '../hooks/queries'
 import { listMyOrders } from '../services/order.service'
 import { formatCurrency } from '../utils/formatCurrency'
 import { formatDate } from '../utils/formatDate'
@@ -67,6 +69,12 @@ const STATUS_CONFIG: Record<
   },
 }
 
+const EXCHANGE_STATUS_BADGE: Record<'PENDING' | 'APPROVED' | 'COMPLETED', { label: string; badgeClass: string }> = {
+  PENDING: { label: 'Exchange: Under Review', badgeClass: 'bg-amber-50 text-amber-800 border-amber-200/60' },
+  APPROVED: { label: 'Exchange: Approved', badgeClass: 'bg-blue-50 text-blue-800 border-blue-200/60' },
+  COMPLETED: { label: 'Exchange: Completed', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200/60' },
+}
+
 export function OrdersPage() {
   const { user, isLoading: authLoading, signInWithGoogle } = useAuth()
   const [activeTab, setActiveTab] = useState<FilterTab>('ALL')
@@ -79,12 +87,31 @@ export function OrdersPage() {
     productName: string
     productImage: string | null
   } | null>(null)
+  const [exchangeTarget, setExchangeTarget] = useState<{
+    orderItemId: string
+    productName: string
+    productImage: string | null
+  } | null>(null)
 
   const { data: reviewableProducts = [] } = useReviewableProducts(Boolean(user))
   const reviewableProductIds = useMemo(
     () => new Set(reviewableProducts.map((r) => r.productId)),
     [reviewableProducts]
   )
+
+  const { data: eligibleExchangeItems = [] } = useEligibleExchangeItems(Boolean(user))
+  const eligibleExchangeItemIds = useMemo(
+    () => new Set(eligibleExchangeItems.map((i) => i.orderItemId)),
+    [eligibleExchangeItems]
+  )
+  const { data: myExchangeRequests = [] } = useMyExchangeRequests(Boolean(user))
+  const exchangeRequestByItemId = useMemo(() => {
+    const map = new Map<string, (typeof myExchangeRequests)[number]>()
+    for (const request of myExchangeRequests) {
+      if (!map.has(request.orderItemId)) map.set(request.orderItemId, request)
+    }
+    return map
+  }, [myExchangeRequests])
 
   function toggleOrderExpand(orderId: string) {
     setExpandedOrders((prev) => ({
@@ -162,10 +189,19 @@ export function OrdersPage() {
             {/* Top Section: Category Eyebrow, Title & Subtitle matching ProductDetailPage */}
             <div className="space-y-4 pb-6 border-b border-black/10">
               <div className="space-y-2">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-between gap-2">
                   <span className="text-xs font-black uppercase tracking-widest text-black/50">
                     Order History
                   </span>
+                  {user && (
+                    <Link
+                      to="/exchanges"
+                      className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-black/60 hover:text-black transition-colors"
+                    >
+                      <span>My Exchange Requests</span>
+                      <HugeiconsIcon icon={ArrowRight01Icon} size={13} />
+                    </Link>
+                  )}
                 </div>
                 <h1 className="text-3xl sm:text-4xl font-black text-black tracking-tight leading-tight">
                   My Orders
@@ -206,15 +242,17 @@ export function OrdersPage() {
                         key={tab.id}
                         type="button"
                         onClick={() => setActiveTab(tab.id)}
-                        className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-extrabold uppercase transition-all whitespace-nowrap cursor-pointer ${activeTab === tab.id
+                        className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-extrabold uppercase transition-all whitespace-nowrap cursor-pointer ${
+                          activeTab === tab.id
                             ? 'bg-black text-white shadow-md'
                             : 'bg-white border border-black/20 text-black hover:border-black'
-                          }`}
+                        }`}
                       >
                         <span>{tab.label}</span>
                         <span
-                          className={`rounded-2xl px-1.5 py-0.2 text-[10px] font-black ${activeTab === tab.id ? 'bg-white/20 text-white' : 'bg-black/10 text-black/70'
-                            }`}
+                          className={`rounded-2xl px-1.5 py-0.2 text-[10px] font-black ${
+                            activeTab === tab.id ? 'bg-white/20 text-white' : 'bg-black/10 text-black/70'
+                          }`}
                         >
                           {tab.count}
                         </span>
@@ -402,10 +440,11 @@ export function OrdersPage() {
                               </span>
 
                               <span
-                                className={`rounded-2xl px-2.5 py-0.5 text-xs font-extrabold uppercase tracking-wider ${order.paymentStatus === 'PAID'
+                                className={`rounded-2xl px-2.5 py-0.5 text-xs font-extrabold uppercase tracking-wider ${
+                                  order.paymentStatus === 'PAID'
                                     ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/50'
                                     : 'bg-amber-50 text-amber-700 border border-amber-200/50'
-                                  }`}
+                                }`}
                               >
                                 {order.paymentStatus === 'PAID' ? 'Paid' : 'Pending'}
                               </span>
@@ -477,23 +516,56 @@ export function OrdersPage() {
                                         <p className="text-base font-black text-black">
                                           {formatCurrency(item.unitPrice * item.quantity)}
                                         </p>
-                                        {order.status === 'DELIVERED' && reviewableProductIds.has(item.productId) && (
-                                          <button
-                                            type="button"
-                                            onClick={() =>
-                                              setReviewTarget({
-                                                productId: item.productId,
-                                                orderId: order.id,
-                                                productName: item.productName,
-                                                productImage: item.productImageUrl,
-                                              })
-                                            }
-                                            className="inline-flex items-center gap-1.5 rounded-xl border border-black/15 px-3 py-1.5 text-xs font-bold text-black hover:border-black hover:bg-black hover:text-white transition-all cursor-pointer"
-                                          >
-                                            <HugeiconsIcon icon={StarIcon} size={13} />
-                                            <span>Rate & Review</span>
-                                          </button>
-                                        )}
+                                        <div className="flex flex-wrap items-center gap-3 pt-2">
+                                          {order.status === 'DELIVERED' && reviewableProductIds.has(item.productId) && (
+                                            <button
+                                              type="button"
+                                              onClick={() =>
+                                                setReviewTarget({
+                                                  productId: item.productId,
+                                                  orderId: order.id,
+                                                  productName: item.productName,
+                                                  productImage: item.productImageUrl,
+                                                })
+                                              }
+                                              className="inline-flex items-center gap-1.5 rounded-xl border border-black/15 px-3 py-1.5 text-xs font-bold text-black hover:border-black hover:bg-black hover:text-white transition-all cursor-pointer"
+                                            >
+                                              <HugeiconsIcon icon={StarIcon} size={13} />
+                                              <span>Rate & Review</span>
+                                            </button>
+                                          )}
+                                          {order.status === 'DELIVERED' && eligibleExchangeItemIds.has(item.id) && (
+                                            <button
+                                              type="button"
+                                              onClick={() =>
+                                                setExchangeTarget({
+                                                  orderItemId: item.id,
+                                                  productName: item.productName,
+                                                  productImage: item.productImageUrl,
+                                                })
+                                              }
+                                              className="inline-flex items-center gap-1.5 rounded-xl bg-[#e2725b] px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-[#cf5f49] transition-all cursor-pointer active:scale-95"
+                                            >
+                                              <HugeiconsIcon icon={Alert02Icon} size={13} />
+                                              <span>Report Damaged / Exchange</span>
+                                            </button>
+                                          )}
+                                          {order.status === 'DELIVERED' &&
+                                            exchangeRequestByItemId.has(item.id) &&
+                                            (() => {
+                                              const request = exchangeRequestByItemId.get(item.id)!
+                                              const badge =
+                                                EXCHANGE_STATUS_BADGE[request.status as keyof typeof EXCHANGE_STATUS_BADGE]
+                                              if (!badge) return null
+                                              return (
+                                                <span
+                                                  className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-bold ${badge.badgeClass}`}
+                                                >
+                                                  {badge.label}
+                                                </span>
+                                              )
+                                            })()}
+                                        </div>
                                       </div>
                                     </div>
                                   ))}
@@ -579,6 +651,16 @@ export function OrdersPage() {
           orderId={reviewTarget.orderId}
           productName={reviewTarget.productName}
           productImage={reviewTarget.productImage}
+        />
+      )}
+
+      {exchangeTarget && (
+        <RequestExchangeModal
+          isOpen={Boolean(exchangeTarget)}
+          onClose={() => setExchangeTarget(null)}
+          orderItemId={exchangeTarget.orderItemId}
+          productName={exchangeTarget.productName}
+          productImage={exchangeTarget.productImage}
         />
       )}
     </div>

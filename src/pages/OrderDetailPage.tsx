@@ -20,8 +20,9 @@ import { Footer } from '../components/Footer'
 import { LiquidButton } from '../components/LiquidButton'
 import { Skeleton } from '../components/Skeleton'
 import { WriteReviewModal } from '../components/WriteReviewModal'
+import { RequestExchangeModal } from '../components/RequestExchangeModal'
 import { useAuth } from '../context/AuthContext'
-import { useReviewableProducts } from '../hooks/queries'
+import { useReviewableProducts, useEligibleExchangeItems, useMyExchangeRequests } from '../hooks/queries'
 import { getOrder } from '../services/order.service'
 import { formatCurrency } from '../utils/formatCurrency'
 import { formatDate } from '../utils/formatDate'
@@ -64,6 +65,12 @@ const STATUS_CONFIG: Record<
   },
 }
 
+const EXCHANGE_STATUS_BADGE: Record<'PENDING' | 'APPROVED' | 'COMPLETED', { label: string; badgeClass: string }> = {
+  PENDING: { label: 'Exchange: Under Review', badgeClass: 'bg-amber-50 text-amber-800 border-amber-200/60' },
+  APPROVED: { label: 'Exchange: Approved', badgeClass: 'bg-blue-50 text-blue-800 border-blue-200/60' },
+  COMPLETED: { label: 'Exchange: Completed', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200/60' },
+}
+
 export function OrderDetailPage() {
   const { orderId } = useParams<{ orderId: string }>()
   const { user } = useAuth()
@@ -77,12 +84,31 @@ export function OrderDetailPage() {
     productName: string
     productImage: string | null
   } | null>(null)
+  const [exchangeTarget, setExchangeTarget] = useState<{
+    orderItemId: string
+    productName: string
+    productImage: string | null
+  } | null>(null)
 
   const { data: reviewableProducts = [] } = useReviewableProducts(Boolean(user))
   const reviewableProductIds = useMemo(
     () => new Set(reviewableProducts.map((r) => r.productId)),
     [reviewableProducts]
   )
+
+  const { data: eligibleExchangeItems = [] } = useEligibleExchangeItems(Boolean(user))
+  const eligibleExchangeItemIds = useMemo(
+    () => new Set(eligibleExchangeItems.map((i) => i.orderItemId)),
+    [eligibleExchangeItems]
+  )
+  const { data: myExchangeRequests = [] } = useMyExchangeRequests(Boolean(user))
+  const exchangeRequestByItemId = useMemo(() => {
+    const map = new Map<string, (typeof myExchangeRequests)[number]>()
+    for (const request of myExchangeRequests) {
+      if (!map.has(request.orderItemId)) map.set(request.orderItemId, request)
+    }
+    return map
+  }, [myExchangeRequests])
 
   const itemsTotal = order?.items?.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0) ?? 0
   const deliveryFee = order ? Math.max(0, order.totalAmount - itemsTotal) : 0
@@ -309,74 +335,112 @@ export function OrderDetailPage() {
                       {order.items?.map((item) => (
                         <div
                           key={item.id}
-                          className="flex items-center gap-5 py-5 first:pt-0 last:pb-0"
+                          className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-5 py-5 first:pt-0 last:pb-0"
                         >
-                          {/* Garment Image - Clickable to Product Detail */}
-                          <Link
-                            to={`/product/${item.productId}`}
-                            className="h-20 w-20 sm:h-24 sm:w-24 rounded-2xl bg-neutral-100 border border-black/10 overflow-hidden shrink-0 flex items-center justify-center group cursor-pointer hover:border-black/30 transition-all"
-                            title={`View ${item.productName}`}
-                          >
-                            {item.productImageUrl ? (
-                              <img
-                                src={item.productImageUrl}
-                                alt={item.productName}
-                                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                              />
-                            ) : (
-                              <HugeiconsIcon icon={PackageIcon} size={28} className="text-black/30" />
-                            )}
-                          </Link>
-
-                          {/* Garment Meta matching ProductDetailPage */}
-                          <div className="min-w-0 flex-1 space-y-1">
+                          {/* Garment Image & Info Wrapper */}
+                          <div className="flex items-center gap-4 sm:gap-5 min-w-0 flex-1">
+                            {/* Garment Image */}
                             <Link
                               to={`/product/${item.productId}`}
-                              className="group block"
+                              className="h-20 w-20 sm:h-24 sm:w-24 rounded-2xl bg-neutral-100 border border-black/10 overflow-hidden shrink-0 flex items-center justify-center group cursor-pointer hover:border-black/30 transition-all"
+                              title={`View ${item.productName}`}
                             >
-                              <h3 className="text-base sm:text-lg font-black text-black tracking-tight leading-snug truncate group-hover:text-black/75 hover:underline underline-offset-2 transition-colors">
-                                {item.productName}
-                              </h3>
-                            </Link>
-                            <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-black/60">
-                              <span className="flex items-center gap-1.5">
-                                <span
-                                  className="h-2.5 w-2.5 rounded-full border border-black/20"
-                                  style={{ backgroundColor: item.colorHex || '#000' }}
+                              {item.productImageUrl ? (
+                                <img
+                                  src={item.productImageUrl}
+                                  alt={item.productName}
+                                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                                 />
-                                <span>{item.colorName}</span>
-                              </span>
-                              <span>•</span>
-                              <span className="font-extrabold text-black/80">Size: {item.sizeCode}</span>
-                              <span>•</span>
-                              <span>Qty: {item.quantity}</span>
+                              ) : (
+                                <HugeiconsIcon icon={PackageIcon} size={28} className="text-black/30" />
+                              )}
+                            </Link>
+
+                            {/* Garment Meta */}
+                            <div className="min-w-0 flex-1 space-y-1">
+                              <Link
+                                to={`/product/${item.productId}`}
+                                className="group block"
+                              >
+                                <h3 className="text-sm sm:text-base font-black text-black tracking-tight leading-snug line-clamp-2 group-hover:text-black/75 hover:underline underline-offset-2 transition-colors">
+                                  {item.productName}
+                                </h3>
+                              </Link>
+                              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs font-semibold text-black/60">
+                                <span className="flex items-center gap-1.5">
+                                  <span
+                                    className="h-2.5 w-2.5 rounded-full border border-black/20"
+                                    style={{ backgroundColor: item.colorHex || '#000' }}
+                                  />
+                                  <span>{item.colorName}</span>
+                                </span>
+                                <span>•</span>
+                                <span className="font-extrabold text-black/80">Size: {item.sizeCode}</span>
+                                <span>•</span>
+                                <span>Qty: {item.quantity}</span>
+                              </div>
+                              <p className="text-xs font-semibold text-black/50">
+                                Unit price: {formatCurrency(item.unitPrice)}
+                              </p>
                             </div>
-                            <p className="text-xs font-semibold text-black/50">
-                              Unit price: {formatCurrency(item.unitPrice)}
-                            </p>
                           </div>
 
-                          {/* Line Subtotal */}
-                          <div className="shrink-0 text-right space-y-2">
+                          {/* Line Price & Action Buttons Container with proper gap */}
+                          <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-black/5">
                             <span className="text-base sm:text-lg font-black text-black block">
                               {formatCurrency(item.unitPrice * item.quantity)}
                             </span>
-                            {order.status === 'DELIVERED' && reviewableProductIds.has(item.productId) && (
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setReviewTarget({
-                                    productId: item.productId,
-                                    productName: item.productName,
-                                    productImage: item.productImageUrl,
-                                  })
-                                }
-                                className="inline-flex items-center gap-1.5 rounded-xl border border-black/15 px-3 py-1.5 text-xs font-bold text-black hover:border-black hover:bg-black hover:text-white transition-all cursor-pointer"
-                              >
-                                <HugeiconsIcon icon={StarIcon} size={13} />
-                                <span>Rate & Review</span>
-                              </button>
-                            )}
+
+                            {/* Action Buttons Group with explicit gap-2.5 */}
+                            <div className="flex flex-wrap items-center justify-end gap-2.5">
+                              {order.status === 'DELIVERED' && reviewableProductIds.has(item.productId) && (
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setReviewTarget({
+                                      productId: item.productId,
+                                      productName: item.productName,
+                                      productImage: item.productImageUrl,
+                                    })
+                                  }
+                                  className="inline-flex items-center gap-1.5 rounded-xl border border-black/15 bg-white px-3 py-1.5 text-xs font-bold text-black hover:border-black hover:bg-black hover:text-white transition-all cursor-pointer shadow-2xs active:scale-95"
+                                >
+                                  <HugeiconsIcon icon={StarIcon} size={13} />
+                                  <span>Rate & Review</span>
+                                </button>
+                              )}
+                              {order.status === 'DELIVERED' && eligibleExchangeItemIds.has(item.id) && (
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setExchangeTarget({
+                                      orderItemId: item.id,
+                                      productName: item.productName,
+                                      productImage: item.productImageUrl,
+                                    })
+                                  }
+                                  className="inline-flex items-center gap-1.5 rounded-xl bg-[#e2725b] px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-[#cf5f49] transition-all cursor-pointer active:scale-95"
+                                >
+                                  <HugeiconsIcon icon={Alert02Icon} size={13} />
+                                  <span>Report Damaged / Exchange</span>
+                                </button>
+                              )}
+                              {order.status === 'DELIVERED' &&
+                                exchangeRequestByItemId.has(item.id) &&
+                                (() => {
+                                  const request = exchangeRequestByItemId.get(item.id)!
+                                  const badge =
+                                    EXCHANGE_STATUS_BADGE[request.status as keyof typeof EXCHANGE_STATUS_BADGE]
+                                  if (!badge) return null
+                                  return (
+                                    <span
+                                      className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-bold ${badge.badgeClass}`}
+                                    >
+                                      {badge.label}
+                                    </span>
+                                  )
+                                })()}
+                            </div>
                           </div>
                         </div>
                       ))}
@@ -468,6 +532,16 @@ export function OrderDetailPage() {
           orderId={order.id}
           productName={reviewTarget.productName}
           productImage={reviewTarget.productImage}
+        />
+      )}
+
+      {exchangeTarget && (
+        <RequestExchangeModal
+          isOpen={Boolean(exchangeTarget)}
+          onClose={() => setExchangeTarget(null)}
+          orderItemId={exchangeTarget.orderItemId}
+          productName={exchangeTarget.productName}
+          productImage={exchangeTarget.productImage}
         />
       )}
     </div>
