@@ -5,6 +5,7 @@ import { Footer } from '../components/Footer'
 import { ProductDetailDrawer } from '../components/ProductDetailDrawer'
 import { useCart } from '../context/CartContext'
 import { formatCurrency } from '../utils/formatCurrency'
+import { formatSizeCode } from '../utils/formatSize'
 import { PLACEHOLDER_PRODUCT_IMAGE } from '../hooks/queries'
 import { Reveal } from '../components/Reveal'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -35,6 +36,8 @@ export function CartPage() {
   } = useCart()
 
   const [selectedDrawerProductId, setSelectedDrawerProductId] = useState<string | null>(null)
+
+  const hasStockIssue = items.some((item) => item.stockQuantity === 0 || item.quantity > item.stockQuantity)
 
 
 
@@ -103,6 +106,8 @@ export function CartPage() {
                     const discountPercent = hasDiscount
                       ? Math.round(((item.mrp - item.price) / item.mrp) * 100)
                       : 0
+                    const isOutOfStock = item.stockQuantity === 0
+                    const isOverStock = !isOutOfStock && item.quantity > item.stockQuantity
 
                     return (
                       <Reveal
@@ -147,7 +152,7 @@ export function CartPage() {
                               <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 pt-0.5">
                                 {/* Size pill */}
                                 <span className="inline-flex items-center rounded-full border border-black/15 bg-neutral-50 px-2.5 py-0.5 text-[11px] sm:text-xs font-bold text-black">
-                                  Size: {item.size}
+                                  Size: {formatSizeCode(item.size)}
                                 </span>
 
                                 {/* Color pill */}
@@ -159,10 +164,24 @@ export function CartPage() {
                                   <span>{item.color.name || 'Black'}</span>
                                 </span>
 
-                                {/* In Stock status */}
-                                <span className="inline-flex items-center gap-1 pl-1 text-[10px] sm:text-[11px] font-bold text-black">
-                                  <span className="h-1.5 w-1.5 rounded-full bg-black animate-pulse" />
-                                  <span>In Stock</span>
+                                {/* Stock status — driven by the real stock figure, not assumed */}
+                                <span
+                                  className={`inline-flex items-center gap-1 pl-1 text-[10px] sm:text-[11px] font-bold ${
+                                    isOutOfStock ? 'text-red-600' : isOverStock ? 'text-amber-600' : 'text-black'
+                                  }`}
+                                >
+                                  <span
+                                    className={`h-1.5 w-1.5 rounded-full ${
+                                      isOutOfStock ? 'bg-red-600' : isOverStock ? 'bg-amber-500' : 'bg-black animate-pulse'
+                                    }`}
+                                  />
+                                  <span>
+                                    {isOutOfStock
+                                      ? 'Out of Stock'
+                                      : isOverStock
+                                      ? `Only ${item.stockQuantity} left`
+                                      : 'In Stock'}
+                                  </span>
                                 </span>
                               </div>
                             </div>
@@ -170,7 +189,7 @@ export function CartPage() {
 
                           {/* 2. Middle & Right: Compact Stepper + Price + Trash */}
                           <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-6 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-black/5 shrink-0 pl-19.5 sm:pl-0">
-                            
+
                             {/* Stepper */}
                             <div className="inline-flex items-center rounded-full border border-black/20 bg-white p-0.5 shadow-2xs">
                               <button
@@ -187,7 +206,8 @@ export function CartPage() {
                               <button
                                 type="button"
                                 onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                                className="flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-full text-black hover:bg-black/5 transition-colors font-bold text-xs sm:text-sm cursor-pointer"
+                                disabled={item.quantity >= item.stockQuantity}
+                                className="flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-full text-black hover:bg-black/5 transition-colors font-bold text-xs sm:text-sm cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
                                 aria-label="Increase quantity"
                               >
                                 +
@@ -279,10 +299,16 @@ export function CartPage() {
 
                       {/* Proceed to Checkout Button & Continue Shopping */}
                       <div className="space-y-3 pt-1">
+                        {hasStockIssue && (
+                          <p className="text-xs sm:text-sm font-bold text-red-600 text-center">
+                            Some items in your bag are out of stock or have limited quantity. Please adjust them before checking out.
+                          </p>
+                        )}
                         <button
                           type="button"
                           onClick={() => navigate('/checkout')}
-                          className="w-full flex items-center justify-between rounded-2xl bg-black py-2.5 pl-6 pr-2.5 text-sm sm:text-base font-extrabold text-white hover:bg-neutral-800 transition-all shadow-md active:scale-98 cursor-pointer"
+                          disabled={hasStockIssue}
+                          className="w-full flex items-center justify-between rounded-2xl bg-black py-2.5 pl-6 pr-2.5 text-sm sm:text-base font-extrabold text-white hover:bg-neutral-800 transition-all shadow-md active:scale-98 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-black"
                         >
                           <span>Proceed to Checkout</span>
                           <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-white text-black shadow-xs">
@@ -363,9 +389,10 @@ export function CartPage() {
                       <button
                         type="button"
                         onClick={() => navigate('/checkout')}
-                        className="flex-1 max-w-[210px] flex items-center justify-between rounded-2xl bg-black py-2 pl-4 pr-1.5 text-xs sm:text-sm font-extrabold text-white active:scale-95 transition-all shadow-md cursor-pointer"
+                        disabled={hasStockIssue}
+                        className="flex-1 max-w-[210px] flex items-center justify-between rounded-2xl bg-black py-2 pl-4 pr-1.5 text-xs sm:text-sm font-extrabold text-white active:scale-95 transition-all shadow-md cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                       >
-                        <span>Proceed to Pay</span>
+                        <span>{hasStockIssue ? 'Fix Bag to Continue' : 'Proceed to Pay'}</span>
                         <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-white text-black shadow-xs">
                           <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={2.5} />
                         </div>

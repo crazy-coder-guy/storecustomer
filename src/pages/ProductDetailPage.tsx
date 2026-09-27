@@ -84,21 +84,30 @@ export function ProductDetailPage() {
 
   const sizes = useMemo(() => {
     if (!product) return []
-    const seen = new Map<string, { code: string; sortOrder: number }>()
+    const seen = new Map<string, { code: string; sortOrder: number; stock: number }>()
     product.variants
       .filter((v) => !selectedColor || v.color?.hexCode === selectedColor.hex)
       .forEach((v) => {
-        if (v.size && !seen.has(v.size.id)) {
-          seen.set(v.size.id, { code: v.size.code, sortOrder: v.size.sortOrder })
-        }
+        if (!v.size) return
+        const existing = seen.get(v.size.id)
+        seen.set(v.size.id, {
+          code: v.size.code,
+          sortOrder: v.size.sortOrder,
+          stock: (existing?.stock ?? 0) + v.stockQuantity,
+        })
       })
-    const list = Array.from(seen.values()).sort((a, b) => a.sortOrder - b.sortOrder).map((s) => s.code)
-    // If no sizes configured yet, provide standard sizes
-    return list.length > 0 ? list : ['XS', 'S', 'M', 'L', 'XL', 'XXL']
+    const list = Array.from(seen.values()).sort((a, b) => a.sortOrder - b.sortOrder)
+    // If no sizes configured yet, provide standard sizes (no stock data to
+    // gate on, so treat them all as available rather than guessing).
+    return list.length > 0
+      ? list.map((s) => ({ code: s.code, inStock: s.stock > 0 }))
+      : ['XS', 'S', 'M', 'L', 'XL', 'XXL'].map((code) => ({ code, inStock: true }))
   }, [product, selectedColor])
 
   useEffect(() => {
-    setSelectedSize(sizes[0] || 'M')
+    // Prefer defaulting to an available size rather than landing on a
+    // sold-out one, but still fall back to the first size if all are gone.
+    setSelectedSize(sizes.find((s) => s.inStock)?.code ?? sizes[0]?.code ?? 'M')
   }, [sizes])
 
   const toggleAccordion = (key: string) => {
@@ -175,6 +184,9 @@ export function ProductDetailPage() {
     (v) => (!selectedColor || v.color?.hexCode === selectedColor.hex) && v.size?.code === selectedSize
   ) || product.variants[0]
 
+  const isSelectionSoldOut = !selectedVariant || selectedVariant.stockQuantity <= 0
+  const isProductSoldOut = product.variants.every((v) => v.stockQuantity <= 0)
+
   const effectivePrice = selectedVariant?.price ?? product.basePrice
   const effectiveMrp = product.mrp ?? Math.round(effectivePrice * 1.55)
   const discountPercent =
@@ -241,6 +253,13 @@ export function ProductDetailPage() {
 
                 {/* Main Image Showcase - Proportionate height without empty gap */}
                 <div className="relative flex-1 w-full aspect-[3.8/4.5] lg:max-h-[calc(100vh-6rem)] overflow-hidden rounded-3xl bg-[#f2f2f2] shadow-xs select-none">
+                  {isProductSoldOut && (
+                    <div className="absolute inset-0 z-[15] flex items-center justify-center bg-black/45 pointer-events-none">
+                      <span className="rounded-full bg-white/95 px-5 py-2 text-xs sm:text-sm font-extrabold uppercase tracking-wider text-black shadow-sm">
+                        Sold Out
+                      </span>
+                    </div>
+                  )}
                   {/* Top-Right Floating Actions: Share + Wishlist */}
                   <div className="absolute right-4 top-4 sm:right-5 sm:top-5 z-20 flex items-center gap-2">
                     {/* Share Button */}
@@ -377,7 +396,10 @@ export function ProductDetailPage() {
                             <button
                               key={color.name}
                               type="button"
-                              onClick={() => setSelectedColor(color)}
+                              onClick={() => {
+                                setSelectedColor(color)
+                                setQuantity(1)
+                              }}
                               className={`relative h-8 w-8 sm:h-9 sm:w-9 rounded-full transition-transform cursor-pointer shrink-0 ${
                                 isSelected
                                   ? 'ring-2 ring-black ring-offset-2 scale-105'
@@ -409,19 +431,26 @@ export function ProductDetailPage() {
                     {/* Size Buttons Grid */}
                     <div className="grid grid-cols-6 gap-2">
                       {sizes.map((size) => {
-                        const isSelected = selectedSize === size
+                        const isSelected = selectedSize === size.code
                         return (
                           <button
-                            key={size}
+                            key={size.code}
                             type="button"
-                            onClick={() => setSelectedSize(size)}
-                            className={`py-2.5 rounded-xl text-xs font-bold uppercase transition-all cursor-pointer ${
-                              isSelected
-                                ? 'bg-black text-white shadow-sm'
-                                : 'border border-black/20 bg-white text-black hover:border-black'
+                            disabled={!size.inStock}
+                            onClick={() => {
+                              setSelectedSize(size.code)
+                              setQuantity(1)
+                            }}
+                            title={size.inStock ? undefined : 'Out of stock'}
+                            className={`py-2.5 rounded-xl text-xs font-bold uppercase transition-all ${
+                              !size.inStock
+                                ? 'border border-black/10 bg-neutral-50 text-black/25 line-through cursor-not-allowed'
+                                : isSelected
+                                ? 'bg-black text-white shadow-sm cursor-pointer'
+                                : 'border border-black/20 bg-white text-black hover:border-black cursor-pointer'
                             }`}
                           >
-                            {size}
+                            {size.code}
                           </button>
                         )
                       })}
@@ -444,7 +473,8 @@ export function ProductDetailPage() {
                       <button
                         type="button"
                         onClick={() => setQuantity((q) => q + 1)}
-                        className="text-black hover:text-black/60 cursor-pointer tap-press p-1"
+                        disabled={isSelectionSoldOut || quantity >= (selectedVariant?.stockQuantity ?? 0)}
+                        className="text-black hover:text-black/60 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer tap-press p-1"
                       >
                         <HugeiconsIcon icon={Add01Icon} size={14} strokeWidth={2.4} />
                       </button>
@@ -454,11 +484,17 @@ export function ProductDetailPage() {
                     <button
                       type="button"
                       onClick={handleAddToCart}
-                      disabled={isAddingToCart}
-                      className="tap-press flex-1 h-11 sm:h-12 flex items-center justify-between rounded-2xl bg-black hover:bg-neutral-900 text-white px-5 sm:px-6 shadow-sm transition-all cursor-pointer group disabled:cursor-wait"
+                      disabled={isAddingToCart || isSelectionSoldOut}
+                      className="tap-press flex-1 h-11 sm:h-12 flex items-center justify-between rounded-2xl bg-black hover:bg-neutral-900 text-white px-5 sm:px-6 shadow-sm transition-all cursor-pointer group disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-black"
                     >
                       <span className="font-extrabold text-xs sm:text-sm uppercase tracking-wider">
-                        {isAddingToCart ? 'ADDING…' : isInCart ? 'ADDED IN BAG' : `ADD TO BAG • ${formatCurrency(effectivePrice * quantity)}`}
+                        {isSelectionSoldOut
+                          ? 'SOLD OUT'
+                          : isAddingToCart
+                          ? 'ADDING…'
+                          : isInCart
+                          ? 'ADDED IN BAG'
+                          : `ADD TO BAG • ${formatCurrency(effectivePrice * quantity)}`}
                       </span>
                       {isAddingToCart ? (
                         <span className="h-3.5 w-3.5 rounded-full border-2 border-white/20 border-t-white animate-spin" />

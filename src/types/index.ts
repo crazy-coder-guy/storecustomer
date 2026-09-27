@@ -114,6 +114,7 @@ export interface ProductListItem extends Product {
   images: ProductImage[]
   colors: Color[]
   sizes: Size[]
+  inStock: boolean
 }
 
 export interface StorefrontSettings {
@@ -129,7 +130,7 @@ export interface FeaturedProduct {
   productId: string
   sortOrder: number
   createdAt: string
-  product: Product & { category: Category; images: ProductImage[]; colors: Color[] }
+  product: Product & { category: Category; images: ProductImage[]; colors: Color[]; inStock: boolean }
 }
 
 export type OrderStatus = 'PENDING' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED'

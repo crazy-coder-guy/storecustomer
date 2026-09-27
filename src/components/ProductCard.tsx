@@ -110,6 +110,10 @@ export function ProductCard({
   const secondarySpec = getSecondarySpec(product)
 
   const aspectClass = imageAspectRatio || (compact ? 'aspect-[3.6/3.8]' : 'aspect-[3.6/3.95]')
+  // Only an explicit `false` means sold out — `undefined` (older cached data,
+  // or a caller that hasn't wired stock through yet) is treated as unknown,
+  // not sold out, so we never show a false "Sold Out" badge.
+  const isSoldOut = product.inStock === false
 
   return (
     <div className="group relative flex flex-col cursor-pointer select-none">
@@ -118,12 +122,21 @@ export function ProductCard({
         to={`/product/${product.id}`}
         className={`relative w-full overflow-hidden rounded-2xl sm:rounded-3xl bg-[#f2f2f2] block shadow-xs transition-shadow duration-300 hover:shadow-md ${aspectClass}`}
       >
-        {/* Pill Badge (NEW / PREMIUM / TRENDING) */}
-        {product.badge && (
+        {/* Pill Badge (NEW / PREMIUM / TRENDING) — suppressed once sold out */}
+        {product.badge && !isSoldOut && (
           <div className="absolute left-2.5 top-2.5 sm:left-3.5 sm:top-3.5 z-10 pointer-events-none">
             <div className="bg-black/95 text-white font-extrabold text-[10px] sm:text-[11px] uppercase tracking-wider px-3 py-1 rounded-full shadow-sm">
               {product.badge}
             </div>
+          </div>
+        )}
+
+        {/* Sold Out overlay */}
+        {isSoldOut && (
+          <div className="absolute inset-0 z-[5] flex items-center justify-center bg-black/45 pointer-events-none">
+            <span className="rounded-full bg-white/95 px-4 py-1.5 text-[11px] sm:text-xs font-extrabold uppercase tracking-wider text-black shadow-sm">
+              Sold Out
+            </span>
           </div>
         )}
 
@@ -260,46 +273,58 @@ export function ProductCard({
             {/* Liquid Add to Bag Button (matching the site's LiquidButton effect) */}
             <button
               type="button"
-              disabled={isAdding || isInCart}
+              disabled={isAdding || isInCart || isSoldOut}
               onClick={(e) => {
                 e.stopPropagation()
                 handleAddClick()
               }}
-              aria-label="Add to Bag"
+              aria-label={isSoldOut ? 'Sold Out' : 'Add to Bag'}
               aria-busy={isAdding}
-              className={`group/btn tap-press absolute inset-0 flex items-center justify-between overflow-hidden rounded-2xl border border-black bg-black pl-4 pr-1.5 sm:pl-5 sm:pr-2 transition-opacity duration-300 ease-out hover:shadow-md ${
-                isInCart ? 'opacity-0 pointer-events-none' : 'opacity-100'
-              } ${isAdding ? 'cursor-wait' : 'cursor-pointer'}`}
+              className={`group/btn tap-press absolute inset-0 flex items-center justify-between overflow-hidden rounded-2xl border pl-4 pr-1.5 sm:pl-5 sm:pr-2 transition-opacity duration-300 ease-out ${
+                isSoldOut ? 'border-black/15 bg-neutral-100' : 'border-black bg-black hover:shadow-md'
+              } ${isInCart ? 'opacity-0 pointer-events-none' : 'opacity-100'} ${
+                isAdding ? 'cursor-wait' : isSoldOut ? 'cursor-not-allowed' : 'cursor-pointer'
+              }`}
             >
-              {/* Liquid Fill Overlay (rises on hover) */}
-              {!isAdding && (
-                <span className="absolute inset-0 translate-y-full rounded-2xl bg-white transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover/btn:translate-y-0" />
-              )}
-
-              {/* In-flight loading progress fill */}
-              <span
-                className="absolute inset-y-0 left-0 bg-white/25 rounded-2xl transition-[width] ease-out"
-                style={{ width: isAdding ? '92%' : '0%', transitionDuration: isAdding ? '1600ms' : '0ms' }}
-              />
-
-              {/* Button Content */}
-              <div className="relative z-10 flex items-center justify-between w-full">
-                <span className="font-extrabold text-[11px] sm:text-xs uppercase tracking-wider text-white transition-all duration-300 group-hover/btn:text-black group-hover/btn:-translate-x-1">
-                  {isAdding ? 'Adding…' : 'Add to Bag'}
-                </span>
-
-                {/* Circular Opposite Color Badge with Arrow / Spinner */}
-                <span className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-white text-black transition-all duration-300 group-hover/btn:bg-black group-hover/btn:text-white shrink-0">
-                  {isAdding ? (
-                    <span className="h-3 w-3 sm:h-3.5 sm:w-3.5 rounded-full border-2 border-black/20 border-t-black animate-spin" />
-                  ) : (
-                    <>
-                      <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={2.4} className="sm:hidden" />
-                      <HugeiconsIcon icon={ArrowRight01Icon} size={16} strokeWidth={2.4} className="hidden sm:block" />
-                    </>
+              {isSoldOut ? (
+                <div className="relative z-10 flex w-full items-center justify-center">
+                  <span className="font-extrabold text-[11px] sm:text-xs uppercase tracking-wider text-black/40">
+                    Sold Out
+                  </span>
+                </div>
+              ) : (
+                <>
+                  {/* Liquid Fill Overlay (rises on hover) */}
+                  {!isAdding && (
+                    <span className="absolute inset-0 translate-y-full rounded-2xl bg-white transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover/btn:translate-y-0" />
                   )}
-                </span>
-              </div>
+
+                  {/* In-flight loading progress fill */}
+                  <span
+                    className="absolute inset-y-0 left-0 bg-white/25 rounded-2xl transition-[width] ease-out"
+                    style={{ width: isAdding ? '92%' : '0%', transitionDuration: isAdding ? '1600ms' : '0ms' }}
+                  />
+
+                  {/* Button Content */}
+                  <div className="relative z-10 flex items-center justify-between w-full">
+                    <span className="font-extrabold text-[11px] sm:text-xs uppercase tracking-wider text-white transition-all duration-300 group-hover/btn:text-black group-hover/btn:-translate-x-1">
+                      {isAdding ? 'Adding…' : 'Add to Bag'}
+                    </span>
+
+                    {/* Circular Opposite Color Badge with Arrow / Spinner */}
+                    <span className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-white text-black transition-all duration-300 group-hover/btn:bg-black group-hover/btn:text-white shrink-0">
+                      {isAdding ? (
+                        <span className="h-3 w-3 sm:h-3.5 sm:w-3.5 rounded-full border-2 border-black/20 border-t-black animate-spin" />
+                      ) : (
+                        <>
+                          <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={2.4} className="sm:hidden" />
+                          <HugeiconsIcon icon={ArrowRight01Icon} size={16} strokeWidth={2.4} className="hidden sm:block" />
+                        </>
+                      )}
+                    </span>
+                  </div>
+                </>
+              )}
             </button>
           </div>
         </div>

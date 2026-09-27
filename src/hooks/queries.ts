@@ -34,6 +34,7 @@ export interface ProductCardData {
   badge?: string | null
   fit?: string | null
   fabric?: string | null
+  inStock?: boolean
 }
 
 export function useStorefrontSettings() {
@@ -181,6 +182,7 @@ function toProductCardData(p: ProductListItem): ProductCardData {
     badge: p.badge,
     fit: p.fit,
     fabric: p.fabric,
+    inStock: p.inStock,
   }
 }
 

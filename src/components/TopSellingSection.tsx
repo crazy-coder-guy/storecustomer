@@ -31,6 +31,7 @@ export function TopSellingSection({ onAddToCart }: TopSellingSectionProps) {
       badge: fp.product.badge,
       fit: fp.product.fit,
       fabric: fp.product.fabric,
+      inStock: fp.product.inStock,
     }
   })
 

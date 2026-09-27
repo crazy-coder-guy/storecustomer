@@ -18,6 +18,7 @@ import { Navbar } from '../components/Navbar'
 import { Footer } from '../components/Footer'
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
+import { formatSizeCode } from '../utils/formatSize'
 import { useAddresses } from '../hooks/queries'
 import { formatCurrency } from '../utils/formatCurrency'
 import { PLACEHOLDER_PRODUCT_IMAGE } from '../hooks/queries'
@@ -78,7 +79,9 @@ export function CheckoutPage() {
 
   const isUsingSavedAddress = selectedAddressId !== null && selectedAddressId !== 'new'
 
-  if (items.length === 0) {
+  const hasStockIssue = items.some((item) => item.stockQuantity === 0 || item.quantity > item.stockQuantity)
+
+  if (items.length === 0 || hasStockIssue) {
     return <Navigate to="/cart" replace />
   }
 
@@ -356,7 +359,7 @@ export function CheckoutPage() {
                             {item.name}
                           </p>
                           <p className="text-[11px] text-neutral-400 font-medium mt-0.5">
-                            {item.color.name} / {item.size}
+                            {item.color.name} / {formatSizeCode(item.size)}
                           </p>
                           <p className="text-[11px] text-neutral-500 font-medium mt-0.5">
                             {item.quantity} × {formatCurrency(item.price)}
