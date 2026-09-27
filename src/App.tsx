@@ -44,6 +44,7 @@ import { SplashScreen } from './components/SplashScreen'
 import { ScrollManager } from './components/ScrollManager'
 import { HapticFeedback } from './components/HapticFeedback'
 import { VisitTracker } from './components/VisitTracker'
+import { RealtimeSync } from './components/RealtimeSync'
 
 export function App() {
   return (
@@ -51,6 +52,7 @@ export function App() {
       <CartProvider>
         <PromptSlotProvider>
           <VisitTracker />
+          <RealtimeSync />
           <SplashScreen />
           <HapticFeedback />
           <WishlistProvider>
