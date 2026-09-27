@@ -2,24 +2,23 @@ import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Cancel01Icon, Notification03Icon, BellOffIcon, Share01Icon } from '@hugeicons/core-free-icons'
-import { usePushNotifications } from '../hooks/usePushNotifications'
+import { usePushNotifications, isAppStandalone } from '../hooks/usePushNotifications'
 import { usePromptSlot } from '../context/PromptSlotContext'
+import { useAuth } from '../context/AuthContext'
 
 const DISMISSED_KEY = 'kaira_push_prompt_dismissed'
-// Browser-level "blocked" is permanent until the shopper changes it in
-// their browser settings, so remember the dismissal across sessions
-// (localStorage) instead of just this tab (sessionStorage) — otherwise
-// this nags on every visit with nothing new to say.
 const BLOCKED_DISMISSED_KEY = 'kaira_push_blocked_dismissed'
 
 export function NotificationPermissionPrompt() {
+  const { user } = useAuth()
   const { permission, isSubscribing, enableNotifications, needsInstallFirst } = usePushNotifications()
   const { isActive, activePrompt, claim, release } = usePromptSlot('notification')
   const [wantsToShow, setWantsToShow] = useState(false)
   const isBlocked = permission === 'denied'
 
   useEffect(() => {
-    if (permission === 'unsupported' || permission === 'granted') {
+    // Request/Prompt notification permission ONLY for logged-in users inside the installed PWA
+    if (!user || !isAppStandalone() || permission === 'unsupported' || permission === 'granted') {
       setWantsToShow(false)
       release()
       localStorage.removeItem(BLOCKED_DISMISSED_KEY)
@@ -27,9 +26,9 @@ export function NotificationPermissionPrompt() {
     }
 
     if (needsInstallFirst) {
-      if (localStorage.getItem(BLOCKED_DISMISSED_KEY)) return
-      const timer = setTimeout(() => setWantsToShow(true), 3500)
-      return () => clearTimeout(timer)
+      setWantsToShow(false)
+      release()
+      return
     }
 
     if (permission === 'denied') {
@@ -40,15 +39,11 @@ export function NotificationPermissionPrompt() {
 
     if (sessionStorage.getItem(DISMISSED_KEY)) return
 
-    // Let the page settle before asking — a prompt that appears the instant
-    // the site loads reads as spammy and gets reflexively dismissed.
+    // Let the page settle before asking
     const timer = setTimeout(() => setWantsToShow(true), 3500)
     return () => clearTimeout(timer)
-  }, [permission])
+  }, [permission, user, needsInstallFirst, release])
 
-  // Lower priority than the Google sign-in prompt — keep retrying the
-  // shared slot so this appears right after Google's is dismissed/handled,
-  // instead of stacking on top of it.
   useEffect(() => {
     if (wantsToShow) claim()
   }, [wantsToShow, activePrompt, claim])
@@ -73,7 +68,7 @@ export function NotificationPermissionPrompt() {
     }
   }
 
-  const isVisible = wantsToShow && isActive
+  const isVisible = wantsToShow && isActive && Boolean(user) && isAppStandalone()
 
   if (!isVisible) return null
 

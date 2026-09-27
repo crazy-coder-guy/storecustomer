@@ -4,8 +4,6 @@ import { useAuth } from '../context/AuthContext'
 
 const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY as string | undefined
 
-// Web Push requires the VAPID key as a Uint8Array, but it's distributed
-// (and stored in env vars) as a URL-safe base64 string.
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
   const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/')
@@ -29,16 +27,17 @@ async function postSubscription(subscription: PushSubscription) {
 
 export type PushPermissionState = 'unsupported' | 'default' | 'granted' | 'denied'
 
-// iOS Safari only supports Web Push (and only shows the native permission
-// dialog at all) once the site is installed to the Home Screen — calling
-// requestPermission() from a regular browser tab silently does nothing.
-// Feature-detecting `Notification` isn't enough to catch this since iOS
-// 16.4+ does expose the API, it just refuses to prompt outside standalone.
+export function isAppStandalone(): boolean {
+  if (typeof window === 'undefined') return false
+  const nav = window.navigator as Navigator & { standalone?: boolean }
+  return window.matchMedia('(display-mode: standalone)').matches || nav.standalone === true
+}
+
 function iosNeedsInstallFirst(): boolean {
   if (typeof window === 'undefined') return false
   const nav = window.navigator as Navigator & { standalone?: boolean }
   const isIOS = /iPad|iPhone|iPod/.test(nav.userAgent) || (nav.userAgent.includes('Macintosh') && nav.maxTouchPoints > 1)
-  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || nav.standalone === true
+  const isStandalone = isAppStandalone()
   return isIOS && !isStandalone
 }
 
@@ -54,37 +53,27 @@ export function usePushNotifications() {
   const [isSubscribing, setIsSubscribing] = useState(false)
   const syncedForUid = useRef<string | null>(null)
 
-  // Register the service worker up front (idempotent) so it's ready the
-  // moment permission is granted, without waiting on a user action first.
+  // Register service worker up front only for installed PWA & logged-in users
   useEffect(() => {
-    if (permission === 'unsupported') return
-    navigator.serviceWorker.register('/sw.js').catch(() => {
-      // Non-fatal — enableNotifications will surface the real error if the
-      // shopper actually tries to subscribe.
-    })
-  }, [permission])
+    if (permission === 'unsupported' || !user || !isAppStandalone()) return
+    navigator.serviceWorker.register('/sw.js').catch(() => {})
+  }, [permission, user])
 
-  // Re-associate an existing subscription with the signed-in account. This
-  // matters because the enable-notifications prompt only ever fires once
-  // (permission goes from "default" straight to "granted"/"denied" and stays
-  // there) — so anyone who granted permission before signing in, or before
-  // this per-user targeting existed at all, would otherwise have their
-  // subscription stuck as anonymous forever. Re-posting the same
-  // subscription is silent (no browser prompt) since permission is already
-  // granted; the backend just updates which user it's tied to.
+  // Re-associate subscription with signed-in user inside installed PWA
   useEffect(() => {
-    if (permission !== 'granted' || !user || syncedForUid.current === user.uid) return
+    if (permission !== 'granted' || !user || !isAppStandalone() || syncedForUid.current === user.uid) return
     syncedForUid.current = user.uid
     navigator.serviceWorker.ready
       .then((registration) => registration.pushManager.getSubscription())
       .then((subscription) => subscription && postSubscription(subscription))
-      .catch(() => {
-        // Non-fatal — next sign-in, or a manual "enable notifications" click, will retry.
-      })
+      .catch(() => {})
   }, [permission, user])
 
   const enableNotifications = useCallback(async () => {
-    if (permission === 'unsupported' || needsInstallFirst || isSubscribing) return false
+    // Strictly restrict notification permission requests to installed PWAs and logged-in users
+    if (!user || !isAppStandalone() || permission === 'unsupported' || needsInstallFirst || isSubscribing) {
+      return false
+    }
     setIsSubscribing(true)
     try {
       const result = await Notification.requestPermission()
@@ -110,7 +99,7 @@ export function usePushNotifications() {
     } finally {
       setIsSubscribing(false)
     }
-  }, [permission, needsInstallFirst, isSubscribing])
+  }, [permission, needsInstallFirst, isSubscribing, user])
 
   return { permission, isSubscribing, enableNotifications, needsInstallFirst }
 }
