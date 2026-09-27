@@ -141,9 +141,6 @@ export function ReturnsPage() {
             <p>
               • Garments must be in unworn, unwashed condition with original studio tags and barcodes attached.
             </p>
-            <p>
-              • We follow an Exchange-Only policy. Once the parcel is collected and verified, your exchange item is dispatched. No cash/bank refunds are issued.
-            </p>
           </div>
         </div>
       </main>
