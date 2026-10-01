@@ -4,6 +4,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { Cancel01Icon, ArrowRight01Icon } from '@hugeicons/core-free-icons'
 import { useAuth } from '../context/AuthContext'
 import { usePromptSlot } from '../context/PromptSlotContext'
+import { obscuredSessionStorage } from '../utils/obscuredStorage'
 
 export function GoogleOneTapPrompt() {
   const { user, isLoading, signInWithGoogle } = useAuth()
@@ -20,7 +21,7 @@ export function GoogleOneTapPrompt() {
     }
 
     // Check if user dismissed it in this session
-    const dismissed = sessionStorage.getItem('kaira_google_onetap_dismissed')
+    const dismissed = obscuredSessionStorage.getItem('kaira_google_onetap_dismissed')
     if (dismissed) {
       return
     }
@@ -44,7 +45,7 @@ export function GoogleOneTapPrompt() {
   const handleDismiss = () => {
     setWantsToShow(false)
     release()
-    sessionStorage.setItem('kaira_google_onetap_dismissed', 'true')
+    obscuredSessionStorage.setItem('kaira_google_onetap_dismissed', 'true')
   }
 
   const handleSignIn = async () => {

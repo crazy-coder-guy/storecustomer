@@ -5,6 +5,7 @@ import { Cancel01Icon, Notification03Icon, BellOffIcon, Share01Icon } from '@hug
 import { usePushNotifications, isAppStandalone } from '../hooks/usePushNotifications'
 import { usePromptSlot } from '../context/PromptSlotContext'
 import { useAuth } from '../context/AuthContext'
+import { obscuredLocalStorage, obscuredSessionStorage } from '../utils/obscuredStorage'
 
 const DISMISSED_KEY = 'kaira_push_prompt_dismissed'
 const BLOCKED_DISMISSED_KEY = 'kaira_push_blocked_dismissed'
@@ -21,7 +22,7 @@ export function NotificationPermissionPrompt() {
     if (!user || !isAppStandalone() || permission === 'unsupported' || permission === 'granted') {
       setWantsToShow(false)
       release()
-      localStorage.removeItem(BLOCKED_DISMISSED_KEY)
+      obscuredLocalStorage.removeItem(BLOCKED_DISMISSED_KEY)
       return
     }
 
@@ -32,12 +33,12 @@ export function NotificationPermissionPrompt() {
     }
 
     if (permission === 'denied') {
-      if (localStorage.getItem(BLOCKED_DISMISSED_KEY)) return
+      if (obscuredLocalStorage.getItem(BLOCKED_DISMISSED_KEY)) return
       const timer = setTimeout(() => setWantsToShow(true), 3500)
       return () => clearTimeout(timer)
     }
 
-    if (sessionStorage.getItem(DISMISSED_KEY)) return
+    if (obscuredSessionStorage.getItem(DISMISSED_KEY)) return
 
     // Let the page settle before asking
     const timer = setTimeout(() => setWantsToShow(true), 3500)
@@ -54,9 +55,9 @@ export function NotificationPermissionPrompt() {
     setWantsToShow(false)
     release()
     if (isBlocked || needsInstallFirst) {
-      localStorage.setItem(BLOCKED_DISMISSED_KEY, 'true')
+      obscuredLocalStorage.setItem(BLOCKED_DISMISSED_KEY, 'true')
     } else {
-      sessionStorage.setItem(DISMISSED_KEY, 'true')
+      obscuredSessionStorage.setItem(DISMISSED_KEY, 'true')
     }
   }
 

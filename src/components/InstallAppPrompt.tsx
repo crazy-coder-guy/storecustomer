@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Cancel01Icon, ArrowRight01Icon, Share01Icon, MoreVerticalIcon } from '@hugeicons/core-free-icons'
 import { usePromptSlot } from '../context/PromptSlotContext'
+import { obscuredLocalStorage } from '../utils/obscuredStorage'
 
 const DISMISSED_KEY = 'kaiira_install_prompt_dismissed'
 
@@ -40,7 +41,7 @@ export function InstallAppPrompt() {
   // it (mainly Chromium) — everyone else still gets the popover, just with
   // manual "here's how" instructions instead of a one-tap install button.
   useEffect(() => {
-    if (isRunningStandalone() || localStorage.getItem(DISMISSED_KEY)) return
+    if (isRunningStandalone() || obscuredLocalStorage.getItem(DISMISSED_KEY)) return
 
     const platform = detectPlatform()
 
@@ -51,7 +52,7 @@ export function InstallAppPrompt() {
     }
 
     function handleAppInstalled() {
-      localStorage.setItem(DISMISSED_KEY, 'true')
+      obscuredLocalStorage.setItem(DISMISSED_KEY, 'true')
       setWantsToShow(false)
       setDeferredPrompt(null)
     }
@@ -100,7 +101,7 @@ export function InstallAppPrompt() {
   function handleDismiss() {
     setWantsToShow(false)
     release()
-    localStorage.setItem(DISMISSED_KEY, 'true')
+    obscuredLocalStorage.setItem(DISMISSED_KEY, 'true')
   }
 
   async function handleInstall() {
@@ -110,7 +111,7 @@ export function InstallAppPrompt() {
       await deferredPrompt.prompt()
       const choice = await deferredPrompt.userChoice
       if (choice.outcome === 'accepted') {
-        localStorage.setItem(DISMISSED_KEY, 'true')
+        obscuredLocalStorage.setItem(DISMISSED_KEY, 'true')
       }
       setWantsToShow(false)
       release()

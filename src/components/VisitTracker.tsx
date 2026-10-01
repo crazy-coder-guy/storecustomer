@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { recordVisit } from '../services/visit.service'
+import { obscuredSessionStorage } from '../utils/obscuredStorage'
 
 const SESSION_KEY = 'kaiira_visit_tracked'
 
@@ -12,8 +13,8 @@ export function VisitTracker() {
 
   useEffect(() => {
     if (isLoading) return
-    if (sessionStorage.getItem(SESSION_KEY)) return
-    sessionStorage.setItem(SESSION_KEY, '1')
+    if (obscuredSessionStorage.getItem(SESSION_KEY)) return
+    obscuredSessionStorage.setItem(SESSION_KEY, '1')
     recordVisit().catch(() => {})
   }, [isLoading])
 
