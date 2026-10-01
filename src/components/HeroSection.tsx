@@ -52,7 +52,9 @@ export function HeroSection({ onShopClick }: HeroSectionProps) {
           <Reveal animation="fade-left" duration={900} delay={150} className="relative overflow-hidden">
             <img
               src={bannerImg}
-              alt="Kaiira Fashion Banner"
+              alt="KAIIRA premium streetwear and oversized t-shirt collection"
+              loading="eager"
+              fetchPriority="high"
               className="w-full h-auto object-contain max-w-full"
             />
             {/* Bottom White Linear Gradient Fade Out */}

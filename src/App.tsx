@@ -10,6 +10,8 @@ import { AccountPage } from './pages/AccountPage'
 import { CategoryProductsPage } from './pages/CategoryProductsPage'
 import { AllProductsPage } from './pages/AllProductsPage'
 import { ProductDetailPage } from './pages/ProductDetailPage'
+import { LegacyProductRedirect } from './components/LegacyProductRedirect'
+import { NotFoundPage } from './pages/NotFoundPage'
 import { CartPage } from './pages/CartPage'
 import { CheckoutPage } from './pages/CheckoutPage'
 import { OrderConfirmationPage } from './pages/OrderConfirmationPage'
@@ -65,7 +67,8 @@ export function App() {
                 <Route path="/account" element={<AccountPage />} />
                 <Route path="/products" element={<AllProductsPage />} />
                 <Route path="/category/:slug" element={<CategoryProductsPage />} />
-                <Route path="/product/:id" element={<ProductDetailPage />} />
+                <Route path="/products/:slug" element={<ProductDetailPage />} />
+                <Route path="/product/:id" element={<LegacyProductRedirect />} />
                 <Route path="/cart" element={<CartPage />} />
                 <Route path="/checkout" element={<CheckoutPage />} />
                 <Route path="/order-confirmation/:orderId" element={<OrderConfirmationPage />} />
@@ -85,6 +88,7 @@ export function App() {
                 <Route path="/returns-exchanges" element={<ReturnsPage />} />
                 <Route path="/size-guide" element={<SizeGuidePage />} />
                 <Route path="/contact" element={<ContactPage />} />
+                <Route path="*" element={<NotFoundPage />} />
               </Routes>
             </BrowserRouter>
           </WishlistProvider>

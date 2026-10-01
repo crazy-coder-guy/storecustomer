@@ -3,8 +3,15 @@ import { StandaloneHeader } from '../components/StandaloneHeader'
 import { ScrollWipeKaira } from '../components/ScrollWipeKaira'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { CheckmarkCircle02Icon } from '@hugeicons/core-free-icons'
+import { useSeoMeta } from '../hooks/useSeoMeta'
 
 export function ContactPage() {
+  useSeoMeta({
+    title: 'Contact Us',
+    description: 'Get in touch with the KAIIRA support team.',
+    path: '/contact',
+  })
+
   const [sent, setSent] = useState(false)
   const [ticketNumber, setTicketNumber] = useState('')
   const [formData, setFormData] = useState({

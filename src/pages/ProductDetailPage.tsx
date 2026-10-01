@@ -6,10 +6,12 @@ import { Skeleton } from '../components/Skeleton'
 import { formatCurrency } from '../utils/formatCurrency'
 import { useCart } from '../context/CartContext'
 import { useWishlist } from '../context/WishlistContext'
-import { useProductDetail, PLACEHOLDER_PRODUCT_IMAGE } from '../hooks/queries'
+import { useProductDetailBySlug, PLACEHOLDER_PRODUCT_IMAGE } from '../hooks/queries'
 import { Reveal } from '../components/Reveal'
 import { ShareModal } from '../components/ShareModal'
 import { ProductReviews } from '../components/ProductReviews'
+import { useSeoMeta } from '../hooks/useSeoMeta'
+import { buildProductJsonLd, buildProductBreadcrumb, buildBreadcrumbJsonLd } from '../utils/seo'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
   FavouriteIcon,
@@ -32,7 +34,7 @@ interface ColorOption {
 }
 
 export function ProductDetailPage() {
-  const { id } = useParams<{ id: string }>()
+  const { slug } = useParams<{ slug: string }>()
   const { items: cartItems, addToCart } = useCart()
   const { isInWishlist, toggleWishlist } = useWishlist()
 
@@ -43,7 +45,24 @@ export function ProductDetailPage() {
   const [isZoomOpen, setIsZoomOpen] = useState(false)
   const [isShareOpen, setIsShareOpen] = useState(false)
 
-  const { data: product, isLoading, isError } = useProductDetail(id)
+  const { data: product, isLoading, isError } = useProductDetailBySlug(slug)
+
+  const primaryProductImage = product
+    ? [...product.images].sort((a, b) => a.sortOrder - b.sortOrder).find((i) => i.isPrimary)?.imageUrl ??
+      product.images[0]?.imageUrl
+    : undefined
+
+  useSeoMeta({
+    title: product ? `${product.name} | Premium Streetwear` : 'Product Not Found',
+    description:
+      product?.description ||
+      (product ? `Shop the ${product.name} by KAIIRA — premium streetwear, oversized fit.` : undefined),
+    path: product ? `/products/${product.slug}` : undefined,
+    robots: product ? 'index, follow' : 'noindex, follow',
+    image: primaryProductImage,
+    type: product ? 'product' : 'website',
+    jsonLd: product ? [buildProductJsonLd(product), buildBreadcrumbJsonLd(buildProductBreadcrumb(product))] : undefined,
+  })
 
   const colors = useMemo<ColorOption[]>(() => {
     if (!product) return []
@@ -217,6 +236,37 @@ export function ProductDetailPage() {
 
         <main className="py-4 sm:py-6 lg:py-8">
           <div className="kaira-container">
+            {/* Breadcrumb trail — mirrors the BreadcrumbList JSON-LD above */}
+            <nav aria-label="Breadcrumb" className="mb-4 sm:mb-6 overflow-x-auto scrollbar-none">
+              <ol className="flex items-center gap-1.5 whitespace-nowrap text-xs font-semibold text-black/50">
+                <li>
+                  <Link to="/" className="hover:text-black transition-colors">Home</Link>
+                </li>
+                <li aria-hidden="true">/</li>
+                <li>
+                  <Link to="/products" className="hover:text-black transition-colors">Shop</Link>
+                </li>
+                {product?.category && (
+                  <>
+                    <li aria-hidden="true">/</li>
+                    <li>
+                      <Link to={`/category/${product.category.slug}`} className="hover:text-black transition-colors">
+                        {product.category.name}
+                      </Link>
+                    </li>
+                  </>
+                )}
+                {product && (
+                  <>
+                    <li aria-hidden="true">/</li>
+                    <li aria-current="page" className="text-black truncate max-w-[200px]">
+                      {product.name}
+                    </li>
+                  </>
+                )}
+              </ol>
+            </nav>
+
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 xl:gap-12 items-start">
 
               {/* LEFT COLUMN: Completely Sticky Gallery on Desktop */}
@@ -333,11 +383,13 @@ export function ProductDetailPage() {
                     <HugeiconsIcon icon={Search01Icon} size={18} strokeWidth={2} />
                   </button>
 
-                  {/* Main Display Image */}
+                  {/* Main Display Image — above the fold, loaded eagerly/high-priority for LCP */}
                   <img
                     key={selectedImage}
                     src={selectedImage || PLACEHOLDER_PRODUCT_IMAGE}
                     alt={product.name}
+                    loading="eager"
+                    fetchPriority="high"
                     className="h-full w-full object-cover object-center animate-image-fade-in"
                   />
                 </div>

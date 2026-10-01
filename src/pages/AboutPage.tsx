@@ -10,8 +10,15 @@ import {
   SparklesIcon,
   PackageIcon,
 } from '@hugeicons/core-free-icons'
+import { useSeoMeta } from '../hooks/useSeoMeta'
 
 export function AboutPage() {
+  useSeoMeta({
+    title: 'About Us',
+    description: 'Learn about KAIIRA — premium streetwear and oversized t-shirts designed for everyday style.',
+    path: '/about',
+  })
+
   return (
     <div className="min-h-screen bg-white text-black flex flex-col justify-between">
       <div>

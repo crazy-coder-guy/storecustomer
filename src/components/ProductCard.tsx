@@ -119,7 +119,7 @@ export function ProductCard({
     <div className="group relative flex flex-col cursor-pointer select-none">
       {/* Product Image Container with modern rounded edges matching reference */}
       <Link
-        to={`/product/${product.id}`}
+        to={`/products/${product.slug}`}
         className={`relative w-full overflow-hidden rounded-2xl sm:rounded-3xl bg-[#f2f2f2] block shadow-xs transition-shadow duration-300 hover:shadow-md ${aspectClass}`}
       >
         {/* Pill Badge (NEW / PREMIUM / TRENDING) — suppressed once sold out */}
@@ -161,10 +161,11 @@ export function ProductCard({
           />
         </button>
 
-        {/* Product Image */}
+        {/* Product Image — grid cards are mostly below the fold */}
         <img
           src={product.image}
           alt={product.name}
+          loading="lazy"
           className="h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
         />
       </Link>
@@ -184,7 +185,7 @@ export function ProductCard({
               </h3>
             </button>
           ) : (
-            <Link to={`/product/${product.id}`} className="block">
+            <Link to={`/products/${product.slug}`} className="block">
               <h3 className="font-bold text-[14px] sm:text-[15.5px] text-neutral-900 tracking-tight leading-snug line-clamp-1 group-hover:text-black transition-colors">
                 {product.name}
               </h3>

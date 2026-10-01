@@ -15,8 +15,11 @@ import { Footer } from '../components/Footer'
 import { Skeleton } from '../components/Skeleton'
 import { useAuth } from '../context/AuthContext'
 import { useWishlist } from '../context/WishlistContext'
+import { useSeoMeta } from '../hooks/useSeoMeta'
 
 export function AccountPage() {
+  useSeoMeta({ title: 'My Account', robots: 'noindex, nofollow' })
+
   const navigate = useNavigate()
   const { user, isLoading, signInWithGoogle, signOutUser } = useAuth()
   const { openWishlist } = useWishlist()

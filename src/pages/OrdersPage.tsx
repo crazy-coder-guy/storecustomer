@@ -29,6 +29,7 @@ import { listMyOrders } from '../services/order.service'
 import { formatCurrency } from '../utils/formatCurrency'
 import { formatDate } from '../utils/formatDate'
 import { openPrintableInvoice } from '../utils/invoice'
+import { useSeoMeta } from '../hooks/useSeoMeta'
 import type { Order, OrderStatus } from '../types'
 
 type FilterTab = 'ALL' | 'ACTIVE' | 'DELIVERED' | 'CANCELLED'
@@ -76,6 +77,8 @@ const EXCHANGE_STATUS_BADGE: Record<'PENDING' | 'APPROVED' | 'COMPLETED', { labe
 }
 
 export function OrdersPage() {
+  useSeoMeta({ title: 'My Orders', robots: 'noindex, nofollow' })
+
   const { user, isLoading: authLoading, signInWithGoogle } = useAuth()
   const [activeTab, setActiveTab] = useState<FilterTab>('ALL')
   const [searchQuery, setSearchQuery] = useState('')

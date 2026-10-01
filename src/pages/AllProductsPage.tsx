@@ -8,6 +8,7 @@ import { useCart } from '../context/CartContext'
 import { useCategories, useProductCards, useSizes, useStorefrontProducts } from '../hooks/queries'
 import { resolveDefaultVariantId } from '../services/product.service'
 import { getErrorMessage } from '../services/api'
+import { useSeoMeta } from '../hooks/useSeoMeta'
 import type { ProductListItem } from '../types'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { FilterIcon, Cancel01Icon, ArrowDown01Icon } from '@hugeicons/core-free-icons'
@@ -33,6 +34,13 @@ function toggleInList(list: string[], value: string): string[] {
 }
 
 export function AllProductsPage() {
+  useSeoMeta({
+    title: 'Shop All — Oversized T-Shirts & Streetwear',
+    description:
+      'Browse the full KAIIRA collection of oversized t-shirts, heavyweight tees and streetwear essentials. Filter by size, color, fit and category.',
+    path: '/products',
+  })
+
   const { addToCart } = useCart()
   const [selectedDrawerProductId, setSelectedDrawerProductId] = useState<string | null>(null)
   const [isFilterOpen, setIsFilterOpen] = useState(false)

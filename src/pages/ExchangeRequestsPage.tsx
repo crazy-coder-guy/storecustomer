@@ -19,6 +19,7 @@ import { useMyExchangeRequests } from '../hooks/queries'
 import { cancelExchangeRequest } from '../services/exchange.service'
 import { getErrorMessage } from '../services/api'
 import { formatDate } from '../utils/formatDate'
+import { useSeoMeta } from '../hooks/useSeoMeta'
 import type { ExchangeRequest, ExchangeRequestStatus } from '../types'
 
 const REASON_LABEL: Record<string, string> = {
@@ -58,6 +59,8 @@ const STATUS_BADGE: Record<ExchangeRequestStatus, { label: string; badgeClass: s
 }
 
 export function ExchangeRequestsPage() {
+  useSeoMeta({ title: 'My Exchange Requests', robots: 'noindex, nofollow' })
+
   const { user, isLoading: authLoading, signInWithGoogle } = useAuth()
   const [isSigningIn, setIsSigningIn] = useState(false)
   const [selected, setSelected] = useState<ExchangeRequest | null>(null)

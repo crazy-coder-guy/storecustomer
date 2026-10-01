@@ -2,8 +2,15 @@ import { Navbar } from '../components/Navbar'
 import { Footer } from '../components/Footer'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { SecurityCheckIcon } from '@hugeicons/core-free-icons'
+import { useSeoMeta } from '../hooks/useSeoMeta'
 
 export function PrivacyPolicyPage() {
+  useSeoMeta({
+    title: 'Privacy Policy',
+    description: "KAIIRA's privacy policy — how we collect, use, and protect your information.",
+    path: '/privacy-policy',
+  })
+
   return (
     <div className="min-h-screen bg-white text-black flex flex-col justify-between font-sans">
       <Navbar />

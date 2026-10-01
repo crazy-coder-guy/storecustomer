@@ -22,6 +22,7 @@ export function TopSellingSection({ onAddToCart }: TopSellingSectionProps) {
     const primary = images.find((img) => img.isPrimary) ?? images[0]
     return {
       id: fp.product.id,
+      slug: fp.product.slug,
       name: fp.product.name,
       categoryName: fp.product.category?.name ?? '',
       price: fp.product.basePrice,

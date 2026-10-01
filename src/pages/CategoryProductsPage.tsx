@@ -10,6 +10,8 @@ import { useCart } from '../context/CartContext'
 import { useCategories, useProductCards, useProducts } from '../hooks/queries'
 import { resolveDefaultVariantId } from '../services/product.service'
 import { getErrorMessage } from '../services/api'
+import { useSeoMeta } from '../hooks/useSeoMeta'
+import { buildBreadcrumbJsonLd } from '../utils/seo'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { FilterIcon } from '@hugeicons/core-free-icons'
 
@@ -23,6 +25,19 @@ export function CategoryProductsPage() {
     () => categoriesData?.items.find((c) => c.slug === slug),
     [categoriesData, slug]
   )
+
+  useSeoMeta({
+    title: category ? `${category.name} — Shop` : 'Shop',
+    description: category?.description || `Shop ${category?.name ?? ''} at KAIIRA — premium streetwear and oversized tees.`,
+    path: `/category/${slug}`,
+    jsonLd: category
+      ? buildBreadcrumbJsonLd([
+          { name: 'Home', path: '/' },
+          { name: 'Shop', path: '/products' },
+          { name: category.name, path: `/category/${category.slug}` },
+        ])
+      : undefined,
+  })
 
   const { data: productsData, isLoading: productsLoading } = useProducts(
     { category_id: category?.id, status: 'ACTIVE', limit: 100 },

@@ -1,7 +1,14 @@
 import { StandaloneHeader } from '../components/StandaloneHeader'
 import { ScrollWipeKaira } from '../components/ScrollWipeKaira'
+import { useSeoMeta } from '../hooks/useSeoMeta'
 
 export function ShippingInfoPage() {
+  useSeoMeta({
+    title: 'Shipping Information',
+    description: 'KAIIRA shipping timelines, delivery areas, and charges across Tamil Nadu and India.',
+    path: '/shipping-info',
+  })
+
   const policies = [
     {
       num: '01',

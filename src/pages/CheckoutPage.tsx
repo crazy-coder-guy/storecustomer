@@ -26,6 +26,7 @@ import { openRazorpayCheckout } from '../utils/razorpay'
 import { createOrder } from '../services/order.service'
 import { createRazorpayOrder, verifyPayment } from '../services/payment.service'
 import { getErrorMessage } from '../services/api'
+import { useSeoMeta } from '../hooks/useSeoMeta'
 import type { Address } from '../types'
 
 const schema = z.object({
@@ -37,6 +38,8 @@ const schema = z.object({
 type CheckoutFormValues = z.infer<typeof schema>
 
 export function CheckoutPage() {
+  useSeoMeta({ title: 'Checkout', robots: 'noindex, nofollow' })
+
   const navigate = useNavigate()
   const { user } = useAuth()
   const { items, cartCount, subtotal, totalDiscount, deliveryFee, finalTotal, clearCart } = useCart()

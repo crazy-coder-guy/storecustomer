@@ -27,6 +27,7 @@ import { getOrder } from '../services/order.service'
 import { formatCurrency } from '../utils/formatCurrency'
 import { formatDate } from '../utils/formatDate'
 import { openPrintableInvoice } from '../utils/invoice'
+import { useSeoMeta } from '../hooks/useSeoMeta'
 import type { OrderStatus } from '../types'
 
 const STATUS_CONFIG: Record<
@@ -72,6 +73,8 @@ const EXCHANGE_STATUS_BADGE: Record<'PENDING' | 'APPROVED' | 'COMPLETED', { labe
 }
 
 export function OrderDetailPage() {
+  useSeoMeta({ title: 'Order Details', robots: 'noindex, nofollow' })
+
   const { orderId } = useParams<{ orderId: string }>()
   const { user } = useAuth()
   const { data: order, isLoading, isError } = useQuery({

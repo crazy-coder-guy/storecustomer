@@ -3,8 +3,15 @@ import { StandaloneHeader } from '../components/StandaloneHeader'
 import { ScrollWipeKaira } from '../components/ScrollWipeKaira'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { CheckmarkCircle02Icon } from '@hugeicons/core-free-icons'
+import { useSeoMeta } from '../hooks/useSeoMeta'
 
 export function ReturnsPage() {
+  useSeoMeta({
+    title: 'Returns & Exchanges',
+    description: "KAIIRA's returns and exchange policy — how to request an exchange on a delivered order.",
+    path: '/returns-exchanges',
+  })
+
   const [returnId, setReturnId] = useState('')
   const [reason, setReason] = useState('size_exchange')
   const [initiated, setInitiated] = useState(false)

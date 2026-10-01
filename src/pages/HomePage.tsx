@@ -4,8 +4,18 @@ import { IntroSection } from '../components/IntroSection'
 import { TopSellingSection } from '../components/TopSellingSection'
 import { VelocityScroll } from '../components/VelocityScroll'
 import { Footer } from '../components/Footer'
+import { useSeoMeta } from '../hooks/useSeoMeta'
 
 export function HomePage() {
+  // Organization/WebSite JSON-LD lives statically in index.html (so it's
+  // visible even without JS) — not repeated here to avoid duplicate blocks.
+  useSeoMeta({
+    title: 'Premium Streetwear & Oversized T-Shirts',
+    description:
+      "Shop KAIIRA's premium oversized t-shirts, heavyweight tees and modern streetwear. Designed for effortless everyday style. Shop online across Tamil Nadu and India.",
+    path: '/',
+  })
+
   return (
     <div className="min-h-screen bg-white text-black flex flex-col justify-between">
       <div>

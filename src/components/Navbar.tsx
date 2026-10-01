@@ -289,7 +289,7 @@ export function Navbar({ cartCount: propCartCount, wishlistCount: propWishlistCo
                       return (
                         <li key={product.id}>
                           <Link
-                            to={`/product/${product.id}`}
+                            to={`/products/${product.slug}`}
                             onClick={() => setIsFocused(false)}
                             className="group flex items-center gap-3.5 px-3 py-2.5 rounded-xl hover:bg-neutral-100/80 transition-all duration-200 cursor-pointer"
                           >

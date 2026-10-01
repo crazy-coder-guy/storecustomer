@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import {
   getProduct,
+  getProductBySlug,
   listProducts,
   listStorefrontProducts,
   type ListProductsParams,
@@ -25,6 +26,7 @@ export const PLACEHOLDER_PRODUCT_IMAGE =
 
 export interface ProductCardData {
   id: string
+  slug: string
   name: string
   categoryName: string
   price: number
@@ -121,6 +123,18 @@ export function useProductDetail(id: string | undefined) {
   })
 }
 
+// Canonical, SEO-friendly way to load a product — by slug (`/products/:slug`)
+// rather than its opaque id. Kept as a separate query key/cache entry from
+// useProductDetail since the two are fetched from different endpoints.
+export function useProductDetailBySlug(slug: string | undefined) {
+  return useQuery({
+    queryKey: ['product-by-slug', slug],
+    queryFn: () => getProductBySlug(slug as string),
+    enabled: Boolean(slug),
+    staleTime: 30 * 1000,
+  })
+}
+
 export function useAddresses(enabled = true) {
   return useQuery({
     queryKey: ['addresses'],
@@ -173,6 +187,7 @@ function toProductCardData(p: ProductListItem): ProductCardData {
 
   return {
     id: p.id,
+    slug: p.slug,
     name: p.name,
     categoryName: p.category?.name ?? '',
     price: p.basePrice,

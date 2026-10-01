@@ -8,6 +8,7 @@ import {
   CheckmarkCircle02Icon,
   SecurityCheckIcon,
 } from '@hugeicons/core-free-icons'
+import { useSeoMeta } from '../hooks/useSeoMeta'
 
 interface TrackingStep {
   status: string
@@ -18,6 +19,12 @@ interface TrackingStep {
 }
 
 export function TrackOrderPage() {
+  useSeoMeta({
+    title: 'Track Your Order',
+    description: 'Track your KAIIRA order status and delivery progress.',
+    path: '/track-order',
+  })
+
   const [orderNumber, setOrderNumber] = useState('')
   const [phoneOrEmail, setPhoneOrEmail] = useState('')
   const [tracked, setTracked] = useState(false)

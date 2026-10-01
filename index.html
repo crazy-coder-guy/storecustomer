@@ -2,6 +2,14 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <!--
+      Google Search Console verification:
+      Paste your real verification meta tag here once you add this property
+      in Search Console (Settings > Ownership verification > HTML tag), e.g.
+      <meta name="google-site-verification" content="PASTE_YOUR_REAL_VALUE_HERE" />
+      Do not invent a value — leave this commented out until you have the
+      real one from Search Console.
+    -->
     <!-- Google Analytics (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-L79NPD7MGC"></script>
     <script>
@@ -23,7 +31,57 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Kaiira" />
-    <title>Kaiira — Shop Online</title>
+
+    <!-- SEO: title/description/canonical — overridden per-route by useSeoMeta,
+         this is what a crawler/bot sees if it never executes our JS. -->
+    <title>KAIIRA — Premium Streetwear & Oversized T-Shirts</title>
+    <meta
+      name="description"
+      content="Shop KAIIRA's premium oversized t-shirts, heavyweight tees and modern streetwear. Designed for effortless everyday style. Shop online across Tamil Nadu and India."
+    />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://kaiira.in/" />
+
+    <!-- Open Graph -->
+    <meta property="og:site_name" content="KAIIRA" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="KAIIRA — Premium Streetwear & Oversized T-Shirts" />
+    <meta
+      property="og:description"
+      content="Shop KAIIRA's premium oversized t-shirts, heavyweight tees and modern streetwear. Designed for effortless everyday style. Shop online across Tamil Nadu and India."
+    />
+    <meta property="og:url" content="https://kaiira.in/" />
+    <meta property="og:image" content="https://kaiira.in/icon-512.png" />
+
+    <!-- Twitter / X Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="KAIIRA — Premium Streetwear & Oversized T-Shirts" />
+    <meta
+      name="twitter:description"
+      content="Shop KAIIRA's premium oversized t-shirts, heavyweight tees and modern streetwear. Designed for effortless everyday style. Shop online across Tamil Nadu and India."
+    />
+    <meta name="twitter:image" content="https://kaiira.in/icon-512.png" />
+
+    <!-- Organization / WebSite structured data — static so it's visible even
+         to bots that don't execute JavaScript. -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "KAIIRA",
+        "url": "https://kaiira.in",
+        "logo": "https://kaiira.in/icon-512.png"
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "KAIIRA",
+        "url": "https://kaiira.in"
+      }
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

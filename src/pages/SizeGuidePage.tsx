@@ -1,8 +1,15 @@
 import { useState } from 'react'
 import { StandaloneHeader } from '../components/StandaloneHeader'
 import { ScrollWipeKaira } from '../components/ScrollWipeKaira'
+import { useSeoMeta } from '../hooks/useSeoMeta'
 
 export function SizeGuidePage() {
+  useSeoMeta({
+    title: 'Size Guide',
+    description: 'KAIIRA size guide — find your perfect fit for shirts, tees, and hoodies.',
+    path: '/size-guide',
+  })
+
   const [unit, setUnit] = useState<'inches' | 'cm'>('inches')
   const [activeTab, setActiveTab] = useState<'shirts' | 'tees' | 'hoodies'>('shirts')
 

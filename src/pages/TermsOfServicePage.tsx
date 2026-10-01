@@ -2,8 +2,15 @@ import { Navbar } from '../components/Navbar'
 import { Footer } from '../components/Footer'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { SecurityCheckIcon } from '@hugeicons/core-free-icons'
+import { useSeoMeta } from '../hooks/useSeoMeta'
 
 export function TermsOfServicePage() {
+  useSeoMeta({
+    title: 'Terms of Service',
+    description: "KAIIRA's terms of service governing use of this website and your orders.",
+    path: '/terms-of-service',
+  })
+
   return (
     <div className="min-h-screen bg-white text-black flex flex-col justify-between font-sans">
       <Navbar />

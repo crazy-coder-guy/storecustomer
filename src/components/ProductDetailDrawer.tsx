@@ -479,7 +479,7 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
 
             {/* Full Page Button */}
             <Link
-              to={`/product/${product.id}`}
+              to={`/products/${product.slug}`}
               onClick={onClose}
               className="h-11 px-3.5 sm:px-4 rounded-xl border border-black/20 text-xs font-bold text-black flex items-center justify-center hover:border-black hover:bg-neutral-50 transition-colors whitespace-nowrap shrink-0"
             >

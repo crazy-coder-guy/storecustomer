@@ -77,6 +77,11 @@ export async function getProduct(id: string) {
   return coerceProductDetail(data)
 }
 
+export async function getProductBySlug(slug: string) {
+  const { data } = await api.get<ProductDetail>(`/products/slug/${slug}`)
+  return coerceProductDetail(data)
+}
+
 /**
  * "Quick add" buttons on product cards (Top Selling, category grids,
  * wishlist) don't let the shopper pick a color/size, so they need some

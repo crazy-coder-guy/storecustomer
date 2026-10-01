@@ -20,8 +20,11 @@ import {
   ArrowLeft01Icon,
   Tag01Icon,
 } from '@hugeicons/core-free-icons'
+import { useSeoMeta } from '../hooks/useSeoMeta'
 
 export function CartPage() {
+  useSeoMeta({ title: 'Your Bag', robots: 'noindex, follow' })
+
   const navigate = useNavigate()
   const {
     items,

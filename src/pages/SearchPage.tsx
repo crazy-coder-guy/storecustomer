@@ -12,6 +12,7 @@ import { useCart } from '../context/CartContext'
 import { useSearchProducts, PLACEHOLDER_PRODUCT_IMAGE } from '../hooks/queries'
 import { Reveal } from '../components/Reveal'
 import { formatCurrency } from '../utils/formatCurrency'
+import { useSeoMeta } from '../hooks/useSeoMeta'
 
 const POPULAR_SEARCHES = [
   'Oversized Shirts',
@@ -32,6 +33,11 @@ const SEARCH_SUGGESTIONS = [
 ]
 
 export function SearchPage() {
+  // Internal search-results URLs (?q=...) are near-infinite and low-value to
+  // index individually — keep them out of Google's index, but still let
+  // links on the page be followed.
+  useSeoMeta({ title: 'Search', robots: 'noindex, follow' })
+
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const initialQuery = searchParams.get('q') || ''
@@ -217,7 +223,7 @@ export function SearchPage() {
                       duration={500}
                     >
                       <Link
-                        to={`/product/${product.id}`}
+                        to={`/products/${product.slug}`}
                         className="group flex items-center gap-3.5 rounded-2xl border border-black/10 bg-white p-3 transition-all duration-300 hover:shadow-md hover:border-black/20 active:scale-[0.99] cursor-pointer"
                       >
                         <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-neutral-100 border border-black/5">

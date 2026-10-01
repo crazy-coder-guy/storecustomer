@@ -20,8 +20,11 @@ import {
 
 import confetti from 'canvas-confetti'
 import { openPrintableInvoice } from '../utils/invoice'
+import { useSeoMeta } from '../hooks/useSeoMeta'
 
 export function OrderConfirmationPage() {
+  useSeoMeta({ title: 'Order Confirmed', robots: 'noindex, nofollow' })
+
   const { orderId } = useParams<{ orderId: string }>()
   const { data: order, isLoading, isError } = useQuery({
     queryKey: ['order', orderId],
