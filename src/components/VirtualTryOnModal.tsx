@@ -13,12 +13,32 @@ import {
   MinusSignIcon,
   EyeIcon,
   SlashIcon,
+  ScanFaceIcon,
 } from '@hugeicons/core-free-icons'
 import { useCart } from '../context/CartContext'
 import { formatCurrency } from '../utils/formatCurrency'
 import { formatSizeCode } from '../utils/formatSize'
+import { usePoseTracking } from '../hooks/usePoseTracking'
 import { toast } from 'sonner'
 import type { ProductDetail, ProductVariant } from '../types'
+
+// The garment <img>'s CSS width at scale=1 — matches the `w-[280px] sm:w-[340px]`
+// classes below. Used as the baseline when converting a desired on-screen
+// width (from the detected shoulder width) into a `scale` value.
+const GARMENT_BASE_WIDTH_MOBILE = 280
+const GARMENT_BASE_WIDTH_DESKTOP = 340
+const DESKTOP_BREAKPOINT = 640
+
+// How much wider/taller than the raw shoulder/torso measurement the garment
+// should render — an oversized tee or dress is meant to extend past the
+// shoulders and down past the hips, not hug them exactly.
+const GARMENT_WIDTH_TO_SHOULDER_RATIO = 2.1
+const GARMENT_HEIGHT_TO_TORSO_RATIO = 1.9
+
+// Smoothing factor for auto-tracked position/scale (0-1, higher = snappier
+// but jitterier) — pose landmarks are noisy frame-to-frame, so the garment
+// eases toward the target instead of snapping to it every frame.
+const TRACKING_SMOOTHING = 0.25
 
 interface ColorOption {
   id?: string
@@ -73,6 +93,8 @@ export function VirtualTryOnModal({
   const selectedVariant = activeVariant
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const stageRef = useRef<HTMLDivElement>(null)
+  const garmentImgRef = useRef<HTMLImageElement>(null)
 
   // Camera & Stream states
   const [stream, setStream] = useState<MediaStream | null>(null)
@@ -86,6 +108,11 @@ export function VirtualTryOnModal({
   const [opacity, setOpacity] = useState(0.92)
   const [showBodyGuide, setShowBodyGuide] = useState(true)
   const [showControls, setShowControls] = useState(true)
+
+  // Auto body-tracking: on-device pose detection positions the garment for
+  // you; dragging it manually (even once) switches to full manual control
+  // until the shopper explicitly re-enables tracking.
+  const [autoTrack, setAutoTrack] = useState(true)
 
   // Dragging state for garment positioning
   const [isDragging, setIsDragging] = useState(false)
@@ -195,6 +222,74 @@ export function VirtualTryOnModal({
     }
   }, [isOpen])
 
+  // Live shoulder/torso position off the camera feed — null whenever no
+  // person is confidently detected (camera just opened, stepped out of
+  // frame, etc.), in which case the garment just stays wherever it last was.
+  const bodyAnchor = usePoseTracking(videoRef, isOpen && !capturedPhotoUrl && autoTrack)
+
+  // Translate the detected body anchor into the same offsetX/offsetY/scale
+  // the manual drag controls already use, eased toward the target each
+  // frame so landmark jitter doesn't make the garment shake.
+  useEffect(() => {
+    if (!autoTrack || !bodyAnchor) return
+    const video = videoRef.current
+    const stage = stageRef.current
+    const img = garmentImgRef.current
+    if (!video || !stage || !img || !video.videoWidth || !img.naturalWidth) return
+
+    const cw = stage.clientWidth
+    const ch = stage.clientHeight
+    const videoAspect = video.videoWidth / video.videoHeight
+    const containerAspect = cw / ch
+
+    // `object-cover` math: the video is scaled uniformly to cover the stage
+    // box, cropping whichever axis overflows.
+    let renderedW: number
+    let renderedH: number
+    let cropX = 0
+    let cropY = 0
+    if (videoAspect > containerAspect) {
+      renderedH = ch
+      renderedW = renderedH * videoAspect
+      cropX = (renderedW - cw) / 2
+    } else {
+      renderedW = cw
+      renderedH = renderedW / videoAspect
+      cropY = (renderedH - ch) / 2
+    }
+
+    let shoulderScreenX = bodyAnchor.shoulderMidX * renderedW - cropX
+    const shoulderScreenY = bodyAnchor.shoulderMidY * renderedH - cropY
+    const hipScreenY = bodyAnchor.hipMidY * renderedH - cropY
+    const shoulderWidthPx = bodyAnchor.shoulderWidth * renderedW
+
+    // The video itself is CSS-mirrored for the front camera; the detected
+    // landmarks are from the raw (unmirrored) frame, so mirror X to match.
+    if (facingMode === 'user') {
+      shoulderScreenX = cw - shoulderScreenX
+    }
+
+    const baseWidthPx = window.innerWidth >= DESKTOP_BREAKPOINT ? GARMENT_BASE_WIDTH_DESKTOP : GARMENT_BASE_WIDTH_MOBILE
+    const baseHeightPx = baseWidthPx * (img.naturalHeight / img.naturalWidth)
+
+    const desiredWidthPx = shoulderWidthPx * GARMENT_WIDTH_TO_SHOULDER_RATIO
+    const torsoHeightPx = Math.max(hipScreenY - shoulderScreenY, shoulderWidthPx)
+    const desiredHeightPx = torsoHeightPx * GARMENT_HEIGHT_TO_TORSO_RATIO
+    const desiredScale = Math.min(desiredWidthPx / baseWidthPx, desiredHeightPx / baseHeightPx)
+    const targetScale = Math.min(Math.max(desiredScale, 0.4), 2.2)
+
+    const garmentHeightAtScale = baseHeightPx * targetScale
+    // Small overlap above the shoulder line for the collar, rather than
+    // starting exactly at the shoulders.
+    const desiredTopY = shoulderScreenY - garmentHeightAtScale * 0.08
+    const targetOffsetX = shoulderScreenX - cw / 2
+    const targetOffsetY = desiredTopY + garmentHeightAtScale / 2 - ch / 2
+
+    setOffsetX((prev) => prev + (targetOffsetX - prev) * TRACKING_SMOOTHING)
+    setOffsetY((prev) => prev + (targetOffsetY - prev) * TRACKING_SMOOTHING)
+    setScale((prev) => prev + (targetScale - prev) * TRACKING_SMOOTHING)
+  }, [bodyAnchor, autoTrack, facingMode])
+
   if (!isOpen) return null
 
   // Toggle Camera Front / Back
@@ -204,6 +299,7 @@ export function VirtualTryOnModal({
 
   // Handle Touch/Mouse Drag to position garment
   function handlePointerDown(e: React.PointerEvent) {
+    setAutoTrack(false)
     setIsDragging(true)
     setDragStart({ x: e.clientX - offsetX, y: e.clientY - offsetY })
   }
@@ -397,6 +493,7 @@ export function VirtualTryOnModal({
         ) : (
           /* Live Camera Feed View */
           <div
+            ref={stageRef}
             className="relative h-full w-full flex items-center justify-center overflow-hidden touch-none"
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
@@ -422,8 +519,9 @@ export function VirtualTryOnModal({
               </div>
             )}
 
-            {/* Body Pose Outline Silhouette Guide */}
-            {showBodyGuide && (
+            {/* Body Pose Outline Silhouette Guide — only shown while tracking
+                hasn't locked onto a person yet (or auto-track is off) */}
+            {showBodyGuide && !(autoTrack && bodyAnchor) && (
               <div className="pointer-events-none absolute inset-0 flex items-center justify-center z-10 opacity-30">
                 <svg viewBox="0 0 200 300" className="h-[75%] w-auto stroke-white fill-none stroke-[1.5] stroke-dasharray-[4]">
                   {/* Head & Neck Guide */}
@@ -432,6 +530,18 @@ export function VirtualTryOnModal({
                   {/* Shoulders & Upper Body Guide */}
                   <path d="M40 95 C60 85, 140 85, 160 95 L175 140 L155 150 L145 120 V250 H55 V120 L45 150 L25 140 Z" />
                 </svg>
+              </div>
+            )}
+
+            {/* Auto-track status hint */}
+            {autoTrack && (
+              <div className="pointer-events-none absolute top-3 left-3 z-20 flex items-center gap-1.5 rounded-full bg-black/60 backdrop-blur-md px-3 py-1.5 border border-white/15">
+                <span
+                  className={`h-1.5 w-1.5 rounded-full ${bodyAnchor ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`}
+                />
+                <span className="text-[10px] font-bold text-white/90">
+                  {bodyAnchor ? 'Tracking body' : 'Step into frame…'}
+                </span>
               </div>
             )}
 
@@ -444,6 +554,7 @@ export function VirtualTryOnModal({
               }}
             >
               <img
+                ref={garmentImgRef}
                 src={currentGarmentImage}
                 alt={product.name}
                 draggable={false}
@@ -454,6 +565,17 @@ export function VirtualTryOnModal({
             {/* Floating Adjustments Toolbar */}
             {showControls && (
               <div className="absolute right-3 top-3 z-30 flex flex-col gap-2 bg-black/60 backdrop-blur-md p-2 rounded-2xl border border-white/15">
+                <button
+                  type="button"
+                  onClick={() => setAutoTrack((v) => !v)}
+                  className={`tap-press h-8 w-8 rounded-xl flex items-center justify-center transition-colors ${
+                    autoTrack ? 'bg-white text-black font-bold' : 'bg-white/10 text-white'
+                  }`}
+                  title={autoTrack ? 'Auto-Tracking On (tap to switch to manual)' : 'Auto-Tracking Off (tap to re-enable)'}
+                >
+                  <HugeiconsIcon icon={ScanFaceIcon} size={15} />
+                </button>
+
                 <button
                   type="button"
                   onClick={() => setScale((s) => Math.min(s + 0.08, 1.8))}
@@ -488,9 +610,10 @@ export function VirtualTryOnModal({
                     setOffsetY(0)
                     setScale(1.0)
                     setOpacity(0.92)
+                    setAutoTrack(true)
                   }}
                   className="tap-press h-8 w-8 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
-                  title="Reset Position"
+                  title="Reset Position & Re-enable Tracking"
                 >
                   <HugeiconsIcon icon={RefreshIcon} size={14} />
                 </button>
