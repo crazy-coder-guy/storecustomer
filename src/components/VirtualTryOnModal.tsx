@@ -78,8 +78,6 @@ export function VirtualTryOnModal({
   const [stream, setStream] = useState<MediaStream | null>(null)
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user')
   const [isLoadingCamera, setIsLoadingCamera] = useState(false)
-  const [useUploadedImage, setUseUploadedImage] = useState(false)
-  const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null)
 
   // Garment overlay adjustment states
   const [scale, setScale] = useState(1.0)
@@ -110,7 +108,6 @@ export function VirtualTryOnModal({
   // Start Camera Stream with Safari & mobile iOS full compatibility
   const startCamera = useCallback(async () => {
     setIsLoadingCamera(true)
-    setUseUploadedImage(false)
 
     // Stop existing stream tracks first
     if (stream) {
@@ -172,7 +169,7 @@ export function VirtualTryOnModal({
 
   // Clean up camera stream when modal closes
   useEffect(() => {
-    if (isOpen && !useUploadedImage && !capturedPhotoUrl) {
+    if (isOpen && !capturedPhotoUrl) {
       startCamera()
     }
 
@@ -199,20 +196,6 @@ export function VirtualTryOnModal({
   }, [isOpen])
 
   if (!isOpen) return null
-
-  // Handle Photo Upload as fallback
-  function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (file) {
-      if (stream) {
-        stream.getTracks().forEach((t) => t.stop())
-        setStream(null)
-      }
-      const url = URL.createObjectURL(file)
-      setUploadedImageUrl(url)
-      setUseUploadedImage(true)
-    }
-  }
 
   // Toggle Camera Front / Back
   function toggleCameraFacing() {
@@ -249,16 +232,8 @@ export function VirtualTryOnModal({
     canvas.width = width
     canvas.height = height
 
-    // Draw background (video or uploaded image)
-    if (useUploadedImage && uploadedImageUrl) {
-      const img = new Image()
-      img.crossOrigin = 'anonymous'
-      img.onload = () => {
-        ctx.drawImage(img, 0, 0, width, height)
-        overlayGarmentAndSave(ctx, width, height)
-      }
-      img.src = uploadedImageUrl
-    } else if (video && video.readyState === 4) {
+    // Draw background (video camera stream)
+    if (video && video.readyState === 4) {
       // Flip canvas if front facing camera
       ctx.save()
       if (facingMode === 'user') {
@@ -366,16 +341,14 @@ export function VirtualTryOnModal({
           </button>
 
           {/* Switch Camera Button */}
-          {!useUploadedImage && (
-            <button
-              type="button"
-              onClick={toggleCameraFacing}
-              className="tap-press flex h-9 w-9 items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white transition-all cursor-pointer border border-white/15"
-              title="Flip Camera"
-            >
-              <HugeiconsIcon icon={RefreshIcon} size={16} />
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={toggleCameraFacing}
+            className="tap-press flex h-9 w-9 items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white transition-all cursor-pointer border border-white/15"
+            title="Flip Camera"
+          >
+            <HugeiconsIcon icon={RefreshIcon} size={16} />
+          </button>
 
           {/* Close Modal Button */}
           <button
@@ -422,7 +395,7 @@ export function VirtualTryOnModal({
             </div>
           </div>
         ) : (
-          /* Live Camera Feed or Uploaded Image View */
+          /* Live Camera Feed View */
           <div
             className="relative h-full w-full flex items-center justify-center overflow-hidden touch-none"
             onPointerDown={handlePointerDown}
@@ -430,27 +403,16 @@ export function VirtualTryOnModal({
             onPointerUp={handlePointerUp}
           >
             {/* Background Stream (Video Camera Feed) */}
-            {!useUploadedImage && (
-              <video
-                ref={videoRef}
-                autoPlay
-                playsInline
-                muted
-                onLoadedMetadata={(e) => {
-                  e.currentTarget.play().catch(() => {})
-                }}
-                className={`h-full w-full object-cover ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
-              />
-            )}
-
-            {/* Background Stream (Uploaded Photo Fallback) */}
-            {useUploadedImage && uploadedImageUrl && (
-              <img
-                src={uploadedImageUrl}
-                alt="Uploaded Try-On Base"
-                className="h-full w-full object-cover"
-              />
-            )}
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              onLoadedMetadata={(e) => {
+                e.currentTarget.play().catch(() => {})
+              }}
+              className={`h-full w-full object-cover ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
+            />
 
             {/* Camera Loading Overlay */}
             {isLoadingCamera && (
@@ -572,7 +534,7 @@ export function VirtualTryOnModal({
                     }
                   }}
                   className={`h-6 w-6 rounded-full border transition-transform cursor-pointer ${
-                    selectedVariant?.colorId === color.id ? 'ring-2 ring-white ring-offset-2 ring-offset-black scale-110' : 'border-white/20 opacity-70 hover:opacity-100'
+                    isSelected ? 'ring-2 ring-white ring-offset-2 ring-offset-black scale-110' : 'border-white/20 opacity-70 hover:opacity-100'
                   }`}
                   style={{ backgroundColor: color.hexCode }}
                   title={color.name}
