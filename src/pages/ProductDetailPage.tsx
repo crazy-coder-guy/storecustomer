@@ -23,7 +23,9 @@ import {
   Search01Icon,
   Cancel01Icon,
   RulerIcon,
+  Camera01Icon,
 } from '@hugeicons/core-free-icons'
+import { VirtualTryOnModal } from '../components/VirtualTryOnModal'
 
 interface ColorOption {
   id: string
@@ -42,6 +44,7 @@ export function ProductDetailPage() {
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false)
   const [isZoomOpen, setIsZoomOpen] = useState(false)
   const [isShareOpen, setIsShareOpen] = useState(false)
+  const [isTryOnOpen, setIsTryOnOpen] = useState(false)
 
   const { data: product, isLoading, isError } = useProductDetail(id)
 
@@ -509,6 +512,29 @@ export function ProductDetailPage() {
                     </button>
                   </div>
 
+                  {/* VIRTUAL TRY-ON ROOM CTA BUTTON */}
+                  <button
+                    type="button"
+                    onClick={() => setIsTryOnOpen(true)}
+                    className="w-full flex items-center justify-between p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-neutral-900 via-purple-950 to-neutral-900 text-white hover:opacity-95 transition-all shadow-md group cursor-pointer border border-purple-500/30 my-2"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-500/20 text-purple-300 group-hover:scale-110 transition-transform shrink-0">
+                        <HugeiconsIcon icon={Camera01Icon} size={20} strokeWidth={2} />
+                      </div>
+                      <div className="text-left">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-extrabold tracking-wider uppercase text-white">Virtual Try-On Room</span>
+                          <span className="rounded-full bg-purple-500/30 border border-purple-400/40 px-2 py-0.5 text-[9px] font-black uppercase text-purple-200">Live Camera</span>
+                        </div>
+                        <p className="text-[11px] text-neutral-300 font-medium">Try this garment on your body using camera</p>
+                      </div>
+                    </div>
+                    <span className="text-xs font-extrabold text-purple-300 group-hover:translate-x-1 transition-transform flex items-center gap-1 shrink-0">
+                      Try On <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={2.4} />
+                    </span>
+                  </button>
+
                   {/* 3 Value Pillars Row: Exactly styled and proportioned without card look */}
                   <div className="grid grid-cols-3 border-y border-black/10 py-3.5 my-1">
                     {/* Free Shipping */}
@@ -744,6 +770,19 @@ export function ProductDetailPage() {
           mrp={effectiveMrp}
           discountPercent={discountPercent}
           colors={colors}
+        />
+      )}
+
+      {/* Virtual Try-On Modal */}
+      {product && isTryOnOpen && (
+        <VirtualTryOnModal
+          product={product}
+          selectedColor={selectedColor}
+          selectedSize={selectedSize}
+          onClose={() => setIsTryOnOpen(false)}
+          onAddToCart={async (variantId, qty) => {
+            await addToCart(variantId, qty)
+          }}
         />
       )}
 

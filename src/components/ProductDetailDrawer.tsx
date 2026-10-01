@@ -18,7 +18,9 @@ import {
   CreditCardIcon,
   CheckmarkCircle02Icon,
   RulerIcon,
+  Camera01Icon,
 } from '@hugeicons/core-free-icons'
+import { VirtualTryOnModal } from './VirtualTryOnModal'
 
 interface ProductDetailDrawerProps {
   productId: string | null
@@ -45,6 +47,7 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false)
   const [isAdding, setIsAdding] = useState(false)
   const [addedSuccess, setAddedSuccess] = useState(false)
+  const [isTryOnOpen, setIsTryOnOpen] = useState(false)
 
   const colors = useMemo<ColorOption[]>(() => {
     if (!product) return []
@@ -330,6 +333,29 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
                   )
                 })}
               </div>
+
+              {/* VIRTUAL TRY-ON ROOM CTA BUTTON */}
+              <button
+                type="button"
+                onClick={() => setIsTryOnOpen(true)}
+                className="w-full flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-neutral-900 via-purple-950 to-neutral-900 text-white hover:opacity-95 transition-all shadow-xs group cursor-pointer border border-purple-500/30 my-2.5"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/20 text-purple-300 group-hover:scale-105 transition-transform shrink-0">
+                    <HugeiconsIcon icon={Camera01Icon} size={16} strokeWidth={2} />
+                  </div>
+                  <div className="text-left">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[11px] font-extrabold tracking-wider uppercase text-white">Virtual Try-On Room</span>
+                      <span className="rounded-full bg-purple-500/30 px-1.5 py-0.2 text-[8px] font-black uppercase text-purple-200">Camera</span>
+                    </div>
+                    <p className="text-[10px] text-neutral-300 font-medium">Fit dress on your body via live camera</p>
+                  </div>
+                </div>
+                <span className="text-[11px] font-extrabold text-purple-300 group-hover:translate-x-1 transition-transform flex items-center gap-1 shrink-0">
+                  Try On <HugeiconsIcon icon={ArrowRight01Icon} size={12} strokeWidth={2.4} />
+                </span>
+              </button>
             </div>
 
             {/* Accordion 1: Product Description */}
@@ -556,6 +582,19 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
             </div>
           </div>
         </div>
+      )}
+
+      {/* Virtual Try-On Modal inside Quick Drawer */}
+      {product && isTryOnOpen && (
+        <VirtualTryOnModal
+          product={product}
+          selectedColor={selectedColor}
+          selectedSize={selectedSize}
+          onClose={() => setIsTryOnOpen(false)}
+          onAddToCart={async (variantId, qty) => {
+            await addToCart(variantId, qty)
+          }}
+        />
       )}
     </div>,
     document.body
