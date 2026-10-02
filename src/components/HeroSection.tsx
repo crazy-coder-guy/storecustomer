@@ -9,10 +9,13 @@ interface HeroSectionProps {
 
 export function HeroSection({ onShopClick }: HeroSectionProps) {
   const { data: settings } = useStorefrontSettings()
-  const heroTitle = settings?.heroTitle || 'Modern Essentials for Everyday Style'
+  const heroTitle =
+    settings?.heroTitle && settings.heroTitle !== 'Modern Essentials for Everyday Style'
+      ? settings.heroTitle
+      : 'Premium Oversized & Streetwear T-Shirts in India'
   const heroSubtitle =
     settings?.heroSubtitle ||
-    'Refined apparel crafted from exceptional fabrics, built for everyday wear. Designed by Kaiira.'
+    'Refined apparel crafted from exceptional fabrics, built for everyday wear. Designed by KAIIRA.'
 
   return (
     <section className="relative overflow-hidden bg-white pt-4 pb-2 sm:py-6 lg:py-8">
