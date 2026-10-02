@@ -346,14 +346,14 @@ export function CartPage() {
                         {totalDiscount > 0 && (
                           <div className="flex justify-between items-center text-black">
                             <span className="font-semibold">Discount</span>
-                            <span className="font-black text-base">-{formatCurrency(totalDiscount)}</span>
+                            <span className="font-black text-base text-emerald-700">{formatCurrency(totalDiscount)}</span>
                           </div>
                         )}
 
                         {couponDiscount > 0 && (
                           <div className="flex justify-between items-center text-black">
                             <span className="font-semibold">Coupon ({couponCode})</span>
-                            <span className="font-black text-base">-{formatCurrency(couponDiscount)}</span>
+                            <span className="font-black text-base text-rose-600">{formatCurrency(couponDiscount)}</span>
                           </div>
                         )}
 
@@ -390,7 +390,7 @@ export function CartPage() {
                           type="button"
                           onClick={() => navigate('/checkout')}
                           disabled={hasStockIssue}
-                          className="w-full flex items-center justify-between rounded-2xl bg-black py-2.5 pl-6 pr-2.5 text-sm sm:text-base font-extrabold text-white hover:bg-neutral-800 transition-all shadow-md active:scale-98 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-black"
+                          className="w-full hidden lg:flex items-center justify-between rounded-2xl bg-black py-2.5 pl-6 pr-2.5 text-sm sm:text-base font-extrabold text-white hover:bg-neutral-800 transition-all shadow-md active:scale-98 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-black"
                         >
                           <span>Proceed to Checkout</span>
                           <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-white text-black shadow-xs">
@@ -416,7 +416,7 @@ export function CartPage() {
                             <HugeiconsIcon icon={DeliveryTruck01Icon} size={16} />
                           </div>
                           <p className="text-xs font-black text-black">Free Shipping</p>
-                          <p className="text-[10px] text-black/50">Orders &gt; ₹399</p>
+                          <p className="text-[10px] text-black/50">Orders above ₹399</p>
                         </div>
 
                         <div className="space-y-1">
@@ -450,7 +450,11 @@ export function CartPage() {
 
                 {/* Floating Bottom Bar for Mobile View */}
                 {items.length > 0 && (
-                  <div className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-white/95 backdrop-blur-md border-t border-black/10 px-4 py-3 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
+                  <div
+                    className={`fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-white/95 backdrop-blur-md border-t border-black/10 px-4 py-3 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] transition-all duration-300 ease-in-out ${
+                      isFooterVisible ? 'translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'
+                    }`}
+                  >
                     <div className="flex items-center justify-between gap-3 max-w-md mx-auto">
                       <div>
                         <span className="block text-[10px] font-bold text-black/50 uppercase tracking-wider">
@@ -489,6 +493,8 @@ export function CartPage() {
         </main>
       </div>
 
+      {/* Sentinel to detect when user reaches the footer */}
+      <div ref={footerSentinelRef} className="h-1 w-full" aria-hidden="true" />
       <Footer />
 
       {/* Slide-over Product Details Drawer */}
