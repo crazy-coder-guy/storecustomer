@@ -11,12 +11,16 @@ import {
   PackageIcon,
 } from '@hugeicons/core-free-icons'
 import { useSeoMeta } from '../hooks/useSeoMeta'
+import { buildOrganizationJsonLd } from '../utils/seo'
 
 export function AboutPage() {
   useSeoMeta({
-    title: 'About Us',
-    description: 'Learn about KAIIRA — premium streetwear and oversized t-shirts designed for everyday style.',
+    title: 'About Us | KAIIRA Clothing',
+    exactTitle: true,
+    description:
+      'KAIIRA is an Indian streetwear and direct-to-consumer apparel brand founded in Tamil Nadu, dedicated to premium heavyweight oversized t-shirts and modern essentials.',
     path: '/about',
+    jsonLd: buildOrganizationJsonLd(),
   })
 
   return (

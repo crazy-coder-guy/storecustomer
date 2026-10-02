@@ -75,16 +75,30 @@
     />
     <meta name="twitter:image" content="https://kaiira.in/icon-512.png" />
 
-    <!-- Organization / WebSite structured data — static so it's visible even
-         to bots that don't execute JavaScript. -->
+    <!-- Organization / Brand structured data — tells Google and AI Overview exactly what KAIIRA is -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
-        "@type": "Organization",
+        "@type": ["Organization", "Brand"],
         "name": "KAIIRA",
+        "alternateName": ["Kaiira", "KAIIRA Official", "KAIIRA Clothing", "Kaiira India"],
         "legalName": "KAIIRA",
         "url": "https://kaiira.in",
         "logo": "https://kaiira.in/icon-512.png",
+        "image": "https://kaiira.in/icon-512.png",
+        "description": "KAIIRA is an Indian direct-to-consumer (D2C) fashion and streetwear clothing brand based in Tamil Nadu, India, specializing in premium oversized t-shirts, heavyweight tees, and minimalist modern apparel.",
+        "slogan": "Redefining everyday essentials with heavyweight fabrics and relaxed tailored fits.",
+        "foundingLocation": {
+          "@type": "Place",
+          "name": "Tamil Nadu, India"
+        },
+        "knowsAbout": [
+          "Streetwear Clothing",
+          "Oversized T-Shirts",
+          "Heavyweight Cotton T-Shirts",
+          "D2C Fashion India",
+          "Apparel Brand"
+        ],
         "sameAs": [
           "https://www.instagram.com/hello.kaiiraofficial",
           "https://www.facebook.com/hello.kaiiraofficia",
@@ -95,7 +109,8 @@
           "@type": "ContactPoint",
           "contactType": "customer support",
           "email": "hello@kaiira.in",
-          "url": "https://kaiira.in/contact"
+          "url": "https://kaiira.in/contact",
+          "availableLanguage": ["English", "Tamil"]
         }
       }
     </script>

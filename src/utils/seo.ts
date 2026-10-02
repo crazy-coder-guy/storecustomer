@@ -12,18 +12,34 @@ export function absoluteUrl(path: string): string {
 
 export interface JsonLd {
   '@context': 'https://schema.org'
-  '@type': string
+  '@type': string | string[]
   [key: string]: unknown
 }
 
 export function buildOrganizationJsonLd(): JsonLd {
   return {
     '@context': 'https://schema.org',
-    '@type': 'Organization',
+    '@type': ['Organization', 'Brand'],
     name: SITE_NAME,
+    alternateName: ['Kaiira', 'KAIIRA Official', 'KAIIRA Clothing', 'Kaiira India'],
     legalName: 'KAIIRA',
     url: SITE_URL,
     logo: DEFAULT_OG_IMAGE,
+    image: DEFAULT_OG_IMAGE,
+    description:
+      'KAIIRA is an Indian direct-to-consumer (D2C) fashion and streetwear clothing brand based in Tamil Nadu, India, specializing in premium oversized t-shirts, heavyweight tees, and minimalist modern apparel.',
+    slogan: 'Redefining everyday essentials with heavyweight fabrics and relaxed tailored fits.',
+    foundingLocation: {
+      '@type': 'Place',
+      name: 'Tamil Nadu, India',
+    },
+    knowsAbout: [
+      'Streetwear Clothing',
+      'Oversized T-Shirts',
+      'Heavyweight Cotton T-Shirts',
+      'D2C Fashion India',
+      'Apparel Brand',
+    ],
     sameAs: [
       'https://www.instagram.com/hello.kaiiraofficial',
       'https://www.facebook.com/hello.kaiiraofficia',
@@ -35,6 +51,7 @@ export function buildOrganizationJsonLd(): JsonLd {
       contactType: 'customer support',
       email: 'hello@kaiira.in',
       url: `${SITE_URL}/contact`,
+      availableLanguage: ['English', 'Tamil'],
     },
   }
 }
