@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Navbar } from '../components/Navbar'
 import { Footer } from '../components/Footer'
@@ -19,6 +19,7 @@ import {
   ArrowRight01Icon,
   ArrowLeft01Icon,
   Tag01Icon,
+  Cancel01Icon,
 } from '@hugeicons/core-free-icons'
 import { useSeoMeta } from '../hooks/useSeoMeta'
 
@@ -33,14 +34,29 @@ export function CartPage() {
     totalDiscount,
     deliveryFee,
     finalTotal,
+    couponCode,
+    couponDiscount,
+    isApplyingCoupon,
     removeFromCart,
     updateQuantity,
     clearCart,
+    applyCoupon,
+    removeCoupon,
   } = useCart()
 
   const [selectedDrawerProductId, setSelectedDrawerProductId] = useState<string | null>(null)
+  const [couponInput, setCouponInput] = useState('')
 
   const hasStockIssue = items.some((item) => item.stockQuantity === 0 || item.quantity > item.stockQuantity)
+
+  function handleApplyCoupon(e: FormEvent) {
+    e.preventDefault()
+    const code = couponInput.trim()
+    if (!code) return
+    applyCoupon(code)
+      .then(() => setCouponInput(''))
+      .catch(() => {})
+  }
 
 
 
@@ -264,6 +280,44 @@ export function CartPage() {
                         Order Summary
                       </h2>
 
+                      {/* Coupon code entry */}
+                      <div>
+                        {couponCode ? (
+                          <div className="flex items-center justify-between rounded-xl border border-black/15 bg-neutral-50 px-4 py-2.5">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <HugeiconsIcon icon={Tag01Icon} size={16} className="text-black/60 shrink-0" />
+                              <span className="text-sm font-black text-black truncate">{couponCode}</span>
+                              <span className="text-xs font-semibold text-emerald-700">applied</span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => removeCoupon()}
+                              className="shrink-0 p-1 text-black/40 hover:text-red-600 transition-colors cursor-pointer"
+                              aria-label="Remove coupon"
+                            >
+                              <HugeiconsIcon icon={Cancel01Icon} size={16} />
+                            </button>
+                          </div>
+                        ) : (
+                          <form onSubmit={handleApplyCoupon} className="flex items-center gap-2">
+                            <input
+                              type="text"
+                              value={couponInput}
+                              onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                              placeholder="Have a coupon code?"
+                              className="min-w-0 flex-1 rounded-xl border border-black/15 bg-white px-3.5 py-2.5 text-sm font-bold uppercase tracking-wide text-black placeholder:normal-case placeholder:font-semibold placeholder:text-black/35 outline-none focus:border-black/40 transition-colors"
+                            />
+                            <button
+                              type="submit"
+                              disabled={isApplyingCoupon || !couponInput.trim()}
+                              className="shrink-0 rounded-xl bg-black px-4 py-2.5 text-xs font-extrabold text-white hover:bg-neutral-800 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                            >
+                              {isApplyingCoupon ? 'Applying…' : 'Apply'}
+                            </button>
+                          </form>
+                        )}
+                      </div>
+
                       {/* Line Breakdown without card borders */}
                       <div className="space-y-3.5 text-sm font-semibold text-black/65">
                         <div className="flex justify-between items-center">
@@ -275,6 +329,13 @@ export function CartPage() {
                           <div className="flex justify-between items-center text-black">
                             <span className="font-semibold">Discount</span>
                             <span className="font-black text-base">-{formatCurrency(totalDiscount)}</span>
+                          </div>
+                        )}
+
+                        {couponDiscount > 0 && (
+                          <div className="flex justify-between items-center text-black">
+                            <span className="font-semibold">Coupon ({couponCode})</span>
+                            <span className="font-black text-base">-{formatCurrency(couponDiscount)}</span>
                           </div>
                         )}
 
@@ -293,10 +354,10 @@ export function CartPage() {
                       </div>
 
                       {/* Premium Green Savings Pill */}
-                      {totalDiscount > 0 && (
+                      {totalDiscount + couponDiscount > 0 && (
                         <div className="rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 flex items-center gap-2.5 text-xs sm:text-sm font-bold text-emerald-800 shadow-2xs">
                           <HugeiconsIcon icon={Tag01Icon} size={18} className="text-emerald-700 shrink-0" />
-                          <span>You save {formatCurrency(totalDiscount)} on this order.</span>
+                          <span>You save {formatCurrency(totalDiscount + couponDiscount)} on this order.</span>
                         </div>
                       )}
 
@@ -381,9 +442,9 @@ export function CartPage() {
                           <span className="text-lg font-black text-black">
                             {formatCurrency(finalTotal)}
                           </span>
-                          {totalDiscount > 0 && (
+                          {totalDiscount + couponDiscount > 0 && (
                             <span className="text-[10px] font-bold text-emerald-700">
-                              (Save {formatCurrency(totalDiscount)})
+                              (Save {formatCurrency(totalDiscount + couponDiscount)})
                             </span>
                           )}
                         </div>

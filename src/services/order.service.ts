@@ -5,6 +5,7 @@ function coerceOrder(order: Order): Order {
   return {
     ...order,
     totalAmount: Number(order.totalAmount),
+    discountAmount: Number(order.discountAmount ?? 0),
     items: order.items.map((item) => ({ ...item, unitPrice: Number(item.unitPrice) })),
   }
 }

@@ -42,7 +42,8 @@ export function CheckoutPage() {
 
   const navigate = useNavigate()
   const { user } = useAuth()
-  const { items, cartCount, subtotal, totalDiscount, deliveryFee, finalTotal, clearCart } = useCart()
+  const { items, cartCount, subtotal, totalDiscount, deliveryFee, finalTotal, couponCode, couponDiscount, clearCart } =
+    useCart()
   const { data: savedAddresses } = useAddresses(Boolean(user))
   const [isPlacingOrder, setIsPlacingOrder] = useState(false)
   const [selectedAddressId, setSelectedAddressId] = useState<string | 'new' | null>(null)
@@ -94,7 +95,7 @@ export function CheckoutPage() {
       // The server cart already stores real variant ids, so no client-side
       // re-resolution is needed here.
       const lineItems = items.map((item) => ({ variantId: item.variantId, quantity: item.quantity }))
-      const order = await createOrder({ ...values, items: lineItems })
+      const order = await createOrder({ ...values, items: lineItems, couponCode: couponCode ?? undefined })
       const razorpayOrder = await createRazorpayOrder(order.id)
 
       await openRazorpayCheckout({
@@ -392,6 +393,13 @@ export function CheckoutPage() {
                     <div className="flex justify-between items-center text-emerald-600 font-medium">
                       <span>Bag Discount</span>
                       <span className="font-semibold">-{formatCurrency(totalDiscount)}</span>
+                    </div>
+                  )}
+
+                  {couponDiscount > 0 && (
+                    <div className="flex justify-between items-center text-emerald-600 font-medium">
+                      <span>Coupon ({couponCode})</span>
+                      <span className="font-semibold">-{formatCurrency(couponDiscount)}</span>
                     </div>
                   )}
 

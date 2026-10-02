@@ -141,6 +141,7 @@ export interface CreateOrderInput {
   customerPhone: string
   shippingAddress: string
   items: { variantId: string; quantity: number }[]
+  couponCode?: string
 }
 
 export interface Address {
@@ -176,6 +177,8 @@ export interface Order {
   status: OrderStatus
   paymentStatus: PaymentStatus
   totalAmount: number
+  discountAmount: number
+  couponCode: string | null
   itemsCount: number
   items: OrderItemResponse[]
   shippingAddress: string
@@ -217,6 +220,8 @@ export interface CartSummary {
   mrpTotal: number
   discount: number
   deliveryFee: number
+  couponCode: string | null
+  couponDiscount: number
   total: number
   freeDeliveryThreshold: number
 }

@@ -57,10 +57,12 @@ export function useSeoMeta({ title, exactTitle = false, description, path, robot
     const canonicalUrl = absoluteUrl(canonicalPath)
     const ogImage = image ?? absoluteUrl('/icon-512.png')
 
-    const robotsContent =
-      robots === 'index, follow'
-        ? 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1'
-        : robots
+    const isHome = canonicalPath === '/'
+    const defaultRobotsContent = isHome
+      ? 'index, follow, max-snippet:-1, max-image-preview:none, max-video-preview:-1'
+      : 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1'
+
+    const robotsContent = robots === 'index, follow' ? defaultRobotsContent : robots
 
     upsertMeta('name', 'robots', robotsContent)
     upsertMeta('name', 'googlebot', robotsContent)

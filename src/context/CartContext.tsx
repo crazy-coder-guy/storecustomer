@@ -13,6 +13,8 @@ const EMPTY_SUMMARY: CartSummary = {
   mrpTotal: 0,
   discount: 0,
   deliveryFee: 0,
+  couponCode: null,
+  couponDiscount: 0,
   total: 0,
   freeDeliveryThreshold: 0,
 }
@@ -25,10 +27,15 @@ interface CartContextType {
   totalDiscount: number
   deliveryFee: number
   finalTotal: number
+  couponCode: string | null
+  couponDiscount: number
+  isApplyingCoupon: boolean
   addToCart: (variantId: string, quantity?: number) => Promise<void>
   removeFromCart: (itemId: string) => void
   updateQuantity: (itemId: string, qty: number) => void
   clearCart: () => void
+  applyCoupon: (code: string) => Promise<void>
+  removeCoupon: () => void
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
@@ -73,11 +80,31 @@ export function CartProvider({ children }: { children: ReactNode }) {
     onError: (err) => toast.error(getErrorMessage(err)),
   })
 
+  const applyCouponMutation = useMutation({
+    mutationFn: (code: string) => cartService.applyCoupon(code),
+    onSuccess: (updated) => {
+      queryClient.setQueryData(cartKey, updated)
+      toast.success(`Coupon "${updated.summary.couponCode}" applied`)
+    },
+    onError: (err) => toast.error(getErrorMessage(err)),
+  })
+
+  const removeCouponMutation = useMutation({
+    mutationFn: () => cartService.removeCoupon(),
+    onSuccess: (updated) => {
+      queryClient.setQueryData(cartKey, updated)
+      toast('Coupon removed')
+    },
+    onError: (err) => toast.error(getErrorMessage(err)),
+  })
+
   const cartCount = items.reduce((sum, item) => sum + item.quantity, 0)
   const subtotal = summary.subtotal
   const totalDiscount = summary.discount
   const deliveryFee = summary.deliveryFee
   const finalTotal = summary.total
+  const couponCode = summary.couponCode
+  const couponDiscount = summary.couponDiscount
 
   async function addToCart(variantId: string, quantity = 1) {
     try {
@@ -103,6 +130,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
     clearMutation.mutate()
   }
 
+  async function applyCoupon(code: string) {
+    await applyCouponMutation.mutateAsync(code)
+  }
+
+  function removeCoupon() {
+    removeCouponMutation.mutate()
+  }
+
   return (
     <CartContext.Provider
       value={{
@@ -113,10 +148,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
         totalDiscount,
         deliveryFee,
         finalTotal,
+        couponCode,
+        couponDiscount,
+        isApplyingCoupon: applyCouponMutation.isPending,
         addToCart,
         removeFromCart,
         updateQuantity,
         clearCart,
+        applyCoupon,
+        removeCoupon,
       }}
     >
       {children}

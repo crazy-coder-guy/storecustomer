@@ -43,15 +43,15 @@
     />
     <meta
       name="robots"
-      content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"
+      content="index, follow, max-snippet:-1, max-image-preview:none, max-video-preview:-1"
     />
     <meta
       name="googlebot"
-      content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"
+      content="index, follow, max-snippet:-1, max-image-preview:none, max-video-preview:-1"
     />
     <meta
       name="bingbot"
-      content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"
+      content="index, follow, max-snippet:-1, max-image-preview:none, max-video-preview:-1"
     />
     <link rel="canonical" href="https://kaiira.in/" />
 
@@ -67,7 +67,7 @@
     <meta property="og:image" content="https://kaiira.in/icon-512.png" />
 
     <!-- Twitter / X Card -->
-    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="KAIIRA | Premium Oversized T-Shirts &amp; Streetwear" />
     <meta
       name="twitter:description"
@@ -110,6 +110,52 @@
           "target": "https://kaiira.in/search?q={search_term_string}",
           "query-input": "required name=search_term_string"
         }
+      }
+    </script>
+    <!-- Site Navigation / Sitelinks structured data for search engine quick links -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        "name": "Quick Links",
+        "description": "Important links and customer resources for KAIIRA",
+        "itemListElement": [
+          {
+            "@type": "SiteNavigationElement",
+            "position": 1,
+            "name": "Track Your Order",
+            "description": "Check real-time order tracking and delivery status",
+            "url": "https://kaiira.in/track-order"
+          },
+          {
+            "@type": "SiteNavigationElement",
+            "position": 2,
+            "name": "Shipping & Delivery Info",
+            "description": "Shipping timelines, express delivery, and fulfillment guidelines",
+            "url": "https://kaiira.in/shipping-info"
+          },
+          {
+            "@type": "SiteNavigationElement",
+            "position": 3,
+            "name": "Exchange Policy",
+            "description": "Hassle-free 7-day exchange window and policy",
+            "url": "https://kaiira.in/returns-exchanges"
+          },
+          {
+            "@type": "SiteNavigationElement",
+            "position": 4,
+            "name": "Size & Fit Guide",
+            "description": "Measurements and sizing chart for oversized tees and apparel",
+            "url": "https://kaiira.in/size-guide"
+          },
+          {
+            "@type": "SiteNavigationElement",
+            "position": 5,
+            "name": "Help & Contact Us",
+            "description": "Get in touch with KAIIRA customer support",
+            "url": "https://kaiira.in/contact"
+          }
+        ]
       }
     </script>
 
