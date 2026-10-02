@@ -191,13 +191,13 @@ export function ProductCard({
               onClick={() => onOpenDetail(product.id)}
               className="block text-left w-full cursor-pointer"
             >
-              <h3 className="font-bold text-[14px] sm:text-[15.5px] text-neutral-900 tracking-tight leading-snug line-clamp-1 group-hover:text-black transition-colors">
+              <h3 className="font-bold text-[14px] sm:text-[15.5px] text-neutral-900 tracking-tight leading-snug line-clamp-2 min-h-[2.5em] group-hover:text-black transition-colors">
                 {product.name}
               </h3>
             </button>
           ) : (
             <Link to={`/products/${product.slug}`} className="block">
-              <h3 className="font-bold text-[14px] sm:text-[15.5px] text-neutral-900 tracking-tight leading-snug line-clamp-1 group-hover:text-black transition-colors">
+              <h3 className="font-bold text-[14px] sm:text-[15.5px] text-neutral-900 tracking-tight leading-snug line-clamp-2 min-h-[2.5em] group-hover:text-black transition-colors">
                 {product.name}
               </h3>
             </Link>
