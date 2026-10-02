@@ -67,6 +67,15 @@ export function buildProductJsonLd(product: ProductDetail): JsonLd {
   const totalStock = activeVariants.reduce((sum, v) => sum + v.stockQuantity, 0)
   const price = activeVariants.find((v) => v.price != null)?.price ?? product.basePrice
   const representativeSku = activeVariants[0]?.sku
+  // Launching Soon products are visible but genuinely not purchasable yet —
+  // real variant stock numbers (often 0, sometimes pre-loaded) don't reflect
+  // that, so this takes priority regardless of totalStock.
+  const availability =
+    product.status === 'LAUNCHING_SOON'
+      ? 'https://schema.org/OutOfStock'
+      : totalStock > 0
+        ? 'https://schema.org/InStock'
+        : 'https://schema.org/OutOfStock'
 
   return {
     '@context': 'https://schema.org',
@@ -86,7 +95,7 @@ export function buildProductJsonLd(product: ProductDetail): JsonLd {
       url: absoluteUrl(`/products/${product.slug}`),
       priceCurrency: 'INR',
       price: Number(price).toFixed(2),
-      availability: totalStock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+      availability,
       itemCondition: 'https://schema.org/NewCondition',
     },
   }

@@ -116,10 +116,14 @@ export function ProductDetailPage() {
         })
       })
     const list = Array.from(seen.values()).sort((a, b) => a.sortOrder - b.sortOrder)
+    // A Launching Soon product usually has no real stock entered yet —
+    // that's expected, not "sold out", so don't strike through every size.
+    // Purchasing is already blocked elsewhere (Add to Bag + backend).
+    const isLaunchingSoonProduct = product.status === 'LAUNCHING_SOON'
     // If no sizes configured yet, provide standard sizes (no stock data to
     // gate on, so treat them all as available rather than guessing).
     return list.length > 0
-      ? list.map((s) => ({ code: s.code, inStock: s.stock > 0 }))
+      ? list.map((s) => ({ code: s.code, inStock: isLaunchingSoonProduct || s.stock > 0 }))
       : ['XS', 'S', 'M', 'L', 'XL', 'XXL'].map((code) => ({ code, inStock: true }))
   }, [product, selectedColor])
 
@@ -203,8 +207,9 @@ export function ProductDetailPage() {
     (v) => (!selectedColor || v.color?.hexCode === selectedColor.hex) && v.size?.code === selectedSize
   ) || product.variants[0]
 
-  const isSelectionSoldOut = !selectedVariant || selectedVariant.stockQuantity <= 0
-  const isProductSoldOut = product.variants.every((v) => v.stockQuantity <= 0)
+  const isLaunchingSoon = product.status === 'LAUNCHING_SOON'
+  const isSelectionSoldOut = !isLaunchingSoon && (!selectedVariant || selectedVariant.stockQuantity <= 0)
+  const isProductSoldOut = !isLaunchingSoon && product.variants.every((v) => v.stockQuantity <= 0)
 
   const effectivePrice = selectedVariant?.price ?? product.basePrice
   const effectiveMrp = product.mrp ?? Math.round(effectivePrice * 1.55)
@@ -303,6 +308,13 @@ export function ProductDetailPage() {
 
                 {/* Main Image Showcase - Proportionate height without empty gap */}
                 <div className="relative flex-1 w-full aspect-[3.8/4.5] lg:max-h-[calc(100vh-6rem)] overflow-hidden rounded-3xl bg-[#f2f2f2] shadow-xs select-none">
+                  {isLaunchingSoon && (
+                    <div className="absolute left-3 top-3 sm:left-4 sm:top-4 z-[15] pointer-events-none">
+                      <span className="rounded-full bg-black/95 px-4 py-1.5 text-xs sm:text-sm font-extrabold uppercase tracking-wider text-white shadow-sm">
+                        Launching Soon
+                      </span>
+                    </div>
+                  )}
                   {isProductSoldOut && (
                     <div className="absolute inset-0 z-[15] flex items-center justify-center bg-black/45 pointer-events-none">
                       <span className="rounded-full bg-white/95 px-5 py-2 text-xs sm:text-sm font-extrabold uppercase tracking-wider text-black shadow-sm">
@@ -525,7 +537,7 @@ export function ProductDetailPage() {
                       <button
                         type="button"
                         onClick={() => setQuantity((q) => q + 1)}
-                        disabled={isSelectionSoldOut || quantity >= (selectedVariant?.stockQuantity ?? 0)}
+                        disabled={isLaunchingSoon || isSelectionSoldOut || quantity >= (selectedVariant?.stockQuantity ?? 0)}
                         className="text-black hover:text-black/60 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer tap-press p-1"
                       >
                         <HugeiconsIcon icon={Add01Icon} size={14} strokeWidth={2.4} />
@@ -536,11 +548,13 @@ export function ProductDetailPage() {
                     <button
                       type="button"
                       onClick={handleAddToCart}
-                      disabled={isAddingToCart || isSelectionSoldOut}
+                      disabled={isAddingToCart || isSelectionSoldOut || isLaunchingSoon}
                       className="tap-press flex-1 h-11 sm:h-12 flex items-center justify-between rounded-2xl bg-black hover:bg-neutral-900 text-white px-5 sm:px-6 shadow-sm transition-all cursor-pointer group disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-black"
                     >
                       <span className="font-extrabold text-xs sm:text-sm uppercase tracking-wider">
-                        {isSelectionSoldOut
+                        {isLaunchingSoon
+                          ? 'LAUNCHING SOON'
+                          : isSelectionSoldOut
                           ? 'SOLD OUT'
                           : isAddingToCart
                           ? 'ADDING…'

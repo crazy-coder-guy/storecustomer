@@ -15,7 +15,7 @@ import { searchProducts } from '../services/search.service'
 import { listAddresses } from '../services/address.service'
 import { listProductReviews, listReviewableProducts } from '../services/review.service'
 import { listEligibleExchangeItems, listMyExchangeRequests } from '../services/exchange.service'
-import type { ProductListItem } from '../types'
+import type { ProductListItem, ProductStatus } from '../types'
 
 // A tiny inline gray placeholder, used only when a product genuinely has no images yet.
 export const PLACEHOLDER_PRODUCT_IMAGE =
@@ -37,6 +37,7 @@ export interface ProductCardData {
   fit?: string | null
   fabric?: string | null
   inStock?: boolean
+  status?: ProductStatus
 }
 
 export function useStorefrontSettings() {
@@ -198,6 +199,7 @@ function toProductCardData(p: ProductListItem): ProductCardData {
     fit: p.fit,
     fabric: p.fabric,
     inStock: p.inStock,
+    status: p.status,
   }
 }
 

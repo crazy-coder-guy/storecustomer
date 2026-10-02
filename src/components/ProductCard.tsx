@@ -113,7 +113,8 @@ export function ProductCard({
   // Only an explicit `false` means sold out — `undefined` (older cached data,
   // or a caller that hasn't wired stock through yet) is treated as unknown,
   // not sold out, so we never show a false "Sold Out" badge.
-  const isSoldOut = product.inStock === false
+  const isLaunchingSoon = product.status === 'LAUNCHING_SOON'
+  const isSoldOut = !isLaunchingSoon && product.inStock === false
 
   return (
     <div className="group relative flex flex-col cursor-pointer select-none">
@@ -122,11 +123,21 @@ export function ProductCard({
         to={`/products/${product.slug}`}
         className={`relative w-full overflow-hidden rounded-2xl sm:rounded-3xl bg-[#f2f2f2] block shadow-xs transition-shadow duration-300 hover:shadow-md ${aspectClass}`}
       >
-        {/* Pill Badge (NEW / PREMIUM / TRENDING) — suppressed once sold out */}
-        {product.badge && !isSoldOut && (
+        {/* Pill Badge (NEW / PREMIUM / TRENDING) — suppressed once sold out or launching soon (that badge takes priority) */}
+        {product.badge && !isSoldOut && !isLaunchingSoon && (
           <div className="absolute left-2.5 top-2.5 sm:left-3.5 sm:top-3.5 z-10 pointer-events-none">
             <div className="bg-black/95 text-white font-extrabold text-[10px] sm:text-[11px] uppercase tracking-wider px-3 py-1 rounded-full shadow-sm">
               {product.badge}
+            </div>
+          </div>
+        )}
+
+        {/* Launching Soon badge — same pill style as the regular NEW/PREMIUM
+            badge above, just its own text; no dark overlay like Sold Out. */}
+        {isLaunchingSoon && (
+          <div className="absolute left-2.5 top-2.5 sm:left-3.5 sm:top-3.5 z-10 pointer-events-none">
+            <div className="bg-black/95 text-white font-extrabold text-[10px] sm:text-[11px] uppercase tracking-wider px-3 py-1 rounded-full shadow-sm">
+              Launching Soon
             </div>
           </div>
         )}
@@ -274,20 +285,26 @@ export function ProductCard({
             {/* Liquid Add to Bag Button (matching the site's LiquidButton effect) */}
             <button
               type="button"
-              disabled={isAdding || isInCart || isSoldOut}
+              disabled={isAdding || isInCart || isSoldOut || isLaunchingSoon}
               onClick={(e) => {
                 e.stopPropagation()
                 handleAddClick()
               }}
-              aria-label={isSoldOut ? 'Sold Out' : 'Add to Bag'}
+              aria-label={isLaunchingSoon ? 'Launching Soon' : isSoldOut ? 'Sold Out' : 'Add to Bag'}
               aria-busy={isAdding}
               className={`group/btn tap-press absolute inset-0 flex items-center justify-between overflow-hidden rounded-2xl border pl-4 pr-1.5 sm:pl-5 sm:pr-2 transition-opacity duration-300 ease-out ${
-                isSoldOut ? 'border-black/15 bg-neutral-100' : 'border-black bg-black hover:shadow-md'
+                isSoldOut || isLaunchingSoon ? 'border-black/15 bg-neutral-100' : 'border-black bg-black hover:shadow-md'
               } ${isInCart ? 'opacity-0 pointer-events-none' : 'opacity-100'} ${
-                isAdding ? 'cursor-wait' : isSoldOut ? 'cursor-not-allowed' : 'cursor-pointer'
+                isAdding ? 'cursor-wait' : isSoldOut || isLaunchingSoon ? 'cursor-not-allowed' : 'cursor-pointer'
               }`}
             >
-              {isSoldOut ? (
+              {isLaunchingSoon ? (
+                <div className="relative z-10 flex w-full items-center justify-center">
+                  <span className="font-extrabold text-[11px] sm:text-xs uppercase tracking-wider text-black/40">
+                    Launching Soon
+                  </span>
+                </div>
+              ) : isSoldOut ? (
                 <div className="relative z-10 flex w-full items-center justify-center">
                   <span className="font-extrabold text-[11px] sm:text-xs uppercase tracking-wider text-black/40">
                     Sold Out

@@ -33,6 +33,7 @@ export function TopSellingSection({ onAddToCart }: TopSellingSectionProps) {
       fit: fp.product.fit,
       fabric: fp.product.fabric,
       inStock: fp.product.inStock,
+      status: fp.product.status,
     }
   })
 
