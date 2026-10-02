@@ -15,6 +15,11 @@ export async function createOrder(input: CreateOrderInput) {
   return coerceOrder(data)
 }
 
+export async function cancelOrder(id: string) {
+  const { data } = await api.post<Order>(`/orders/${id}/cancel`)
+  return coerceOrder(data)
+}
+
 export async function getOrder(id: string) {
   const { data } = await api.get<Order>(`/orders/${id}`)
   return coerceOrder(data)

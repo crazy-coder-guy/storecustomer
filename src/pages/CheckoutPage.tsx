@@ -23,7 +23,7 @@ import { useAddresses } from '../hooks/queries'
 import { formatCurrency } from '../utils/formatCurrency'
 import { PLACEHOLDER_PRODUCT_IMAGE } from '../hooks/queries'
 import { openRazorpayCheckout } from '../utils/razorpay'
-import { createOrder } from '../services/order.service'
+import { cancelOrder, createOrder } from '../services/order.service'
 import { createRazorpayOrder, verifyPayment } from '../services/payment.service'
 import { getErrorMessage } from '../services/api'
 import { useSeoMeta } from '../hooks/useSeoMeta'
@@ -91,11 +91,16 @@ export function CheckoutPage() {
 
   async function onSubmit(values: CheckoutFormValues) {
     setIsPlacingOrder(true)
+    // Set once the order exists, so a failure/cancel anywhere after this
+    // point can clean it up instead of leaving a dead PENDING/UNPAID order
+    // behind for every retried checkout attempt.
+    let createdOrderId: string | null = null
     try {
       // The server cart already stores real variant ids, so no client-side
       // re-resolution is needed here.
       const lineItems = items.map((item) => ({ variantId: item.variantId, quantity: item.quantity }))
       const order = await createOrder({ ...values, items: lineItems, couponCode: couponCode ?? undefined })
+      createdOrderId = order.id
       const razorpayOrder = await createRazorpayOrder(order.id)
 
       // Build dynamic description showing the exact items/garments being purchased
@@ -139,14 +144,19 @@ export function CheckoutPage() {
         modal: {
           ondismiss: () => {
             setIsPlacingOrder(false)
+            void cancelOrder(order.id).catch(() => {})
             toast('Payment cancelled', {
-              description: `Your order ${razorpayOrder.orderNumber} was saved — you can retry payment anytime.`,
+              description: `Order ${razorpayOrder.orderNumber} wasn't placed — your bag is unchanged, retry whenever you're ready.`,
             })
           },
         },
       })
     } catch (err) {
       setIsPlacingOrder(false)
+      // The order itself was created but something after that (getting a
+      // Razorpay order, opening the checkout modal) failed — cancel it so
+      // retrying doesn't pile up another dead PENDING/UNPAID order.
+      if (createdOrderId) void cancelOrder(createdOrderId).catch(() => {})
       toast.error(err instanceof Error ? err.message : getErrorMessage(err) || 'Something went wrong')
     }
   }
