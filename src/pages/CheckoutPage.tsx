@@ -98,12 +98,22 @@ export function CheckoutPage() {
       const order = await createOrder({ ...values, items: lineItems, couponCode: couponCode ?? undefined })
       const razorpayOrder = await createRazorpayOrder(order.id)
 
+      // Build dynamic description showing the exact items/garments being purchased
+      const itemsSummary = items
+        .map((item) => `${item.name}${item.size ? ` (${item.size})` : ''} x${item.quantity}`)
+        .join(', ')
+      const purchaseDescription =
+        itemsSummary.length > 80
+          ? `${itemsSummary.slice(0, 77)}...`
+          : itemsSummary || `Order ${razorpayOrder.orderNumber}`
+
       await openRazorpayCheckout({
         key: razorpayOrder.keyId,
         amount: razorpayOrder.amount,
         currency: razorpayOrder.currency,
-        name: 'Kaiira',
-        description: `Order ${razorpayOrder.orderNumber}`,
+        name: 'KAIIRA',
+        description: purchaseDescription,
+        image: 'https://kaiira.in/icon-512.png',
         order_id: razorpayOrder.razorpayOrderId,
         prefill: {
           name: values.customerName,

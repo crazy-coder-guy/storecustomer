@@ -4,6 +4,7 @@ interface RazorpayCheckoutOptions {
   currency: string
   name: string
   description?: string
+  image?: string
   order_id: string
   prefill?: { name?: string; email?: string; contact?: string }
   theme?: { color?: string }
