@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useState, useEffect, useRef, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Navbar } from '../components/Navbar'
 import { Footer } from '../components/Footer'
@@ -46,8 +46,26 @@ export function CartPage() {
 
   const [selectedDrawerProductId, setSelectedDrawerProductId] = useState<string | null>(null)
   const [couponInput, setCouponInput] = useState('')
+  const [isFooterVisible, setIsFooterVisible] = useState(false)
+  const footerSentinelRef = useRef<HTMLDivElement>(null)
 
   const hasStockIssue = items.some((item) => item.stockQuantity === 0 || item.quantity > item.stockQuantity)
+
+  // Hide mobile bottom "Proceed to Pay" bar when user scrolls down into the footer
+  useEffect(() => {
+    const sentinel = footerSentinelRef.current
+    if (!sentinel) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsFooterVisible(entry.isIntersecting)
+      },
+      { threshold: 0.05, rootMargin: '0px 0px 50px 0px' }
+    )
+
+    observer.observe(sentinel)
+    return () => observer.disconnect()
+  }, [])
 
   function handleApplyCoupon(e: FormEvent) {
     e.preventDefault()
