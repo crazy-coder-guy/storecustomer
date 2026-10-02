@@ -139,7 +139,11 @@ export type PaymentStatus = 'PAID' | 'UNPAID' | 'REFUNDED'
 export interface CreateOrderInput {
   customerName: string
   customerPhone: string
-  shippingAddress: string
+  doorNumber: string
+  streetName: string
+  city: string
+  state: string
+  pincode: string
   items: { variantId: string; quantity: number }[]
   couponCode?: string
 }
@@ -150,7 +154,17 @@ export interface Address {
   name: string
   phone: string
   shippingAddress: string
+  doorNumber: string | null
+  streetName: string | null
+  city: string | null
+  state: string | null
+  pincode: string | null
   createdAt: string
+}
+
+export interface PincodeLookupResult {
+  city: string
+  state: string
 }
 
 export interface OrderItemResponse {
@@ -182,6 +196,11 @@ export interface Order {
   itemsCount: number
   items: OrderItemResponse[]
   shippingAddress: string
+  doorNumber: string | null
+  streetName: string | null
+  city: string | null
+  state: string | null
+  pincode: string | null
   createdAt: string
 }
 

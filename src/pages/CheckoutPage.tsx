@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -13,6 +13,7 @@ import {
   Mail01Icon,
   Location01Icon,
   ArrowRight01Icon,
+  Loading03Icon,
 } from '@hugeicons/core-free-icons'
 import { Navbar } from '../components/Navbar'
 import { Footer } from '../components/Footer'
@@ -25,6 +26,7 @@ import { PLACEHOLDER_PRODUCT_IMAGE } from '../hooks/queries'
 import { openRazorpayCheckout } from '../utils/razorpay'
 import { cancelOrder, createOrder, syncPaymentStatus } from '../services/order.service'
 import { createRazorpayOrder, verifyPayment } from '../services/payment.service'
+import { lookupPincode } from '../services/pincode.service'
 import { getErrorMessage } from '../services/api'
 import { useSeoMeta } from '../hooks/useSeoMeta'
 import type { Address } from '../types'
@@ -32,10 +34,23 @@ import type { Address } from '../types'
 const schema = z.object({
   customerName: z.string().min(1, 'Full name is required'),
   customerPhone: z.string().min(10, 'Enter a valid phone number'),
-  shippingAddress: z.string().min(10, 'Enter your complete delivery address'),
+  doorNumber: z.string().min(1, 'House / door number is required'),
+  streetName: z.string().min(1, 'Street / area name is required'),
+  pincode: z.string().regex(/^\d{6}$/, 'Enter a valid 6-digit pincode'),
+  city: z.string().min(1, 'City is required'),
+  state: z.string().min(1, 'State is required'),
 })
 
 type CheckoutFormValues = z.infer<typeof schema>
+
+/** Falls back to the legacy single-line address for any address saved
+ *  before structured fields existed. */
+function addressSummaryLine(address: Address) {
+  if (address.doorNumber && address.streetName && address.city) {
+    return `${address.doorNumber}, ${address.streetName}, ${address.city}${address.pincode ? ` - ${address.pincode}` : ''}`
+  }
+  return address.shippingAddress
+}
 
 // Survives a full page reload (unlike component state) — if the customer
 // reloads or closes the tab mid-payment, the success callback never runs,
@@ -87,8 +102,36 @@ export function CheckoutPage() {
     register,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors },
   } = useForm<CheckoutFormValues>({ resolver: zodResolver(schema) })
+
+  const [isLookingUpPincode, setIsLookingUpPincode] = useState(false)
+  const pincodeLookupSeq = useRef(0)
+  const watchedPincode = watch('pincode')
+
+  // Looks up city/state as soon as a valid 6-digit pincode is typed — the
+  // shopper only has to type the number once, not retype their city/state.
+  // A sequence guard discards a stale response if they keep editing digits
+  // before the first lookup returns.
+  useEffect(() => {
+    if (!watchedPincode || !/^\d{6}$/.test(watchedPincode)) return
+    const seq = ++pincodeLookupSeq.current
+    setIsLookingUpPincode(true)
+    lookupPincode(watchedPincode)
+      .then((result) => {
+        if (seq !== pincodeLookupSeq.current) return
+        setValue('city', result.city, { shouldValidate: true })
+        setValue('state', result.state, { shouldValidate: true })
+      })
+      .catch(() => {
+        // An unrecognized pincode just means the shopper fills city/state
+        // in by hand — not worth interrupting checkout with an error toast.
+      })
+      .finally(() => {
+        if (seq === pincodeLookupSeq.current) setIsLookingUpPincode(false)
+      })
+  }, [watchedPincode, setValue])
 
   // Default to the most recently used saved address; fall back to the
   // editable "new address" form when the shopper has none saved yet.
@@ -106,14 +149,22 @@ export function CheckoutPage() {
     setSelectedAddressId(address.id)
     setValue('customerName', address.name)
     setValue('customerPhone', address.phone)
-    setValue('shippingAddress', address.shippingAddress)
+    setValue('doorNumber', address.doorNumber ?? '')
+    setValue('streetName', address.streetName ?? '')
+    setValue('pincode', address.pincode ?? '')
+    setValue('city', address.city ?? '')
+    setValue('state', address.state ?? '')
   }
 
   function selectNewAddress() {
     setSelectedAddressId('new')
     setValue('customerName', '')
     setValue('customerPhone', '')
-    setValue('shippingAddress', '')
+    setValue('doorNumber', '')
+    setValue('streetName', '')
+    setValue('pincode', '')
+    setValue('city', '')
+    setValue('state', '')
   }
 
   const isUsingSavedAddress = selectedAddressId !== null && selectedAddressId !== 'new'
@@ -296,7 +347,7 @@ export function CheckoutPage() {
                             <div className="min-w-0 pr-2">
                               <p className="text-xs font-bold text-black truncate">{address.name}</p>
                               <p className="text-[11px] text-neutral-500 font-medium">{address.phone}</p>
-                              <p className="text-[11px] text-neutral-600 line-clamp-2 mt-0.5">{address.shippingAddress}</p>
+                              <p className="text-[11px] text-neutral-600 line-clamp-2 mt-0.5">{addressSummaryLine(address)}</p>
                             </div>
                             {selectedAddressId === address.id && (
                               <HugeiconsIcon icon={CheckmarkCircle02Icon} size={16} className="text-black shrink-0 mt-0.5" />
@@ -379,29 +430,111 @@ export function CheckoutPage() {
                     </div>
                   </div>
 
-                  {/* Shipping Address */}
-                  <div>
-                    <label className="block text-xs font-semibold text-neutral-800 mb-1.5">
-                      Shipping Address
-                    </label>
-                    <div className="relative flex items-center">
-                      <HugeiconsIcon
-                        icon={Location01Icon}
-                        size={18}
-                        className="absolute left-3.5 text-neutral-400 pointer-events-none"
-                      />
+                  {/* House/Door Number & Street */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-neutral-800 mb-1.5">
+                        House / Door No. &amp; Building
+                      </label>
+                      <div className="relative flex items-center">
+                        <HugeiconsIcon
+                          icon={Location01Icon}
+                          size={18}
+                          className="absolute left-3.5 text-neutral-400 pointer-events-none"
+                        />
+                        <input
+                          {...register('doorNumber')}
+                          readOnly={isUsingSavedAddress}
+                          className={`w-full h-11 rounded-xl border border-neutral-200 pl-10 pr-3.5 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:border-black transition-colors ${
+                            isUsingSavedAddress ? 'bg-neutral-50 cursor-not-allowed' : 'bg-white'
+                          }`}
+                          placeholder="44/1, Shree Apartments"
+                        />
+                      </div>
+                      {errors.doorNumber && (
+                        <p className="mt-1 text-xs text-red-500 font-medium">{errors.doorNumber.message}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-neutral-800 mb-1.5">
+                        Street / Area Name
+                      </label>
+                      <div className="relative flex items-center">
+                        <input
+                          {...register('streetName')}
+                          readOnly={isUsingSavedAddress}
+                          className={`w-full h-11 rounded-xl border border-neutral-200 px-3.5 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:border-black transition-colors ${
+                            isUsingSavedAddress ? 'bg-neutral-50 cursor-not-allowed' : 'bg-white'
+                          }`}
+                          placeholder="Pilliyar Kovil Street, Rangapuram"
+                        />
+                      </div>
+                      {errors.streetName && (
+                        <p className="mt-1 text-xs text-red-500 font-medium">{errors.streetName.message}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Pincode, City & State */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-neutral-800 mb-1.5">
+                        Pincode
+                      </label>
+                      <div className="relative flex items-center">
+                        <input
+                          {...register('pincode')}
+                          inputMode="numeric"
+                          maxLength={6}
+                          readOnly={isUsingSavedAddress}
+                          className={`w-full h-11 rounded-xl border border-neutral-200 px-3.5 pr-9 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:border-black transition-colors ${
+                            isUsingSavedAddress ? 'bg-neutral-50 cursor-not-allowed' : 'bg-white'
+                          }`}
+                          placeholder="636004"
+                        />
+                        {isLookingUpPincode && (
+                          <HugeiconsIcon
+                            icon={Loading03Icon}
+                            size={16}
+                            className="absolute right-3 text-neutral-400 animate-spin pointer-events-none"
+                          />
+                        )}
+                      </div>
+                      {errors.pincode && (
+                        <p className="mt-1 text-xs text-red-500 font-medium">{errors.pincode.message}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-neutral-800 mb-1.5">
+                        City
+                      </label>
                       <input
-                        {...register('shippingAddress')}
+                        {...register('city')}
                         readOnly={isUsingSavedAddress}
-                        className={`w-full h-11 rounded-xl border border-neutral-200 pl-10 pr-3.5 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:border-black transition-colors ${
+                        className={`w-full h-11 rounded-xl border border-neutral-200 px-3.5 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:border-black transition-colors ${
                           isUsingSavedAddress ? 'bg-neutral-50 cursor-not-allowed' : 'bg-white'
                         }`}
-                        placeholder="House no, street, city, state, PIN code"
+                        placeholder="Auto-filled from pincode"
                       />
+                      {errors.city && <p className="mt-1 text-xs text-red-500 font-medium">{errors.city.message}</p>}
                     </div>
-                    {errors.shippingAddress && (
-                      <p className="mt-1 text-xs text-red-500 font-medium">{errors.shippingAddress.message}</p>
-                    )}
+
+                    <div>
+                      <label className="block text-xs font-semibold text-neutral-800 mb-1.5">
+                        State
+                      </label>
+                      <input
+                        {...register('state')}
+                        readOnly={isUsingSavedAddress}
+                        className={`w-full h-11 rounded-xl border border-neutral-200 px-3.5 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:border-black transition-colors ${
+                          isUsingSavedAddress ? 'bg-neutral-50 cursor-not-allowed' : 'bg-white'
+                        }`}
+                        placeholder="Auto-filled from pincode"
+                      />
+                      {errors.state && <p className="mt-1 text-xs text-red-500 font-medium">{errors.state.message}</p>}
+                    </div>
                   </div>
 
                   {/* Hidden inputs when using saved address so form validation and values pass cleanly */}
@@ -409,7 +542,11 @@ export function CheckoutPage() {
                     <>
                       <input type="hidden" {...register('customerName')} />
                       <input type="hidden" {...register('customerPhone')} />
-                      <input type="hidden" {...register('shippingAddress')} />
+                      <input type="hidden" {...register('doorNumber')} />
+                      <input type="hidden" {...register('streetName')} />
+                      <input type="hidden" {...register('pincode')} />
+                      <input type="hidden" {...register('city')} />
+                      <input type="hidden" {...register('state')} />
                     </>
                   )}
 
