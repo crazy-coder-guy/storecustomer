@@ -14,14 +14,14 @@ export function ShippingInfoPage() {
       num: '01',
       title: 'Express Standard Delivery',
       time: '3 - 5 Business Days across India',
-      cost: 'FREE on orders over ₹1,999 • Flat ₹19 on all others',
-      desc: 'Partnered with premier express couriers (Delhivery, BlueDart, Bluedart Air). Metro cities receive priority delivery within 48 to 72 hours with end-to-end milestone notifications.',
+      cost: 'FREE on orders over ₹399 • Flat ₹29 on all others',
+      desc: 'Partnered with premier express couriers (Delhivery, BlueDart, Bluedart Air). Major hubs and metro cities receive priority delivery within 48 to 72 hours with end-to-end milestone updates.',
     },
     {
       num: '02',
-      title: 'Same-Day City Dispatch',
+      title: 'Same-Day Dispatch',
       time: '1 - 2 Business Days',
-      cost: 'Available across Mumbai, Bengaluru, Surat & Delhi NCR',
+      cost: 'Available across all serviceable pin codes',
       desc: 'Orders placed before 1:00 PM on working days are packed, quality checked, and handed over to courier hubs on the very same evening.',
     },
     {
@@ -36,11 +36,11 @@ export function ShippingInfoPage() {
   const faqs = [
     {
       q: 'How do I know when my package has been shipped?',
-      a: 'As soon as your package is dispatched from our fulfilment center, an automated notification containing your live Delhivery tracking link and AWB number is sent via SMS and WhatsApp.',
+      a: 'As soon as your package is dispatched from our fulfilment center, an automated email containing your live tracking link and AWB number is sent directly to your registered email address.',
     },
     {
-      q: 'Do you ship to remote pin codes and North-East India?',
-      a: 'Yes, we service 27,000+ pin codes across India through partnerships with Delhivery Express, Ecom Express, and India Post Speed Post.',
+      q: 'How fast will my order reach southern and regional destinations?',
+      a: 'Because our primary fulfilment hub is strategically located in South India, orders shipping within neighboring regional zones arrive rapidly in just 1 to 2 business days.',
     },
     {
       q: 'What if I am unavailable during delivery attempts?',
@@ -91,15 +91,8 @@ export function ShippingInfoPage() {
           ))}
         </div>
 
-        {/* Packaging Standards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-4">
-          <div className="space-y-2">
-            <span className="text-xs font-extrabold uppercase tracking-widest text-black/40">Packaging Guarantee</span>
-            <h4 className="text-lg font-black text-black">Tamper-Proof Box</h4>
-            <p className="text-sm text-black/70 font-medium leading-relaxed">
-              Every parcel is sealed inside heavy recycled corrugated boxes with high-security reinforced tape.
-            </p>
-          </div>
+        {/* Packaging & Garment Care Standards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
           <div className="space-y-2">
             <span className="text-xs font-extrabold uppercase tracking-widest text-black/40">Garment Care</span>
             <h4 className="text-lg font-black text-black">Double Quality Inspection</h4>

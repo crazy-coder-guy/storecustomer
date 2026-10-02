@@ -398,7 +398,7 @@ export function CartPage() {
                             <HugeiconsIcon icon={DeliveryTruck01Icon} size={16} />
                           </div>
                           <p className="text-xs font-black text-black">Free Shipping</p>
-                          <p className="text-[10px] text-black/50">Orders &gt; ₹1,999</p>
+                          <p className="text-[10px] text-black/50">Orders &gt; ₹399</p>
                         </div>
 
                         <div className="space-y-1">

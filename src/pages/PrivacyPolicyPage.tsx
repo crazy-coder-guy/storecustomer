@@ -27,7 +27,7 @@ export function PrivacyPolicyPage() {
               Privacy Policy
             </h1>
             <p className="text-sm font-semibold text-black/60">
-              Last updated: September 2026 • Effective for all KAIIRA users
+              Last updated: October 2026 • Effective for all KAIIRA users
             </p>
           </div>
 
@@ -57,8 +57,8 @@ export function PrivacyPolicyPage() {
               </p>
               <ul className="list-disc pl-5 space-y-2 text-black/70">
                 <li>Processing, packing, and dispatching your orders.</li>
-                <li>Sending real-time order updates, tracking numbers, and delivery SMS notifications.</li>
-                <li>Providing customer support and handling returns or exchanges.</li>
+                <li>Sending real-time order updates, tracking numbers, and delivery email notifications.</li>
+                <li>Providing customer support and handling exchanges.</li>
                 <li>Improving our store catalog and personalized shopping experiences.</li>
               </ul>
             </section>
@@ -72,7 +72,7 @@ export function PrivacyPolicyPage() {
               </p>
               <ul className="list-disc pl-5 space-y-2 text-black/70">
                 <li>Logistics and courier partners (for doorstep order delivery).</li>
-                <li>Encrypted payment gateway providers (Razorpay, Stripe, UPI processors).</li>
+                <li>Encrypted payment gateway providers (Razorpay and UPI processors).</li>
                 <li>Analytics providers to monitor and prevent store fraud.</li>
               </ul>
             </section>
@@ -83,15 +83,6 @@ export function PrivacyPolicyPage() {
               </h2>
               <p>
                 We use essential session cookies to remember items in your shopping bag, save your active session state, and ensure seamless navigation across our store.
-              </p>
-            </section>
-
-            <section className="space-y-3">
-              <h2 className="text-lg font-black text-black uppercase tracking-wider">
-                5. Your Rights & Control
-              </h2>
-              <p>
-                You have the right to inspect, update, or request the deletion of your personal data at any time. If you wish to delete your account or opt out of promotional emails, please contact us at <a href="mailto:privacy@kaiiraapparel.com" className="font-bold underline text-black">privacy@kaiiraapparel.com</a>.
               </p>
             </section>
           </div>

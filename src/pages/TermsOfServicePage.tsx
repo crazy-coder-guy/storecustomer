@@ -27,7 +27,7 @@ export function TermsOfServicePage() {
               Terms of Service
             </h1>
             <p className="text-sm font-semibold text-black/60">
-              Last updated: September 2026 • Agreement governing store usage
+              Last updated: October 2026 • Agreement governing store usage
             </p>
           </div>
 
@@ -62,10 +62,10 @@ export function TermsOfServicePage() {
 
             <section className="space-y-3">
               <h2 className="text-lg font-black text-black uppercase tracking-wider">
-                4. Orders & Cancellations
+                4. Orders & Exchange Policy
               </h2>
               <p>
-                Orders may be canceled prior to dispatch directly from your account or by contacting support. Once an order has been shipped with courier tracking, cancellation is subject to our standard 3-Day Exchange Policy.
+                Once an order is placed, we do not accept order cancellations or refunds. We offer a hassle-free <strong className="text-black font-bold">3-Day Exchange Policy</strong> for size or color replacements after delivery. For exchange assistance, contact our support team at <a href="mailto:hello.kaiiraofficial@gmail.com" className="font-bold underline text-black">hello.kaiiraofficial@gmail.com</a>.
               </p>
             </section>
 

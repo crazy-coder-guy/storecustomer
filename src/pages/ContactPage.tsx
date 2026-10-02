@@ -171,17 +171,12 @@ export function ContactPage() {
           </div>
         </div>
 
-        {/* 3 Channels Row */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-4">
+        {/* Support Channels Row */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4 border-t border-black/10">
           <div className="space-y-1.5">
             <span className="text-xs font-extrabold uppercase tracking-widest text-black/40">Direct Inbox</span>
             <h4 className="text-xl font-black text-black">Email Support</h4>
             <p className="text-sm text-black/70 font-medium">hello.kaiiraofficial@gmail.com</p>
-          </div>
-          <div className="space-y-1.5">
-            <span className="text-xs font-extrabold uppercase tracking-widest text-black/40">Instant Chat</span>
-            <h4 className="text-xl font-black text-black">WhatsApp Line</h4>
-            <p className="text-sm text-emerald-800 font-bold">+91 91520 44890</p>
           </div>
           <div className="space-y-1.5">
             <span className="text-xs font-extrabold uppercase tracking-widest text-black/40">Support Hours</span>

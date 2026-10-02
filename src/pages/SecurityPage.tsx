@@ -71,7 +71,7 @@ export function SecurityPage() {
                 Vulnerability Reporting
               </h2>
               <p>
-                If you are a security researcher or customer and discover a potential security flaw in our website, please report it directly to our engineering security team at <a href="mailto:security@kaiiraapparel.com" className="font-bold underline text-black">security@kaiiraapparel.com</a>. We take all security disclosures with extreme urgency.
+                If you are a security researcher or customer and discover a potential security flaw in our website, please report it directly to our engineering security team at <a href="mailto:hello.kaiiraofficial@gmail.com" className="font-bold underline text-black">hello.kaiiraofficial@gmail.com</a>. We take all security disclosures with extreme urgency.
               </p>
             </section>
           </div>
