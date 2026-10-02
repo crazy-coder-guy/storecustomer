@@ -27,7 +27,7 @@ const PILLARS = [
   {
     icon: RefreshIcon,
     title: 'Easy Exchange',
-    description: '7-day hassle-free size and color exchange on all unworn items.',
+    description: '3-day hassle-free size and color exchange on all unworn items.',
   },
 ]
 

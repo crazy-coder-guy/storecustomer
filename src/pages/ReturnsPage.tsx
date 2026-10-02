@@ -19,8 +19,8 @@ export function ReturnsPage() {
   const steps = [
     {
       num: '01',
-      title: '7-Day Exchange Window',
-      desc: 'Submit your request using the form below or contact us via email at hello.kaiiraofficial@gmail.com within 7 days of package delivery.',
+      title: '3-Day Exchange Window',
+      desc: 'Submit your request using the form below or contact us via email at hello.kaiiraofficial@gmail.com within 3 days of package delivery.',
     },
     {
       num: '02',
@@ -52,10 +52,10 @@ export function ReturnsPage() {
               <span>Exchange Only Policy</span>
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-black leading-[1.08]">
-              7-Day Easy Exchange.
+              3-Day Easy Exchange.
             </h1>
             <p className="text-base sm:text-lg text-black/75 font-medium leading-relaxed">
-              We offer hassle-free size and color exchanges within 7 days of delivery. Please note: we currently do not offer monetary returns/refunds; only exchanges are provided.
+              We offer hassle-free size and color exchanges within 3 days of delivery. Please note: we currently do not offer monetary returns/refunds; only exchanges are provided.
             </p>
           </div>
 

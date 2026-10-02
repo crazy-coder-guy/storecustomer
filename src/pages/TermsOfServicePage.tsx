@@ -65,7 +65,7 @@ export function TermsOfServicePage() {
                 4. Orders & Cancellations
               </h2>
               <p>
-                Orders may be canceled prior to dispatch directly from your account or by contacting support. Once an order has been shipped with courier tracking, cancellation is subject to our standard 7-Day Return Policy.
+                Orders may be canceled prior to dispatch directly from your account or by contacting support. Once an order has been shipped with courier tracking, cancellation is subject to our standard 3-Day Exchange Policy.
               </p>
             </section>
 

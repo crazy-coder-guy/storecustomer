@@ -640,7 +640,7 @@ export function ProductDetailPage() {
                         <p>• Dispatched within 24-48 business hours.</p>
                         <p>• Express delivery in 2-4 business days across India.</p>
                         <p>• Prepaid orders only (no Cash on Delivery).</p>
-                        <p>• Hassle-free size/color exchanges within 7 days of delivery (No returns, only exchange).</p>
+                        <p>• Hassle-free size/color exchanges within 3 days of delivery (No returns, only exchange).</p>
                       </div>
                     )}
                   </div>

@@ -405,7 +405,7 @@ export function CartPage() {
                           <div className="mx-auto flex h-8 w-8 items-center justify-center rounded-full bg-neutral-100 text-black">
                             <HugeiconsIcon icon={RefreshIcon} size={16} />
                           </div>
-                          <p className="text-xs font-black text-black">7-Day Exchange</p>
+                          <p className="text-xs font-black text-black">3-Day Exchange</p>
                           <p className="text-[10px] text-black/50">Hassle-free exchange</p>
                         </div>
 
