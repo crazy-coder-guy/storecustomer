@@ -17,9 +17,6 @@ import {
   FavouriteIcon,
   ArrowRight01Icon,
   ArrowLeft01Icon,
-  DeliveryTruck01Icon,
-  RefreshIcon,
-  CreditCardIcon,
   MinusSignIcon,
   Add01Icon,
   Search01Icon,
@@ -574,48 +571,12 @@ export function ProductDetailPage() {
                       )}
                     </button>
                   </div>
-
-                  {/* 3 Value Pillars Row: Exactly styled and proportioned without card look */}
-                  <div className="grid grid-cols-3 border-y border-black/10 py-3.5 my-1">
-                    {/* Free Shipping */}
-                    <div className="flex items-center gap-2.5 pr-2">
-                      <div className="text-black shrink-0">
-                        <HugeiconsIcon icon={DeliveryTruck01Icon} size={22} strokeWidth={1.8} />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-xs sm:text-[13px] font-bold text-black leading-snug">Free Shipping</p>
-                        <p className="text-[10px] sm:text-[11px] text-black/55 font-medium leading-tight">on orders above ₹1,999</p>
-                      </div>
-                    </div>
-
-                    {/* 7-Day Exchange */}
-                    <div className="flex items-center gap-2.5 border-l border-black/10 px-2.5 sm:px-3">
-                      <div className="text-black shrink-0">
-                        <HugeiconsIcon icon={RefreshIcon} size={20} strokeWidth={1.8} />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-xs sm:text-[13px] font-bold text-black leading-snug">7-Day Exchange</p>
-                        <p className="text-[10px] sm:text-[11px] text-black/55 font-medium leading-tight">Only size/color exchange</p>
-                      </div>
-                    </div>
-
-                    {/* Prepaid Only */}
-                    <div className="flex items-center gap-2.5 border-l border-black/10 pl-2.5 sm:pl-3">
-                      <div className="text-black shrink-0">
-                        <HugeiconsIcon icon={CreditCardIcon} size={20} strokeWidth={1.8} />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-xs sm:text-[13px] font-bold text-black leading-snug">Prepaid Only</p>
-                        <p className="text-[10px] sm:text-[11px] text-black/55 font-medium leading-tight">No Cash on Delivery</p>
-                      </div>
-                    </div>
-                  </div>
                 </div>
 
                 {/* ACCORDION DETAILS SECTION */}
-                <div className="pt-2">
-                  <p className="text-xs font-black uppercase tracking-widest text-black/40 mb-2">
-                    Product Details
+                <div className="pt-4">
+                  <p className="text-xs sm:text-sm font-black uppercase tracking-widest text-black/50 mb-3">
+                    Product Details & Specifications
                   </p>
 
                   {/* Accordion 1: PRODUCT DESCRIPTION */}
@@ -623,16 +584,16 @@ export function ProductDetailPage() {
                     <button
                       type="button"
                       onClick={() => toggleAccordion('description')}
-                      className="w-full py-3.5 flex items-center justify-between text-xs sm:text-sm font-extrabold uppercase tracking-wide text-black text-left cursor-pointer group"
+                      className="w-full py-4 flex items-center justify-between text-sm sm:text-base font-extrabold uppercase tracking-wide text-black text-left cursor-pointer group"
                     >
                       <span className="group-hover:text-black/70 transition-colors">Product Description</span>
-                      <span className={`text-lg font-bold text-black transition-transform duration-300 leading-none ${openAccordion === 'description' ? 'rotate-45' : 'rotate-0'}`}>
+                      <span className={`text-xl font-bold text-black transition-transform duration-300 leading-none ${openAccordion === 'description' ? 'rotate-45' : 'rotate-0'}`}>
                         +
                       </span>
                     </button>
                     {openAccordion === 'description' && (
-                      <div className="pb-4 animate-fade-in">
-                        <p className="text-xs sm:text-sm text-black/75 font-medium leading-relaxed">
+                      <div className="pb-5 animate-fade-in">
+                        <p className="text-sm sm:text-base text-black/80 font-medium leading-relaxed">
                           {product.description ||
                             'A soft, comfortable tee with a relaxed fit and dropped shoulders. Clean construction, built for everyday wear.'}
                         </p>
@@ -645,15 +606,15 @@ export function ProductDetailPage() {
                     <button
                       type="button"
                       onClick={() => toggleAccordion('material')}
-                      className="w-full py-3.5 flex items-center justify-between text-xs sm:text-sm font-extrabold uppercase tracking-wide text-black text-left cursor-pointer group"
+                      className="w-full py-4 flex items-center justify-between text-sm sm:text-base font-extrabold uppercase tracking-wide text-black text-left cursor-pointer group"
                     >
                       <span className="group-hover:text-black/70 transition-colors">Material & Care</span>
-                      <span className={`text-lg font-bold text-black transition-transform duration-300 leading-none ${openAccordion === 'material' ? 'rotate-45' : 'rotate-0'}`}>
+                      <span className={`text-xl font-bold text-black transition-transform duration-300 leading-none ${openAccordion === 'material' ? 'rotate-45' : 'rotate-0'}`}>
                         +
                       </span>
                     </button>
                     {openAccordion === 'material' && (
-                      <div className="pb-4 animate-fade-in space-y-1.5 text-xs sm:text-sm text-black/75 font-medium">
+                      <div className="pb-5 animate-fade-in space-y-2 text-sm sm:text-base text-black/80 font-medium leading-relaxed">
                         <p>• {product.fabric || '100% Combed Heavy Organic Cotton'}</p>
                         <p>• {product.gsm ? `${product.gsm} GSM heavyweight structured knit` : '240 GSM premium structured knit'}</p>
                         <p>• Machine wash cold with similar colors</p>
@@ -667,15 +628,15 @@ export function ProductDetailPage() {
                     <button
                       type="button"
                       onClick={() => toggleAccordion('shipping')}
-                      className="w-full py-3.5 flex items-center justify-between text-xs sm:text-sm font-extrabold uppercase tracking-wide text-black text-left cursor-pointer group"
+                      className="w-full py-4 flex items-center justify-between text-sm sm:text-base font-extrabold uppercase tracking-wide text-black text-left cursor-pointer group"
                     >
                       <span className="group-hover:text-black/70 transition-colors">Shipping & Exchanges</span>
-                      <span className={`text-lg font-bold text-black transition-transform duration-300 leading-none ${openAccordion === 'shipping' ? 'rotate-45' : 'rotate-0'}`}>
+                      <span className={`text-xl font-bold text-black transition-transform duration-300 leading-none ${openAccordion === 'shipping' ? 'rotate-45' : 'rotate-0'}`}>
                         +
                       </span>
                     </button>
                     {openAccordion === 'shipping' && (
-                      <div className="pb-4 animate-fade-in space-y-1.5 text-xs sm:text-sm text-black/75 font-medium">
+                      <div className="pb-5 animate-fade-in space-y-2 text-sm sm:text-base text-black/80 font-medium leading-relaxed">
                         <p>• Dispatched within 24-48 business hours.</p>
                         <p>• Express delivery in 2-4 business days across India.</p>
                         <p>• Prepaid orders only (no Cash on Delivery).</p>

@@ -13,9 +13,6 @@ import {
   ArrowRight01Icon,
   MinusSignIcon,
   Add01Icon,
-  DeliveryTruck01Icon,
-  RefreshIcon,
-  CreditCardIcon,
   CheckmarkCircle02Icon,
   RulerIcon,
 } from '@hugeicons/core-free-icons'
@@ -353,8 +350,8 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
               </button>
 
               {openAccordion === 'description' && (
-                <div className="pb-3 animate-fade-in">
-                  <p className="text-xs sm:text-[13px] text-black/70 font-normal leading-relaxed">
+                <div className="pb-4 animate-fade-in">
+                  <p className="text-sm sm:text-base text-black/80 font-medium leading-relaxed">
                     {product.description ||
                       'A soft, comfortable tee with a relaxed fit and dropped shoulders. Clean construction, built for everyday wear.'}
                   </p>
@@ -382,49 +379,13 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
               </button>
 
               {openAccordion === 'material' && (
-                <div className="pb-3 animate-fade-in space-y-1.5 text-xs sm:text-[13px] text-black/70 font-normal">
+                <div className="pb-4 animate-fade-in space-y-2 text-sm sm:text-base text-black/80 font-medium leading-relaxed">
                   <p>• {product.fabric || '100% Combed Heavy Organic Cotton'}</p>
                   <p>• {product.gsm ? `${product.gsm} GSM heavyweight structured knit` : '240 GSM premium structured knit'}</p>
                   <p>• Machine wash cold with similar colors</p>
                   <p>• Do not iron directly on graphic prints</p>
                 </div>
               )}
-            </div>
-
-            {/* Value Guarantees Row */}
-            <div className="grid grid-cols-3 border-y border-black/10 py-3 text-left">
-              {/* Free Shipping */}
-              <div className="flex items-center gap-2 pr-1.5">
-                <div className="text-black shrink-0">
-                  <HugeiconsIcon icon={DeliveryTruck01Icon} size={18} strokeWidth={1.8} />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-[11px] font-bold text-black leading-tight">Free Shipping</p>
-                  <p className="text-[9px] text-black/55 font-medium leading-tight truncate">on orders above ₹1,999</p>
-                </div>
-              </div>
-
-              {/* Easy Exchange */}
-              <div className="flex items-center gap-2 border-l border-black/10 px-2">
-                <div className="text-black shrink-0">
-                  <HugeiconsIcon icon={RefreshIcon} size={17} strokeWidth={1.8} />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-[11px] font-bold text-black leading-tight">Easy Exchange</p>
-                  <p className="text-[9px] text-black/55 font-medium leading-tight truncate">7-day exchange only</p>
-                </div>
-              </div>
-
-              {/* Prepaid Only */}
-              <div className="flex items-center gap-2 border-l border-black/10 pl-2">
-                <div className="text-black shrink-0">
-                  <HugeiconsIcon icon={CreditCardIcon} size={17} strokeWidth={1.8} />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-[11px] font-bold text-black leading-tight">Prepaid Only</p>
-                  <p className="text-[9px] text-black/55 font-medium leading-tight truncate">No Cash on Delivery</p>
-                </div>
-              </div>
             </div>
 
           </div>
