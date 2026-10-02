@@ -202,6 +202,7 @@ export interface Order {
   state: string | null
   pincode: string | null
   createdAt: string
+  deliveredAt: string | null
 }
 
 export interface RazorpayOrderResponse {

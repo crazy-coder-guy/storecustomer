@@ -6,17 +6,24 @@ import {
   PackageIcon,
   Search01Icon,
   CheckmarkCircle02Icon,
+  Cancel01Icon,
   SecurityCheckIcon,
+  Alert02Icon,
 } from '@hugeicons/core-free-icons'
 import { useSeoMeta } from '../hooks/useSeoMeta'
+import { trackOrder } from '../services/order.service'
+import { getErrorMessage } from '../services/api'
+import { formatDate } from '../utils/formatDate'
+import { formatCurrency } from '../utils/formatCurrency'
+import type { Order, OrderStatus } from '../types'
 
-interface TrackingStep {
-  status: string
-  date: string
-  location: string
-  completed: boolean
-  current?: boolean
-}
+const PIPELINE: { status: OrderStatus; label: string }[] = [
+  { status: 'PENDING', label: 'Order Placed & Confirmed' },
+  { status: 'PROCESSING', label: 'Processing' },
+  { status: 'SHIPPED', label: 'Shipped' },
+  { status: 'DELIVERED', label: 'Delivered' },
+]
+const PIPELINE_INDEX: Record<OrderStatus, number> = { PENDING: 0, PROCESSING: 1, SHIPPED: 2, DELIVERED: 3, CANCELLED: -1 }
 
 export function TrackOrderPage() {
   useSeoMeta({
@@ -26,53 +33,28 @@ export function TrackOrderPage() {
   })
 
   const [orderNumber, setOrderNumber] = useState('')
-  const [phoneOrEmail, setPhoneOrEmail] = useState('')
-  const [tracked, setTracked] = useState(false)
+  const [contact, setContact] = useState('')
+  const [order, setOrder] = useState<Order | null>(null)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const mockSteps: TrackingStep[] = [
-    {
-      status: 'Order Placed & Confirmed',
-      date: '21 Sep 2026, 04:30 PM',
-      location: 'KAIIRA Central Studio, Surat',
-      completed: true,
-    },
-    {
-      status: 'Quality Inspection & Packed',
-      date: '22 Sep 2026, 11:15 AM',
-      location: 'Hub 04, Surat Logistics Facility',
-      completed: true,
-    },
-    {
-      status: 'In Transit with Express Courier (Delhivery)',
-      date: '23 Sep 2026, 08:45 AM',
-      location: 'En route to Destination Hub',
-      completed: true,
-      current: true,
-    },
-    {
-      status: 'Out for Delivery',
-      date: 'Expected Tomorrow',
-      location: 'Local Delivery Center',
-      completed: false,
-    },
-    {
-      status: 'Delivered',
-      date: 'Expected by 24 Sep 2026',
-      location: 'Doorstep',
-      completed: false,
-    },
-  ]
-
-  const handleTrack = (e: React.FormEvent) => {
+  async function handleTrack(e: React.FormEvent) {
     e.preventDefault()
-    if (!orderNumber.trim()) return
+    if (!orderNumber.trim() || !contact.trim()) return
     setLoading(true)
-    setTimeout(() => {
+    setError(null)
+    setOrder(null)
+    try {
+      const result = await trackOrder(orderNumber.trim(), contact.trim())
+      setOrder(result)
+    } catch (err) {
+      setError(getErrorMessage(err) || "We couldn't find a matching order.")
+    } finally {
       setLoading(false)
-      setTracked(true)
-    }, 400)
+    }
   }
+
+  const currentStepIndex = order ? PIPELINE_INDEX[order.status] : -1
 
   return (
     <div className="min-h-screen bg-white text-black font-sans pb-24">
@@ -83,13 +65,13 @@ export function TrackOrderPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 pb-12 border-b border-black/10">
           <div className="lg:col-span-6 space-y-4">
             <div className="inline-flex items-center gap-2 rounded-2xl border border-black/15 bg-white px-3.5 py-1 text-xs font-semibold text-black">
-              <span>Real-Time Logistics</span>
+              <span>Order Status Lookup</span>
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-black leading-[1.08]">
               Track Your Order
             </h1>
             <p className="text-base sm:text-lg text-black/75 font-medium leading-relaxed">
-              Enter your order number and registered contact details to inspect live courier transit milestones.
+              Enter your order number and the phone or email it was placed under to check its current status.
             </p>
           </div>
 
@@ -98,7 +80,7 @@ export function TrackOrderPage() {
             <form onSubmit={handleTrack} className="space-y-4">
               <div>
                 <label className="block text-xs font-extrabold uppercase tracking-widest text-black/60 mb-2">
-                  Order ID or AWB Number
+                  Order Number
                 </label>
                 <div className="relative">
                   <input
@@ -106,7 +88,7 @@ export function TrackOrderPage() {
                     required
                     value={orderNumber}
                     onChange={(e) => setOrderNumber(e.target.value)}
-                    placeholder="e.g. KR-94812"
+                    placeholder="e.g. #ORD-1001"
                     className="w-full border-b-2 border-black/20 bg-transparent py-3 pl-8 pr-4 text-base font-semibold text-black placeholder:text-black/30 focus:border-black focus:outline-none transition-colors"
                   />
                   <div className="absolute left-0 top-1/2 -translate-y-1/2 text-black/40 pointer-events-none">
@@ -122,8 +104,8 @@ export function TrackOrderPage() {
                 <input
                   type="text"
                   required
-                  value={phoneOrEmail}
-                  onChange={(e) => setPhoneOrEmail(e.target.value)}
+                  value={contact}
+                  onChange={(e) => setContact(e.target.value)}
                   placeholder="+91 98765 43210 or name@example.com"
                   className="w-full border-b-2 border-black/20 bg-transparent py-3 px-1 text-base font-semibold text-black placeholder:text-black/30 focus:border-black focus:outline-none transition-colors"
                 />
@@ -133,100 +115,135 @@ export function TrackOrderPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full sm:w-auto rounded-2xl bg-black px-8 py-3.5 text-xs font-black uppercase tracking-wider text-white hover:bg-neutral-800 active:scale-95 transition-all cursor-pointer shadow-md inline-flex items-center justify-center gap-2"
+                  className="w-full sm:w-auto rounded-2xl bg-black px-8 py-3.5 text-xs font-black uppercase tracking-wider text-white hover:bg-neutral-800 active:scale-95 transition-all cursor-pointer shadow-md inline-flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {loading ? (
                     <span>Checking Records...</span>
                   ) : (
                     <>
                       <HugeiconsIcon icon={Search01Icon} size={16} />
-                      <span>Track Shipment</span>
+                      <span>Track Order</span>
                     </>
                   )}
                 </button>
               </div>
+
+              {error && (
+                <div className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs font-semibold text-red-700">
+                  <HugeiconsIcon icon={Alert02Icon} size={16} className="shrink-0 mt-0.5" />
+                  <span>{error}</span>
+                </div>
+              )}
             </form>
           </div>
         </div>
 
         {/* Live Tracking Result - Clean Editorial View */}
-        {tracked ? (
+        {order ? (
           <div className="pt-12 space-y-10 animate-fade-in-up">
             <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-4 pb-6 border-b border-black/10">
               <div>
-                <span className="text-xs font-extrabold uppercase tracking-widest text-black/40 block">Shipment Status</span>
-                <h3 className="text-3xl font-black text-black tracking-tight mt-1">{orderNumber || 'KR-94812'}</h3>
+                <span className="text-xs font-extrabold uppercase tracking-widest text-black/40 block">Order Status</span>
+                <h3 className="text-3xl font-black text-black tracking-tight mt-1">{order.orderNumber}</h3>
               </div>
-              <div className="inline-flex items-center gap-2 rounded-2xl border border-black bg-black px-4 py-1.5 text-xs font-bold text-white">
+              <div
+                className={`inline-flex items-center gap-2 rounded-2xl border px-4 py-1.5 text-xs font-bold ${
+                  order.status === 'CANCELLED'
+                    ? 'border-rose-600 bg-rose-600 text-white'
+                    : order.status === 'DELIVERED'
+                    ? 'border-emerald-600 bg-emerald-600 text-white'
+                    : 'border-black bg-black text-white'
+                }`}
+              >
                 <span className="h-2 w-2 rounded-full bg-white animate-pulse" />
-                <span>In Transit • On Schedule</span>
+                <span>{PIPELINE.find((p) => p.status === order.status)?.label ?? order.status}</span>
               </div>
             </div>
 
-            {/* Courier Meta Row */}
+            {/* Order Meta Row — real data only */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 py-6 border-b border-black/5 text-sm">
               <div>
-                <span className="text-xs font-extrabold uppercase tracking-wider text-black/45 block">Courier Partner</span>
-                <span className="font-black text-black mt-1 block">Delhivery Express</span>
+                <span className="text-xs font-extrabold uppercase tracking-wider text-black/45 block">Order Date</span>
+                <span className="font-black text-black mt-1 block">{formatDate(order.createdAt)}</span>
               </div>
               <div>
-                <span className="text-xs font-extrabold uppercase tracking-wider text-black/45 block">Estimated Delivery</span>
-                <span className="font-black text-black mt-1 block">Tomorrow, by 8:00 PM</span>
+                <span className="text-xs font-extrabold uppercase tracking-wider text-black/45 block">Payment Status</span>
+                <span className="font-black text-black mt-1 block">
+                  {order.paymentStatus === 'PAID' ? 'Paid' : order.paymentStatus === 'REFUNDED' ? 'Refunded' : 'Pending'}
+                </span>
               </div>
               <div>
-                <span className="text-xs font-extrabold uppercase tracking-wider text-black/45 block">Service Mode</span>
-                <span className="font-black text-black mt-1 block">Air Priority Express</span>
+                <span className="text-xs font-extrabold uppercase tracking-wider text-black/45 block">Items</span>
+                <span className="font-black text-black mt-1 block">{order.itemsCount}</span>
               </div>
               <div>
-                <span className="text-xs font-extrabold uppercase tracking-wider text-black/45 block">Destination</span>
-                <span className="font-black text-black mt-1 block">Registered Address</span>
+                <span className="text-xs font-extrabold uppercase tracking-wider text-black/45 block">Total Paid</span>
+                <span className="font-black text-black mt-1 block">{formatCurrency(order.totalAmount)}</span>
               </div>
             </div>
 
-            {/* Timeline Stream */}
-            <div className="max-w-2xl py-4 space-y-8">
-              {mockSteps.map((step, idx) => (
-                <div key={idx} className="relative flex gap-5">
-                  {idx < mockSteps.length - 1 && (
-                    <div
-                      className={`absolute left-3.5 top-8 bottom-0 w-0.5 ${
-                        step.completed ? 'bg-black' : 'bg-black/15'
-                      }`}
-                    />
-                  )}
+            {/* Timeline — built from the order's real status, not a fixed script */}
+            {order.status === 'CANCELLED' ? (
+              <div className="flex items-center gap-3 rounded-xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm font-bold text-rose-700">
+                <HugeiconsIcon icon={Cancel01Icon} size={20} className="shrink-0" />
+                <span>This order was cancelled.</span>
+              </div>
+            ) : (
+              <div className="max-w-2xl py-4 space-y-8">
+                {PIPELINE.map((step, idx) => {
+                  const completed = idx <= currentStepIndex
+                  const current = idx === currentStepIndex
+                  return (
+                    <div key={step.status} className="relative flex gap-5">
+                      {idx < PIPELINE.length - 1 && (
+                        <div
+                          className={`absolute left-3.5 top-8 bottom-0 w-0.5 ${
+                            idx < currentStepIndex ? 'bg-black' : 'bg-black/15'
+                          }`}
+                        />
+                      )}
 
-                  <div
-                    className={`relative z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs ${
-                      step.current
-                        ? 'border-2 border-black bg-black text-white ring-4 ring-black/10'
-                        : step.completed
-                        ? 'bg-black text-white'
-                        : 'border border-black/30 bg-white text-black/30'
-                    }`}
-                  >
-                    {step.completed ? (
-                      <HugeiconsIcon icon={CheckmarkCircle02Icon} size={14} />
-                    ) : (
-                      <span className="h-1.5 w-1.5 rounded-full bg-black/40" />
-                    )}
-                  </div>
+                      <div
+                        className={`relative z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs ${
+                          current
+                            ? 'border-2 border-black bg-black text-white ring-4 ring-black/10'
+                            : completed
+                            ? 'bg-black text-white'
+                            : 'border border-black/30 bg-white text-black/30'
+                        }`}
+                      >
+                        {completed ? (
+                          <HugeiconsIcon icon={CheckmarkCircle02Icon} size={14} />
+                        ) : (
+                          <span className="h-1.5 w-1.5 rounded-full bg-black/40" />
+                        )}
+                      </div>
 
-                  <div className="flex-1 pb-4">
-                    <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
-                      <h4 className={`text-base font-extrabold ${step.current ? 'text-black font-black' : 'text-black/85'}`}>
-                        {step.status}
-                      </h4>
-                      <span className="text-xs font-bold text-black/45">{step.date}</span>
+                      <div className="flex-1 pb-4">
+                        <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
+                          <h4 className={`text-base font-extrabold ${current ? 'text-black font-black' : 'text-black/85'}`}>
+                            {step.label}
+                          </h4>
+                          {step.status === 'PENDING' && (
+                            <span className="text-xs font-bold text-black/45">{formatDate(order.createdAt)}</span>
+                          )}
+                          {step.status === 'DELIVERED' && order.deliveredAt && (
+                            <span className="text-xs font-bold text-black/45">{formatDate(order.deliveredAt)}</span>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                    <p className="text-sm text-black/60 font-medium mt-1">{step.location}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+                  )
+                })}
+              </div>
+            )}
 
             <div className="pt-4 flex items-center gap-2 text-xs font-medium text-black/60 border-t border-black/10">
               <HugeiconsIcon icon={SecurityCheckIcon} size={18} className="text-black shrink-0" />
-              <span>A secure delivery verification PIN will be sent via SMS before doorstep delivery.</span>
+              <span>
+                Need help with this order? Email{' '}
+                <span className="font-bold text-black">hello.kaiiraofficial@gmail.com</span> with your order number.
+              </span>
             </div>
           </div>
         ) : (
@@ -235,14 +252,14 @@ export function TrackOrderPage() {
               <span className="text-xs font-extrabold uppercase tracking-widest text-black/40">Dispatch Speed</span>
               <h4 className="text-lg font-black text-black">Same-Day Dispatch</h4>
               <p className="text-sm text-black/70 font-medium leading-relaxed">
-                All confirmed orders placed before 1:00 PM are handed over to our express courier network the very same afternoon.
+                All confirmed orders placed before 1:00 PM are handed over to our courier partner the very same afternoon.
               </p>
             </div>
             <div className="space-y-2">
-              <span className="text-xs font-extrabold uppercase tracking-widest text-black/40">Verified Transit</span>
-              <h4 className="text-lg font-black text-black">Real-Time Tracking</h4>
+              <span className="text-xs font-extrabold uppercase tracking-widest text-black/40">Order Status</span>
+              <h4 className="text-lg font-black text-black">Always Up To Date</h4>
               <p className="text-sm text-black/70 font-medium leading-relaxed">
-                Live shipment tracking across our courier partners, from dispatch to doorstep.
+                Look up your order with its order number and the phone or email it was placed under.
               </p>
             </div>
             <div className="space-y-2">
@@ -257,8 +274,7 @@ export function TrackOrderPage() {
       </main>
 
       {/* Smooth Scroll Wipe Out KAIRA Text */}
-      <ScrollWipeKaira subtitle="Seamless tracking and rapid dispatch across all domestic pin codes." />
+      <ScrollWipeKaira subtitle="Real-time order status, straight from checkout to doorstep." />
     </div>
   )
 }
-

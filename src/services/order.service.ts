@@ -38,3 +38,10 @@ export async function listMyOrders() {
   const { data } = await api.get<Order[]>('/orders/mine')
   return data.map(coerceOrder)
 }
+
+// Guest-friendly lookup — no sign-in needed, just the order number plus the
+// phone or email it was placed under.
+export async function trackOrder(orderNumber: string, contact: string) {
+  const { data } = await api.get<Order>('/orders/track', { params: { orderNumber, contact } })
+  return coerceOrder(data)
+}
