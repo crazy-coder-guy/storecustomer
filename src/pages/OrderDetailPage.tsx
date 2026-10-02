@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
   Alert02Icon,
@@ -23,7 +23,7 @@ import { WriteReviewModal } from '../components/WriteReviewModal'
 import { RequestExchangeModal } from '../components/RequestExchangeModal'
 import { useAuth } from '../context/AuthContext'
 import { useReviewableProducts, useEligibleExchangeItems, useMyExchangeRequests } from '../hooks/queries'
-import { getOrder } from '../services/order.service'
+import { getOrder, syncPaymentStatus } from '../services/order.service'
 import { formatCurrency } from '../utils/formatCurrency'
 import { formatDate } from '../utils/formatDate'
 import { openPrintableInvoice } from '../utils/invoice'
@@ -77,11 +77,30 @@ export function OrderDetailPage() {
 
   const { orderId } = useParams<{ orderId: string }>()
   const { user } = useAuth()
+  const queryClient = useQueryClient()
   const { data: order, isLoading, isError } = useQuery({
     queryKey: ['order', orderId],
     queryFn: () => getOrder(orderId as string),
     enabled: Boolean(orderId),
   })
+
+  // Covers a reload/closed tab right after paying — the Razorpay success
+  // callback never ran, so our side never heard the payment went through.
+  // Ask the backend to check directly with Razorpay once, and refresh this
+  // order if it turns out to have actually been paid.
+  useEffect(() => {
+    if (!order || order.paymentStatus !== 'UNPAID') return
+    syncPaymentStatus(order.id)
+      .then((synced) => {
+        if (synced.paymentStatus === 'PAID') {
+          queryClient.setQueryData(['order', orderId], synced)
+        }
+      })
+      .catch(() => {})
+    // Only once per order load — re-running on every render would hammer
+    // Razorpay's API for no benefit.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [order?.id])
   const [reviewTarget, setReviewTarget] = useState<{
     productId: string
     productName: string

@@ -23,7 +23,7 @@ import { useAddresses } from '../hooks/queries'
 import { formatCurrency } from '../utils/formatCurrency'
 import { PLACEHOLDER_PRODUCT_IMAGE } from '../hooks/queries'
 import { openRazorpayCheckout } from '../utils/razorpay'
-import { cancelOrder, createOrder } from '../services/order.service'
+import { cancelOrder, createOrder, syncPaymentStatus } from '../services/order.service'
 import { createRazorpayOrder, verifyPayment } from '../services/payment.service'
 import { getErrorMessage } from '../services/api'
 import { useSeoMeta } from '../hooks/useSeoMeta'
@@ -37,6 +37,13 @@ const schema = z.object({
 
 type CheckoutFormValues = z.infer<typeof schema>
 
+// Survives a full page reload (unlike component state) — if the customer
+// reloads or closes the tab mid-payment, the success callback never runs,
+// so on the next visit to /checkout this is how we know an order is still
+// in flight and needs to be resolved (confirmed paid, or abandoned) before
+// starting a fresh one.
+const PENDING_ORDER_KEY = 'kaiira_pending_order_id'
+
 export function CheckoutPage() {
   useSeoMeta({ title: 'Checkout', robots: 'noindex, nofollow' })
 
@@ -46,7 +53,35 @@ export function CheckoutPage() {
     useCart()
   const { data: savedAddresses } = useAddresses(Boolean(user))
   const [isPlacingOrder, setIsPlacingOrder] = useState(false)
+  const [isResumingOrder, setIsResumingOrder] = useState(true)
   const [selectedAddressId, setSelectedAddressId] = useState<string | 'new' | null>(null)
+
+  // On arriving at checkout (including a fresh reload), resolve any order
+  // left behind by a previous attempt that never got to the success/dismiss
+  // callback — if Razorpay actually captured it, go straight to the
+  // confirmation page instead of letting the customer pay twice; otherwise
+  // cancel the abandoned attempt so it doesn't linger as a dead order.
+  useEffect(() => {
+    const pendingOrderId = localStorage.getItem(PENDING_ORDER_KEY)
+    if (!pendingOrderId) {
+      setIsResumingOrder(false)
+      return
+    }
+    syncPaymentStatus(pendingOrderId)
+      .then((order) => {
+        localStorage.removeItem(PENDING_ORDER_KEY)
+        if (order.paymentStatus === 'PAID') {
+          clearCart()
+          navigate(`/order-confirmation/${order.id}`, { replace: true })
+          return
+        }
+        cancelOrder(pendingOrderId).catch(() => {})
+      })
+      .catch(() => localStorage.removeItem(PENDING_ORDER_KEY))
+      .finally(() => setIsResumingOrder(false))
+    // Only ever check the one pending id found on mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const {
     register,
@@ -85,6 +120,23 @@ export function CheckoutPage() {
 
   const hasStockIssue = items.some((item) => item.stockQuantity === 0 || item.quantity > item.stockQuantity)
 
+  // Block the form while we resolve a leftover order from a previous,
+  // interrupted checkout attempt — otherwise a reload mid-payment could let
+  // the customer submit a second order before we know the first one's fate.
+  if (isResumingOrder) {
+    return (
+      <div className="min-h-screen bg-white text-black flex flex-col justify-between">
+        <div>
+          <Navbar />
+          <main className="py-24 flex items-center justify-center">
+            <p className="text-sm font-semibold text-black/50">Checking your last payment attempt…</p>
+          </main>
+        </div>
+        <Footer />
+      </div>
+    )
+  }
+
   if (items.length === 0 || hasStockIssue) {
     return <Navigate to="/cart" replace />
   }
@@ -101,6 +153,10 @@ export function CheckoutPage() {
       const lineItems = items.map((item) => ({ variantId: item.variantId, quantity: item.quantity }))
       const order = await createOrder({ ...values, items: lineItems, couponCode: couponCode ?? undefined })
       createdOrderId = order.id
+      // Persisted so a reload before the success/dismiss callback fires
+      // (the exact gap where "payment went through but the order never
+      // updated" happens) can still be resolved — see the resume effect above.
+      localStorage.setItem(PENDING_ORDER_KEY, order.id)
       const razorpayOrder = await createRazorpayOrder(order.id)
 
       // Build dynamic description showing the exact items/garments being purchased
@@ -133,6 +189,7 @@ export function CheckoutPage() {
               razorpayPaymentId: response.razorpay_payment_id,
               razorpaySignature: response.razorpay_signature,
             })
+            localStorage.removeItem(PENDING_ORDER_KEY)
             clearCart()
             navigate(`/order-confirmation/${order.id}`)
           } catch (err) {
@@ -144,10 +201,28 @@ export function CheckoutPage() {
         modal: {
           ondismiss: () => {
             setIsPlacingOrder(false)
-            void cancelOrder(order.id).catch(() => {})
-            toast('Payment cancelled', {
-              description: `Order ${razorpayOrder.orderNumber} wasn't placed — your bag is unchanged, retry whenever you're ready.`,
-            })
+            // Razorpay can fire `ondismiss` even once a payment briefly
+            // succeeded (e.g. the handler callback hadn't run yet) — check
+            // directly with Razorpay before assuming this was really a
+            // cancellation, so a payment that actually went through never
+            // gets its order cancelled out from under it.
+            syncPaymentStatus(order.id)
+              .then((synced) => {
+                localStorage.removeItem(PENDING_ORDER_KEY)
+                if (synced.paymentStatus === 'PAID') {
+                  clearCart()
+                  navigate(`/order-confirmation/${order.id}`)
+                  return
+                }
+                void cancelOrder(order.id).catch(() => {})
+                toast('Payment cancelled', {
+                  description: `Order ${razorpayOrder.orderNumber} wasn't placed — your bag is unchanged, retry whenever you're ready.`,
+                })
+              })
+              .catch(() => {
+                localStorage.removeItem(PENDING_ORDER_KEY)
+                void cancelOrder(order.id).catch(() => {})
+              })
           },
         },
       })
@@ -156,7 +231,10 @@ export function CheckoutPage() {
       // The order itself was created but something after that (getting a
       // Razorpay order, opening the checkout modal) failed — cancel it so
       // retrying doesn't pile up another dead PENDING/UNPAID order.
-      if (createdOrderId) void cancelOrder(createdOrderId).catch(() => {})
+      if (createdOrderId) {
+        localStorage.removeItem(PENDING_ORDER_KEY)
+        void cancelOrder(createdOrderId).catch(() => {})
+      }
       toast.error(err instanceof Error ? err.message : getErrorMessage(err) || 'Something went wrong')
     }
   }

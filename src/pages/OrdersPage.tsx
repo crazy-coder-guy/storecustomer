@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -25,7 +25,7 @@ import { WriteReviewModal } from '../components/WriteReviewModal'
 import { RequestExchangeModal } from '../components/RequestExchangeModal'
 import { useAuth } from '../context/AuthContext'
 import { useReviewableProducts, useEligibleExchangeItems, useMyExchangeRequests } from '../hooks/queries'
-import { listMyOrders } from '../services/order.service'
+import { listMyOrders, syncPaymentStatus } from '../services/order.service'
 import { formatCurrency } from '../utils/formatCurrency'
 import { formatDate } from '../utils/formatDate'
 import { openPrintableInvoice } from '../utils/invoice'
@@ -133,6 +133,22 @@ export function OrdersPage() {
     queryFn: listMyOrders,
     enabled: Boolean(user),
   })
+
+  // Self-heal any order still sitting UNPAID with Razorpay — covers a
+  // reload/closed tab right after paying, where our side never heard the
+  // success callback even though the money was captured.
+  const reconciledRef = useRef(false)
+  useEffect(() => {
+    if (reconciledRef.current) return
+    const unpaid = orders.filter((o) => o.paymentStatus === 'UNPAID')
+    if (unpaid.length === 0) return
+    reconciledRef.current = true
+    Promise.allSettled(unpaid.map((o) => syncPaymentStatus(o.id))).then((results) => {
+      if (results.some((r) => r.status === 'fulfilled' && r.value.paymentStatus === 'PAID')) {
+        refetch()
+      }
+    })
+  }, [orders, refetch])
 
   async function handleSignIn() {
     setIsSigningIn(true)
