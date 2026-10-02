@@ -11,4 +11,26 @@ export default defineConfig({
     // device on the same Wi-Fi — e.g. a phone — can reach the dev server.
     host: true,
   },
+  build: {
+    chunkSizeWarningLimit: 1200,
+    rollupOptions: {
+      output: {
+        manualChunks(id: string) {
+          if (id.includes('node_modules/@hugeicons')) {
+            return 'icons'
+          }
+          if (
+            id.includes('node_modules/react') ||
+            id.includes('node_modules/react-dom') ||
+            id.includes('node_modules/react-router-dom')
+          ) {
+            return 'vendor-react'
+          }
+          if (id.includes('node_modules/@tanstack') || id.includes('node_modules/axios')) {
+            return 'vendor-data'
+          }
+        },
+      },
+    },
+  },
 })

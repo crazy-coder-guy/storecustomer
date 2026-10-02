@@ -55,7 +55,13 @@ export function useSeoMeta({ title, description, path, robots = 'index, follow',
     const canonicalUrl = absoluteUrl(canonicalPath)
     const ogImage = image ?? absoluteUrl('/icon-512.png')
 
-    upsertMeta('name', 'robots', robots)
+    const robotsContent =
+      robots === 'index, follow'
+        ? 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1'
+        : robots
+
+    upsertMeta('name', 'robots', robotsContent)
+    upsertMeta('name', 'googlebot', robotsContent)
     if (description) upsertMeta('name', 'description', description)
     upsertLink('canonical', canonicalUrl)
 

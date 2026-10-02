@@ -1,4 +1,133 @@
+# ==============================================================================
+# KAIIRA Robots.txt
+# Full Search Engine & AI Search Crawler Access (SEO, AI Search, LLMs)
+# Website: https://kaiira.in
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# Default Rules for All Search Engine Crawlers (Google, Bing, Yahoo, DuckDuckGo, etc.)
+# ------------------------------------------------------------------------------
 User-agent: *
 Allow: /
+Disallow: /cart
+Disallow: /checkout
+Disallow: /account
+Disallow: /orders
+Disallow: /order-confirmation
+Disallow: /exchange-requests
+Disallow: /login
+Disallow: /auth/
+Disallow: /api/
 
+# ------------------------------------------------------------------------------
+# OpenAI (ChatGPT, SearchGPT, GPTBot)
+# ------------------------------------------------------------------------------
+User-agent: GPTBot
+Allow: /
+Disallow: /cart
+Disallow: /checkout
+Disallow: /account
+Disallow: /orders
+Disallow: /order-confirmation
+Disallow: /exchange-requests
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+# ------------------------------------------------------------------------------
+# Google AI, Search, and Extended Models (Gemini, Google-Extended, Vertex AI)
+# ------------------------------------------------------------------------------
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+Disallow: /cart
+Disallow: /checkout
+Disallow: /account
+Disallow: /orders
+
+User-agent: Googlebot-Image
+Allow: /
+
+# ------------------------------------------------------------------------------
+# Anthropic (Claude, Claude-Web)
+# ------------------------------------------------------------------------------
+User-agent: Claude-Web
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+Disallow: /cart
+Disallow: /checkout
+Disallow: /account
+Disallow: /orders
+
+User-agent: anthropic-ai
+Allow: /
+
+# ------------------------------------------------------------------------------
+# Perplexity AI Search Engine
+# ------------------------------------------------------------------------------
+User-agent: PerplexityBot
+Allow: /
+Disallow: /cart
+Disallow: /checkout
+Disallow: /account
+Disallow: /orders
+
+# ------------------------------------------------------------------------------
+# Apple AI & Intelligence (Applebot, Applebot-Extended)
+# ------------------------------------------------------------------------------
+User-agent: Applebot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+# ------------------------------------------------------------------------------
+# Meta / Facebook AI
+# ------------------------------------------------------------------------------
+User-agent: Meta-ExternalAgent
+Allow: /
+
+User-agent: FacebookBot
+Allow: /
+
+# ------------------------------------------------------------------------------
+# Microsoft / Bing AI (Copilot, Bingbot)
+# ------------------------------------------------------------------------------
+User-agent: Bingbot
+Allow: /
+
+User-agent: msnbot
+Allow: /
+
+# ------------------------------------------------------------------------------
+# ByteDance / TikTok AI
+# ------------------------------------------------------------------------------
+User-agent: Bytespider
+Allow: /
+
+# ------------------------------------------------------------------------------
+# Common Crawl & Open AI Datasets
+# ------------------------------------------------------------------------------
+User-agent: CCBot
+Allow: /
+
+# ------------------------------------------------------------------------------
+# Cohere & Other AI Research Agents
+# ------------------------------------------------------------------------------
+User-agent: cohere-ai
+Allow: /
+
+User-agent: Diffbot
+Allow: /
+
+# ------------------------------------------------------------------------------
+# Sitemap Index
+# ------------------------------------------------------------------------------
 Sitemap: https://kaiira.in/sitemap.xml

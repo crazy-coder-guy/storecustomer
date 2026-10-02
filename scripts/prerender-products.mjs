@@ -155,9 +155,9 @@ function renderProductHtml(template, product) {
 
   // Upsert-by-replace for each tag the base template already declares.
   const replacements = [
-    [/<meta name="description" content=".*?" \/>/s, `<meta name="description" content="${escapeHtml(description)}" />`],
-    [/<meta name="robots" content=".*?" \/>/s, `<meta name="robots" content="index, follow" />`],
-    [/<link rel="canonical" href=".*?" \/>/s, `<link rel="canonical" href="${escapeHtml(canonicalUrl)}" />`],
+    [/<meta\s+name="description"\s+content=".*?"\s*\/?>/s, `<meta name="description" content="${escapeHtml(description)}" />`],
+    [/<meta\s+name="robots"\s+content=".*?"\s*\/?>/s, `<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />`],
+    [/<link\s+rel="canonical"\s+href=".*?"\s*\/?>/s, `<link rel="canonical" href="${escapeHtml(canonicalUrl)}" />`],
     [/<meta property="og:type" content=".*?" \/>/s, `<meta property="og:type" content="product" />`],
     [/<meta property="og:title" content=".*?" \/>/s, `<meta property="og:title" content="${escapeHtml(title)}" />`],
     [/<meta property="og:description" content=".*?" \/>/s, `<meta property="og:description" content="${escapeHtml(description)}" />`],
