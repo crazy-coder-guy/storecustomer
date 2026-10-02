@@ -10,9 +10,10 @@ export function HomePage() {
   // Organization/WebSite JSON-LD lives statically in index.html (so it's
   // visible even without JS) — not repeated here to avoid duplicate blocks.
   useSeoMeta({
-    title: 'Premium Streetwear & Oversized T-Shirts',
+    title: 'KAIIRA | Premium Oversized T-Shirts & Streetwear',
+    exactTitle: true,
     description:
-      "Shop KAIIRA's premium oversized t-shirts, heavyweight tees and modern streetwear. Designed for effortless everyday style. Shop online across Tamil Nadu and India.",
+      "Discover KAIIRA's premium oversized T-shirts, heavyweight tees and modern streetwear. Quality fabrics, modern fits and effortless everyday style. Shop online across Tamil Nadu.",
     path: '/',
   })
 

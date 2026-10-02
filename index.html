@@ -21,6 +21,8 @@
     </script>
     <!-- FontAwesome Brands CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+    <!-- Favicon & Brand Icons -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
@@ -34,10 +36,10 @@
 
     <!-- SEO: title/description/canonical — overridden per-route by useSeoMeta,
          this is what a crawler/bot sees if it never executes our JS. -->
-    <title>KAIIRA — Premium Streetwear & Oversized T-Shirts</title>
+    <title>KAIIRA | Premium Oversized T-Shirts &amp; Streetwear</title>
     <meta
       name="description"
-      content="Shop KAIIRA's premium oversized t-shirts, heavyweight tees and modern streetwear. Designed for effortless everyday style. Shop online across Tamil Nadu and India."
+      content="Discover KAIIRA's premium oversized T-shirts, heavyweight tees and modern streetwear. Quality fabrics, modern fits and effortless everyday style. Shop online across Tamil Nadu."
     />
     <meta
       name="robots"
@@ -56,20 +58,20 @@
     <!-- Open Graph -->
     <meta property="og:site_name" content="KAIIRA" />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="KAIIRA — Premium Streetwear & Oversized T-Shirts" />
+    <meta property="og:title" content="KAIIRA | Premium Oversized T-Shirts &amp; Streetwear" />
     <meta
       property="og:description"
-      content="Shop KAIIRA's premium oversized t-shirts, heavyweight tees and modern streetwear. Designed for effortless everyday style. Shop online across Tamil Nadu and India."
+      content="Discover KAIIRA's premium oversized T-shirts, heavyweight tees and modern streetwear. Quality fabrics, modern fits and effortless everyday style. Shop online across Tamil Nadu."
     />
     <meta property="og:url" content="https://kaiira.in/" />
     <meta property="og:image" content="https://kaiira.in/icon-512.png" />
 
     <!-- Twitter / X Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="KAIIRA — Premium Streetwear & Oversized T-Shirts" />
+    <meta name="twitter:title" content="KAIIRA | Premium Oversized T-Shirts &amp; Streetwear" />
     <meta
       name="twitter:description"
-      content="Shop KAIIRA's premium oversized t-shirts, heavyweight tees and modern streetwear. Designed for effortless everyday style. Shop online across Tamil Nadu and India."
+      content="Discover KAIIRA's premium oversized T-shirts, heavyweight tees and modern streetwear. Quality fabrics, modern fits and effortless everyday style. Shop online across Tamil Nadu."
     />
     <meta name="twitter:image" content="https://kaiira.in/icon-512.png" />
 
@@ -80,8 +82,21 @@
         "@context": "https://schema.org",
         "@type": "Organization",
         "name": "KAIIRA",
+        "legalName": "KAIIRA",
         "url": "https://kaiira.in",
-        "logo": "https://kaiira.in/icon-512.png"
+        "logo": "https://kaiira.in/icon-512.png",
+        "sameAs": [
+          "https://www.instagram.com/hello.kaiiraofficial",
+          "https://www.facebook.com/hello.kaiiraofficia",
+          "https://www.threads.com/@hello.kaiiraofficial",
+          "https://www.youtube.com/@hello.KaiiraOfficial"
+        ],
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "contactType": "customer support",
+          "email": "hello@kaiira.in",
+          "url": "https://kaiira.in/contact"
+        }
       }
     </script>
     <script type="application/ld+json">
@@ -89,7 +104,12 @@
         "@context": "https://schema.org",
         "@type": "WebSite",
         "name": "KAIIRA",
-        "url": "https://kaiira.in"
+        "url": "https://kaiira.in",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://kaiira.in/search?q={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
       }
     </script>
 

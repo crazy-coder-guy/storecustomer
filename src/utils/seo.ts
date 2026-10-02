@@ -21,8 +21,21 @@ export function buildOrganizationJsonLd(): JsonLd {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: SITE_NAME,
+    legalName: 'KAIIRA',
     url: SITE_URL,
     logo: DEFAULT_OG_IMAGE,
+    sameAs: [
+      'https://www.instagram.com/hello.kaiiraofficial',
+      'https://www.facebook.com/hello.kaiiraofficia',
+      'https://www.threads.com/@hello.kaiiraofficial',
+      'https://www.youtube.com/@hello.KaiiraOfficial',
+    ],
+    contactPoint: {
+      '@type': 'ContactPoint',
+      contactType: 'customer support',
+      email: 'hello@kaiira.in',
+      url: `${SITE_URL}/contact`,
+    },
   }
 }
 

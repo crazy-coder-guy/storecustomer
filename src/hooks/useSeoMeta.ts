@@ -4,6 +4,8 @@ import { SITE_NAME, SITE_URL, absoluteUrl, type JsonLd } from '../utils/seo'
 export interface SeoMetaInput {
   /** Rendered as `{title} | KAIIRA`. Pass the bare page/product title. */
   title: string
+  /** If true, uses `title` verbatim without appending ` | KAIIRA`. */
+  exactTitle?: boolean
   description?: string
   /** Site-relative path, e.g. "/products/foo-tee". Defaults to the current location. */
   path?: string
@@ -46,9 +48,9 @@ function upsertLink(rel: string, href: string) {
  * engines) only see whatever index.html ships statically. See the project's
  * SEO notes for the prerendering piece that covers that gap for product pages.
  */
-export function useSeoMeta({ title, description, path, robots = 'index, follow', image, type = 'website', jsonLd }: SeoMetaInput) {
+export function useSeoMeta({ title, exactTitle = false, description, path, robots = 'index, follow', image, type = 'website', jsonLd }: SeoMetaInput) {
   useEffect(() => {
-    const fullTitle = `${title} | ${SITE_NAME}`
+    const fullTitle = exactTitle ? title : `${title} | ${SITE_NAME}`
     document.title = fullTitle
 
     const canonicalPath = path ?? window.location.pathname
