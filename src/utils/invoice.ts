@@ -69,8 +69,7 @@ export function generateInvoiceHtml(order: Order): string {
                 ${item.productName}
               </div>
               <div style="font-size: 12px; color: #666666; font-weight: 500;">
-                Color: <span style="color: #111; font-weight: 600;">${item.colorName}</span> &nbsp;|&nbsp; 
-                Size: <span style="color: #111; font-weight: 700;">${item.sizeCode || item.sizeName}</span>
+                ${item.colorName ? `Color: <span style="color: #111; font-weight: 600;">${item.colorName}</span> &nbsp;|&nbsp; ` : ''}Size: <span style="color: #111; font-weight: 700;">${item.sizeCode || item.sizeName}</span>
               </div>
               <div style="font-size: 11px; color: #888888; margin-top: 3px;">
                 Unit Price: ${formatCurrency(item.unitPrice)}

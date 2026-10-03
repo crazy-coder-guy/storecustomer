@@ -180,7 +180,7 @@ export function OrdersPage() {
         const matchesItem = order.items?.some(
           (item) =>
             item.productName.toLowerCase().includes(query) ||
-            item.colorName.toLowerCase().includes(query) ||
+            Boolean(item.colorName?.toLowerCase().includes(query)) ||
             item.sizeCode.toLowerCase().includes(query)
         )
         return matchesOrderNumber || matchesItem
@@ -518,14 +518,18 @@ export function OrdersPage() {
                                           </h4>
                                         </Link>
                                         <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-black/60">
-                                          <span className="flex items-center gap-1.5">
-                                            <span
-                                              className="h-2.5 w-2.5 rounded-full border border-black/20"
-                                              style={{ backgroundColor: item.colorHex || '#000' }}
-                                            />
-                                            <span>{item.colorName}</span>
-                                          </span>
-                                          <span>•</span>
+                                          {item.colorName && (
+                                            <>
+                                              <span className="flex items-center gap-1.5">
+                                                <span
+                                                  className="h-2.5 w-2.5 rounded-full border border-black/20"
+                                                  style={{ backgroundColor: item.colorHex || '#000' }}
+                                                />
+                                                <span>{item.colorName}</span>
+                                              </span>
+                                              <span>•</span>
+                                            </>
+                                          )}
                                           <span className="font-extrabold text-black/80">
                                             Size: {item.sizeCode}
                                           </span>

@@ -252,7 +252,7 @@ export function OrderConfirmationPage() {
                               {item.productName}
                             </p>
                             <p className="text-[11px] text-neutral-400 font-medium mt-0.5">
-                              {item.colorName} / {item.sizeCode || item.sizeName}
+                              {item.colorName ? `${item.colorName} / ` : ''}{item.sizeCode || item.sizeName}
                             </p>
                             <p className="text-[11px] text-neutral-500 font-medium mt-0.5">
                               Qty: {item.quantity}

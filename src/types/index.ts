@@ -86,14 +86,14 @@ export interface ProductImage {
 export interface ProductVariant {
   id: string
   productId: string
-  colorId: string
+  colorId: string | null
   sizeId: string
   sku: string
   price: number | null
   stockQuantity: number
   badge: string | null
   status: EntityStatus
-  color?: Color
+  color?: Color | null
   size?: Size
 }
 
@@ -173,8 +173,8 @@ export interface OrderItemResponse {
   productSlug: string
   productImageUrl: string | null
   productName: string
-  colorName: string
-  colorHex: string
+  colorName: string | null
+  colorHex: string | null
   sizeName: string
   sizeCode: string
   quantity: number
@@ -230,7 +230,7 @@ export interface CartItemResponse {
   mrp: number
   image: string | null
   size: string
-  color: { name: string; hex: string }
+  color: { name: string; hex: string } | null
   quantity: number
   stockQuantity: number
 }

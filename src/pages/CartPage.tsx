@@ -193,13 +193,15 @@ export function CartPage() {
                                 </span>
 
                                 {/* Color pill */}
-                                <span className="inline-flex items-center gap-1.5 rounded-full border border-black/15 bg-neutral-50 px-2.5 py-0.5 text-[11px] sm:text-xs font-bold text-black">
-                                  <span
-                                    className="h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full border border-black/20"
-                                    style={{ backgroundColor: item.color.hex || '#000' }}
-                                  />
-                                  <span>{item.color.name || 'Black'}</span>
-                                </span>
+                                {item.color && (
+                                  <span className="inline-flex items-center gap-1.5 rounded-full border border-black/15 bg-neutral-50 px-2.5 py-0.5 text-[11px] sm:text-xs font-bold text-black">
+                                    <span
+                                      className="h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full border border-black/20"
+                                      style={{ backgroundColor: item.color.hex || '#000' }}
+                                    />
+                                    <span>{item.color.name || 'Black'}</span>
+                                  </span>
+                                )}
 
                                 {/* Stock status — driven by the real stock figure, not assumed */}
                                 <span

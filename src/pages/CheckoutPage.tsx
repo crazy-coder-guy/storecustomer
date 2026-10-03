@@ -598,7 +598,7 @@ export function CheckoutPage() {
                             {item.name}
                           </p>
                           <p className="text-[11px] text-neutral-400 font-medium mt-0.5">
-                            {item.color.name} / {formatSizeCode(item.size)}
+                            {item.color ? `${item.color.name} / ` : ''}{formatSizeCode(item.size)}
                           </p>
                           <p className="text-[11px] text-neutral-500 font-medium mt-0.5">
                             {item.quantity} × {formatCurrency(item.price)}
