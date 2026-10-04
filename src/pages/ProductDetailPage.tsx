@@ -511,17 +511,12 @@ export function ProductDetailPage() {
 
                   {/* SIZE SELECTOR + INLINE MEASUREMENTS (SIZE CHART) */}
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-black">
+                    <div className="flex items-center justify-between text-xs font-black uppercase tracking-wider text-black">
                       <span>Select Size</span>
-                      {selectedSize && (
-                        <span className="text-[11px] font-semibold text-black/50 normal-case">
-                          Selected: <strong className="text-black uppercase">{selectedSize}</strong>
-                        </span>
-                      )}
                     </div>
 
-                    {/* Size Buttons Grid */}
-                    <div className="grid grid-cols-6 gap-2">
+                    {/* Size Buttons */}
+                    <div className="flex flex-wrap gap-2.5">
                       {sizes.map((size) => {
                         const isSelected = selectedSize === size.code
                         return (
@@ -534,15 +529,30 @@ export function ProductDetailPage() {
                               setQuantity(1)
                             }}
                             title={size.inStock ? undefined : 'Out of stock'}
-                            className={`py-2.5 rounded-xl text-xs font-bold uppercase transition-all ${
+                            className={`min-w-[60px] h-10 px-3.5 rounded-xl text-xs font-black uppercase transition-all flex items-center justify-center gap-1.5 ${
                               !size.inStock
                                 ? 'border border-black/10 bg-neutral-50 text-black/25 line-through cursor-not-allowed'
                                 : isSelected
-                                ? 'bg-black text-white shadow-sm cursor-pointer'
-                                : 'border border-black/20 bg-white text-black hover:border-black cursor-pointer'
+                                ? 'bg-black text-white border border-black shadow-xs cursor-pointer'
+                                : 'border border-black/15 bg-white text-black hover:border-black/50 cursor-pointer'
                             }`}
                           >
-                            {size.code}
+                            <span>{size.code}</span>
+                            {isSelected && (
+                              <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-white text-black shrink-0 shadow-2xs">
+                                <svg
+                                  className="w-2.5 h-2.5"
+                                  viewBox="0 0 12 12"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2.5"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                >
+                                  <polyline points="2.5 6.2 4.7 8.5 9.5 3.5" />
+                                </svg>
+                              </span>
+                            )}
                           </button>
                         )
                       })}

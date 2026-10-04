@@ -342,7 +342,7 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
                 </button>
               </div>
 
-              <div className="grid grid-cols-6 gap-2">
+              <div className="flex flex-wrap gap-2.5">
                 {sizes.map((size) => {
                   const isSelected = selectedSize === size
                   return (
@@ -350,13 +350,28 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
                       key={size}
                       type="button"
                       onClick={() => setSelectedSize(size)}
-                      className={`h-10 rounded-xl text-xs font-black transition-all cursor-pointer border flex items-center justify-center ${
+                      className={`min-w-[56px] h-10 px-3.5 rounded-xl text-xs font-black transition-all cursor-pointer border flex items-center justify-center gap-1.5 ${
                         isSelected
                           ? 'bg-black text-white border-black shadow-xs'
                           : 'bg-white text-black border-black/15 hover:border-black/50'
                       }`}
                     >
-                      {size}
+                      <span>{size}</span>
+                      {isSelected && (
+                        <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-white text-black shrink-0 shadow-2xs">
+                          <svg
+                            className="w-2.5 h-2.5"
+                            viewBox="0 0 12 12"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <polyline points="2.5 6.2 4.7 8.5 9.5 3.5" />
+                          </svg>
+                        </span>
+                      )}
                     </button>
                   )
                 })}
