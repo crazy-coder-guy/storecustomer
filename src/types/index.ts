@@ -126,6 +126,9 @@ export interface StorefrontSettings {
   announcementText: string
   heroTitle: string
   heroSubtitle: string
+  isMaintenance: boolean
+  maintenanceUntil: string | null
+  maintenanceNotice: string | null
   updatedAt: string
 }
 

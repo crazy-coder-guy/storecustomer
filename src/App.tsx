@@ -47,8 +47,27 @@ import { ScrollManager } from './components/ScrollManager'
 import { HapticFeedback } from './components/HapticFeedback'
 import { VisitTracker } from './components/VisitTracker'
 import { RealtimeSync } from './components/RealtimeSync'
+import { MaintenancePage } from './pages/MaintenancePage'
+import { useStorefrontSettings } from './hooks/queries'
 
 export function App() {
+  const { data: settings } = useStorefrontSettings()
+
+  const isUnderMaintenance = Boolean(
+    settings?.isMaintenance &&
+    (!settings.maintenanceUntil || new Date(settings.maintenanceUntil).getTime() > Date.now())
+  )
+
+  if (isUnderMaintenance) {
+    return (
+      <>
+        <RealtimeSync />
+        <MaintenancePage settings={settings} />
+        <Toaster position="top-center" />
+      </>
+    )
+  }
+
   return (
     <AuthProvider>
       <CartProvider>
