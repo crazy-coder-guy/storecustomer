@@ -29,6 +29,40 @@ interface ColorOption {
   hex: string
 }
 
+function formatFit(fit?: string | null): string {
+  if (!fit) return ''
+  switch (fit.toUpperCase()) {
+    case 'OVERSIZED':
+      return 'Oversized Fit'
+    case 'RELAXED':
+      return 'Relaxed Fit'
+    case 'SLIM':
+      return 'Slim Fit'
+    case 'REGULAR':
+      return 'Regular Fit'
+    default:
+      return `${fit} Fit`
+  }
+}
+
+function formatNeck(neck?: string | null): string {
+  if (!neck) return ''
+  switch (neck.toUpperCase()) {
+    case 'CREW':
+      return 'Crew Neck'
+    case 'ROUND':
+      return 'Round Neck'
+    case 'POLO':
+      return 'Polo Collar'
+    case 'V_NECK':
+      return 'V-Neck'
+    case 'MOCK':
+      return 'Mock Neck'
+    default:
+      return `${neck} Neck`
+  }
+}
+
 export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetailDrawerProps) {
   const { addToCart } = useCart()
   const { isInWishlist, toggleWishlist } = useWishlist()
@@ -261,7 +295,7 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
             </div>
 
             {/* Color Selection matching PDP */}
-            {colors.length > 0 && (
+            {colors.length > 1 && (
               <div className="space-y-2 pt-1 border-t border-black/10">
                 <div className="text-xs font-bold text-black uppercase tracking-wider flex items-center justify-between">
                   <span>
@@ -380,8 +414,11 @@ export function ProductDetailDrawer({ productId, isOpen, onClose }: ProductDetai
 
               {openAccordion === 'material' && (
                 <div className="pb-4 animate-fade-in space-y-2 text-sm sm:text-base text-black/80 font-medium leading-relaxed">
-                  <p>• {product.fabric || '100% Combed Heavy Organic Cotton'}</p>
-                  <p>• {product.gsm ? `${product.gsm} GSM heavyweight structured knit` : '240 GSM premium structured knit'}</p>
+                  {product.fabric && <p>• {product.fabric}</p>}
+                  {product.gsm && <p>• {product.gsm} GSM</p>}
+                  {product.fit && <p>• {formatFit(product.fit)}</p>}
+                  {product.neckType && <p>• {formatNeck(product.neckType)}</p>}
+                  {product.biowash && <p>• Bio-washed fabric treatment (pre-shrunk)</p>}
                   <p>• Machine wash cold with similar colors</p>
                   <p>• Do not iron directly on graphic prints</p>
                 </div>

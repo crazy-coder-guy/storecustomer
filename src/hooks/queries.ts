@@ -184,7 +184,7 @@ export function useMyExchangeRequests(enabled = true) {
 function toProductCardData(p: ProductListItem): ProductCardData {
   const images = [...p.images].sort((a, b) => a.sortOrder - b.sortOrder)
   const primary = images.find((img) => img.isPrimary) ?? images[0]
-  const colors = p.colors.map((c) => c.hexCode)
+  const colors = Array.from(new Set(p.colors.map((c) => c.hexCode).filter(Boolean)))
 
   return {
     id: p.id,

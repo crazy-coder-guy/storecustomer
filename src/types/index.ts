@@ -95,6 +95,10 @@ export interface ProductVariant {
   status: EntityStatus
   color?: Color | null
   size?: Size
+  // Per-size garment measurements (inches)
+  chestWidth?: number | null
+  bodyLength?: number | null
+  sleeveLength?: number | null
 }
 
 export interface ProductDetail extends Product {

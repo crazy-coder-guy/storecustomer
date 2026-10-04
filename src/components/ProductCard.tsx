@@ -98,8 +98,9 @@ export function ProductCard({
       ? Math.round(((product.mrp - product.price) / product.mrp) * 100)
       : null
 
-  // Real color swatches only — no fabricated fallback palette.
-  let swatches = product.colors ?? []
+  // Real color swatches only — show swatches ONLY if the product has multiple colors (> 1)
+  const hasMultipleColors = (product.colors?.length ?? 0) > 1
+  let swatches = hasMultipleColors ? (product.colors ?? []) : []
   let extraCount = 0
   if (swatches.length > 4) {
     extraCount = swatches.length - 4
@@ -220,8 +221,8 @@ export function ProductCard({
             )}
           </div>
 
-          {/* Color Swatches Row + count (only when the product has real configured colors) */}
-          {swatches.length > 0 && (
+          {/* Color Swatches Row + count (only when the product has multiple configured colors) */}
+          {hasMultipleColors && swatches.length > 0 && (
             <div className="flex items-center gap-1.5 pt-2">
               <div className="flex items-center gap-1.5">
                 {swatches.map((hex, i) => (

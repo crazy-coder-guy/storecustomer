@@ -4,6 +4,7 @@ import { Navbar } from '../components/Navbar'
 import { Footer } from '../components/Footer'
 import { Skeleton } from '../components/Skeleton'
 import { formatCurrency } from '../utils/formatCurrency'
+import { formatMeasurement } from '../utils/formatMeasurement'
 import { useCart } from '../context/CartContext'
 import { useWishlist } from '../context/WishlistContext'
 import { useProductDetailBySlug, PLACEHOLDER_PRODUCT_IMAGE } from '../hooks/queries'
@@ -28,6 +29,40 @@ interface ColorOption {
   id: string
   name: string
   hex: string
+}
+
+function formatFit(fit?: string | null): string {
+  if (!fit) return ''
+  switch (fit.toUpperCase()) {
+    case 'OVERSIZED':
+      return 'Oversized Fit'
+    case 'RELAXED':
+      return 'Relaxed Fit'
+    case 'SLIM':
+      return 'Slim Fit'
+    case 'REGULAR':
+      return 'Regular Fit'
+    default:
+      return `${fit} Fit`
+  }
+}
+
+function formatNeck(neck?: string | null): string {
+  if (!neck) return ''
+  switch (neck.toUpperCase()) {
+    case 'CREW':
+      return 'Crew Neck'
+    case 'ROUND':
+      return 'Round Neck'
+    case 'POLO':
+      return 'Polo Collar'
+    case 'V_NECK':
+      return 'V-Neck'
+    case 'MOCK':
+      return 'Mock Neck'
+    default:
+      return `${neck} Neck`
+  }
 }
 
 export function ProductDetailPage() {
@@ -445,7 +480,7 @@ export function ProductDetailPage() {
 
                 <div className="border-t border-black/10 pt-3.5 space-y-4">
                   {/* COLOR SELECTOR */}
-                  {colors.length > 0 && (
+                  {colors.length > 1 && (
                     <div className="space-y-2">
                       <div className="text-xs font-bold text-black uppercase tracking-wider">
                         Color: <span className="font-extrabold text-black">{selectedColor?.name || 'Default'}</span>
@@ -615,8 +650,11 @@ export function ProductDetailPage() {
                     </button>
                     {openAccordion === 'material' && (
                       <div className="pb-5 animate-fade-in space-y-2 text-sm sm:text-base text-black/80 font-medium leading-relaxed">
-                        <p>• {product.fabric || '100% Combed Heavy Organic Cotton'}</p>
-                        <p>• {product.gsm ? `${product.gsm} GSM heavyweight structured knit` : '240 GSM premium structured knit'}</p>
+                        {product.fabric && <p>• {product.fabric}</p>}
+                        {product.gsm && <p>• {product.gsm} GSM</p>}
+                        {product.fit && <p>• {formatFit(product.fit)}</p>}
+                        {product.neckType && <p>• {formatNeck(product.neckType)}</p>}
+                        {product.biowash && <p>• Bio-washed fabric treatment (pre-shrunk)</p>}
                         <p>• Machine wash cold with similar colors</p>
                         <p>• Do not iron directly on graphic prints</p>
                       </div>
@@ -687,7 +725,7 @@ export function ProductDetailPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fade-in">
           <div className="relative w-full max-w-lg rounded-3xl bg-white p-6 sm:p-8 shadow-2xl">
             <div className="flex items-center justify-between pb-4 border-b border-neutral-100">
-              <h3 className="text-lg font-black uppercase tracking-wider text-black">Size Guide (Inches)</h3>
+              <h3 className="text-lg font-black uppercase tracking-wider text-black">Size Guide</h3>
               <button
                 type="button"
                 onClick={() => setIsSizeGuideOpen(false)}
@@ -697,65 +735,77 @@ export function ProductDetailPage() {
               </button>
             </div>
 
-            <div className="py-4 space-y-4">
-              <table className="w-full text-left text-xs font-bold">
-                <thead>
-                  <tr className="border-b border-neutral-200 text-neutral-400 uppercase">
-                    <th className="py-2.5">Size</th>
-                    <th className="py-2.5">Chest</th>
-                    <th className="py-2.5">Length</th>
-                    <th className="py-2.5">Shoulder</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-neutral-100 text-neutral-800">
-                  <tr>
-                    <td className="py-2 font-black">XS</td>
-                    <td className="py-2">38 - 40"</td>
-                    <td className="py-2">27.5"</td>
-                    <td className="py-2">19.5"</td>
-                  </tr>
-                  <tr>
-                    <td className="py-2 font-black">S</td>
-                    <td className="py-2">40 - 42"</td>
-                    <td className="py-2">28.5"</td>
-                    <td className="py-2">20.0"</td>
-                  </tr>
-                  <tr>
-                    <td className="py-2 font-black">M</td>
-                    <td className="py-2">42 - 44"</td>
-                    <td className="py-2">29.5"</td>
-                    <td className="py-2">21.0"</td>
-                  </tr>
-                  <tr>
-                    <td className="py-2 font-black">L</td>
-                    <td className="py-2">44 - 46"</td>
-                    <td className="py-2">30.5"</td>
-                    <td className="py-2">22.0"</td>
-                  </tr>
-                  <tr>
-                    <td className="py-2 font-black">XL</td>
-                    <td className="py-2">46 - 48"</td>
-                    <td className="py-2">31.5"</td>
-                    <td className="py-2">23.0"</td>
-                  </tr>
-                  <tr>
-                    <td className="py-2 font-black">XXL</td>
-                    <td className="py-2">48 - 50"</td>
-                    <td className="py-2">32.5"</td>
-                    <td className="py-2">24.0"</td>
-                  </tr>
-                </tbody>
-              </table>
+            {/* Dynamic variant measurements */}
+            {(() => {
+              // Collect one row per unique size, using the currently selected color if present.
+              const variantRows = product?.variants
+                .filter((v) => !selectedColor || v.colorId === selectedColor.id || !v.colorId)
+                .filter((v) => v.size && (v.chestWidth || v.bodyLength || v.sleeveLength))
+                .reduce((acc, v) => {
+                  const key = v.size!.code
+                  if (!acc.has(key)) acc.set(key, v)
+                  return acc
+                }, new Map())
 
-              <div className="pt-2 text-center">
-                <Link
-                  to="/size-guide"
-                  className="text-xs font-extrabold text-neutral-800 underline underline-offset-4 hover:text-black"
-                >
-                  View full measurement guide & instructions →
-                </Link>
-              </div>
-            </div>
+              const hasDynamic = variantRows && variantRows.size > 0
+
+              return (
+                <div className="py-4 space-y-4">
+                  <p className="text-[11px] font-semibold text-black/40 uppercase tracking-wider">
+                    All measurements in inches&nbsp;/&nbsp;cm
+                  </p>
+                  <table className="w-full text-left text-xs font-bold">
+                    <thead>
+                      <tr className="border-b border-neutral-200 text-neutral-400 uppercase">
+                        <th className="py-2.5">Size</th>
+                        <th className="py-2.5">Chest</th>
+                        <th className="py-2.5">Length</th>
+                        <th className="py-2.5">Sleeve</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-neutral-100 text-neutral-800">
+                      {hasDynamic
+                        ? Array.from(variantRows!.values())
+                            .sort((a: any, b: any) => (a.size?.sortOrder ?? 0) - (b.size?.sortOrder ?? 0))
+                            .map((v: any) => (
+                              <tr key={v.id}>
+                                <td className="py-2.5 font-black">{v.size?.code}</td>
+                                <td className="py-2.5 font-medium">{formatMeasurement(v.chestWidth)}</td>
+                                <td className="py-2.5 font-medium">{formatMeasurement(v.bodyLength)}</td>
+                                <td className="py-2.5 font-medium">{formatMeasurement(v.sleeveLength)}</td>
+                              </tr>
+                            ))
+                        : /* fallback static table */
+                          [
+                            { s: 'XS', chest: '38 - 40" / 96-102 cm', len: '27.5" / 69.9 cm', slv: '7.5" / 19.1 cm' },
+                            { s: 'S',  chest: '40 - 42" / 102-107 cm', len: '28.5" / 72.4 cm', slv: '8.0" / 20.3 cm' },
+                            { s: 'M',  chest: '42 - 44" / 107-112 cm', len: '29.5" / 74.9 cm', slv: '8.5" / 21.6 cm' },
+                            { s: 'L',  chest: '44 - 46" / 112-117 cm', len: '30.5" / 77.5 cm', slv: '9.0" / 22.9 cm' },
+                            { s: 'XL', chest: '46 - 48" / 117-122 cm', len: '31.5" / 80.0 cm', slv: '9.5" / 24.1 cm' },
+                            { s: 'XXL',chest: '48 - 50" / 122-127 cm', len: '32.5" / 82.6 cm', slv: '10.0" / 25.4 cm' },
+                          ].map((row) => (
+                            <tr key={row.s}>
+                              <td className="py-2.5 font-black">{row.s}</td>
+                              <td className="py-2.5 font-medium">{row.chest}</td>
+                              <td className="py-2.5 font-medium">{row.len}</td>
+                              <td className="py-2.5 font-medium">{row.slv}</td>
+                            </tr>
+                          ))
+                      }
+                    </tbody>
+                  </table>
+
+                  <div className="pt-2 text-center">
+                    <Link
+                      to="/size-guide"
+                      className="text-xs font-extrabold text-neutral-800 underline underline-offset-4 hover:text-black"
+                    >
+                      View full measurement guide &amp; instructions →
+                    </Link>
+                  </div>
+                </div>
+              )
+            })()}
           </div>
         </div>
       )}

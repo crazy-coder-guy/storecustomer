@@ -228,7 +228,7 @@ export function ShareModal({
           </div>
 
           {/* Color Palette Swatches */}
-          {colors && colors.length > 0 && (
+          {colors && colors.length > 1 && (
             <div className="flex items-center gap-2 pt-1 border-t border-neutral-50">
               <span className="text-[11px] font-semibold text-neutral-500">
                 Available Colors:
