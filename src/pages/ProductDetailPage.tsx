@@ -73,7 +73,6 @@ export function ProductDetailPage() {
   // Accordion state
   const [openAccordion, setOpenAccordion] = useState<string | null>('description')
   const [quantity, setQuantity] = useState(1)
-  const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false)
   const [isZoomOpen, setIsZoomOpen] = useState(false)
   const [isShareOpen, setIsShareOpen] = useState(false)
 
@@ -510,18 +509,15 @@ export function ProductDetailPage() {
                     </div>
                   )}
 
-                  {/* SIZE SELECTOR + SIZE GUIDE LINK */}
-                  <div className="space-y-2">
+                  {/* SIZE SELECTOR + INLINE MEASUREMENTS (SIZE CHART) */}
+                  <div className="space-y-3">
                     <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-black">
                       <span>Select Size</span>
-                      <button
-                        type="button"
-                        onClick={() => setIsSizeGuideOpen(true)}
-                        className="flex items-center gap-1.5 text-xs font-bold text-black/60 hover:text-black transition-colors cursor-pointer underline-offset-4 hover:underline"
-                      >
-                        <HugeiconsIcon icon={RulerIcon} size={14} />
-                        <span>Size Guide</span>
-                      </button>
+                      {selectedSize && (
+                        <span className="text-[11px] font-semibold text-black/50 normal-case">
+                          Selected: <strong className="text-black uppercase">{selectedSize}</strong>
+                        </span>
+                      )}
                     </div>
 
                     {/* Size Buttons Grid */}
@@ -551,6 +547,177 @@ export function ProductDetailPage() {
                         )
                       })}
                     </div>
+
+                    {/* DIRECT INLINE GARMENT MEASUREMENTS (SIZE CHART) */}
+                    {(() => {
+                      const variantRows = product?.variants
+                        ?.filter((v) => !selectedColor || v.colorId === selectedColor.id || !v.colorId)
+                        ?.filter(
+                          (v) =>
+                            v.size &&
+                            (v.chestWidth || v.bodyLength || v.sleeveLength || v.shoulderWidth)
+                        )
+                        ?.reduce((acc, v) => {
+                          const key = v.size!.code
+                          if (!acc.has(key)) acc.set(key, v)
+                          return acc
+                        }, new Map<string, any>())
+
+                      const hasDynamic = variantRows && variantRows.size > 0
+
+                      return (
+                        <div className="rounded-2xl border border-black/10 bg-neutral-50/70 p-3 sm:p-3.5 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-1.5 text-black">
+                              <HugeiconsIcon icon={RulerIcon} size={14} className="text-black/70" />
+                              <span className="text-xs font-extrabold uppercase tracking-wider">
+                                Size Chart &amp; Measurements
+                              </span>
+                            </div>
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-black/50 bg-black/5 px-2 py-0.5 rounded-md">
+                              Inches / CM
+                            </span>
+                          </div>
+
+                          <div className="overflow-x-auto -mx-1 px-1">
+                            <table className="w-full text-left text-xs">
+                              <thead>
+                                <tr className="border-b border-black/10 text-[10px] font-black uppercase tracking-wider text-black/45">
+                                  <th className="py-1.5 pr-2">Size</th>
+                                  <th className="py-1.5 px-1.5">Chest</th>
+                                  <th className="py-1.5 px-1.5">Length</th>
+                                  <th className="py-1.5 px-1.5">Shoulder</th>
+                                  <th className="py-1.5 pl-1.5">Sleeve</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-black/5 text-[11px] sm:text-xs">
+                                {hasDynamic
+                                  ? Array.from(variantRows!.values())
+                                      .sort(
+                                        (a: any, b: any) =>
+                                          (a.size?.sortOrder ?? 0) - (b.size?.sortOrder ?? 0)
+                                      )
+                                      .map((v: any) => {
+                                        const isSelected = selectedSize === v.size?.code
+                                        return (
+                                          <tr
+                                            key={v.id}
+                                            onClick={() => v.size?.code && setSelectedSize(v.size.code)}
+                                            className={`transition-colors cursor-pointer ${
+                                              isSelected
+                                                ? 'bg-black text-white font-bold'
+                                                : 'text-neutral-800 hover:bg-black/5'
+                                            }`}
+                                            title="Click to select this size"
+                                          >
+                                            <td
+                                              className={`py-2 pr-2 font-black rounded-l-lg ${
+                                                isSelected ? 'text-white pl-2' : ''
+                                              }`}
+                                            >
+                                              {v.size?.code}
+                                            </td>
+                                            <td className="py-2 px-1.5 font-medium">
+                                              {formatMeasurement(v.chestWidth)}
+                                            </td>
+                                            <td className="py-2 px-1.5 font-medium">
+                                              {formatMeasurement(v.bodyLength)}
+                                            </td>
+                                            <td className="py-2 px-1.5 font-medium">
+                                              {formatMeasurement(v.shoulderWidth)}
+                                            </td>
+                                            <td
+                                              className={`py-2 pl-1.5 font-medium rounded-r-lg ${
+                                                isSelected ? 'pr-2' : ''
+                                              }`}
+                                            >
+                                              {formatMeasurement(v.sleeveLength)}
+                                            </td>
+                                          </tr>
+                                        )
+                                      })
+                                  : [
+                                      {
+                                        s: 'XS',
+                                        chest: '38" / 96.5 cm',
+                                        len: '27.5" / 69.9 cm',
+                                        shldr: '19.5" / 49.5 cm',
+                                        slv: '7.5" / 19.1 cm',
+                                      },
+                                      {
+                                        s: 'S',
+                                        chest: '40" / 101.6 cm',
+                                        len: '28.5" / 72.4 cm',
+                                        shldr: '20.5" / 52.1 cm',
+                                        slv: '8.0" / 20.3 cm',
+                                      },
+                                      {
+                                        s: 'M',
+                                        chest: '42" / 106.7 cm',
+                                        len: '29.5" / 74.9 cm',
+                                        shldr: '21.5" / 54.6 cm',
+                                        slv: '8.5" / 21.6 cm',
+                                      },
+                                      {
+                                        s: 'L',
+                                        chest: '44" / 111.8 cm',
+                                        len: '30.5" / 77.5 cm',
+                                        shldr: '22.5" / 57.2 cm',
+                                        slv: '9.0" / 22.9 cm',
+                                      },
+                                      {
+                                        s: 'XL',
+                                        chest: '46" / 116.8 cm',
+                                        len: '31.5" / 80.0 cm',
+                                        shldr: '23.5" / 59.7 cm',
+                                        slv: '9.5" / 24.1 cm',
+                                      },
+                                      {
+                                        s: 'XXL',
+                                        chest: '48" / 121.9 cm',
+                                        len: '32.5" / 82.6 cm',
+                                        shldr: '24.5" / 62.2 cm',
+                                        slv: '10.0" / 25.4 cm',
+                                      },
+                                    ].map((row) => {
+                                      const isSelected = selectedSize === row.s
+                                      return (
+                                        <tr
+                                          key={row.s}
+                                          onClick={() => setSelectedSize(row.s)}
+                                          className={`transition-colors cursor-pointer ${
+                                            isSelected
+                                              ? 'bg-black text-white font-bold'
+                                              : 'text-neutral-800 hover:bg-black/5'
+                                          }`}
+                                          title="Click to select this size"
+                                        >
+                                          <td
+                                            className={`py-2 pr-2 font-black rounded-l-lg ${
+                                              isSelected ? 'text-white pl-2' : ''
+                                            }`}
+                                          >
+                                            {row.s}
+                                          </td>
+                                          <td className="py-2 px-1.5 font-medium">{row.chest}</td>
+                                          <td className="py-2 px-1.5 font-medium">{row.len}</td>
+                                          <td className="py-2 px-1.5 font-medium">{row.shldr}</td>
+                                          <td
+                                            className={`py-2 pl-1.5 font-medium rounded-r-lg ${
+                                              isSelected ? 'pr-2' : ''
+                                            }`}
+                                          >
+                                            {row.slv}
+                                          </td>
+                                        </tr>
+                                      )
+                                    })}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      )
+                    })()}
                   </div>
 
                   {/* QUANTITY STEPPER + "ADD TO BAG" CTA BUTTON */}
@@ -716,96 +883,6 @@ export function ProductDetailPage() {
               alt={product.name}
               className="max-h-[85vh] w-auto object-contain rounded-xl"
             />
-          </div>
-        </div>
-      )}
-
-      {/* Size Guide Modal Drawer */}
-      {isSizeGuideOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fade-in">
-          <div className="relative w-full max-w-lg rounded-3xl bg-white p-6 sm:p-8 shadow-2xl">
-            <div className="flex items-center justify-between pb-4 border-b border-neutral-100">
-              <h3 className="text-lg font-black uppercase tracking-wider text-black">Size Guide</h3>
-              <button
-                type="button"
-                onClick={() => setIsSizeGuideOpen(false)}
-                className="flex h-8 w-8 items-center justify-center rounded-full bg-neutral-100 text-neutral-600 hover:text-black cursor-pointer"
-              >
-                <HugeiconsIcon icon={Cancel01Icon} size={16} />
-              </button>
-            </div>
-
-            {/* Dynamic variant measurements */}
-            {(() => {
-              // Collect one row per unique size, using the currently selected color if present.
-              const variantRows = product?.variants
-                .filter((v) => !selectedColor || v.colorId === selectedColor.id || !v.colorId)
-                .filter((v) => v.size && (v.chestWidth || v.bodyLength || v.sleeveLength))
-                .reduce((acc, v) => {
-                  const key = v.size!.code
-                  if (!acc.has(key)) acc.set(key, v)
-                  return acc
-                }, new Map())
-
-              const hasDynamic = variantRows && variantRows.size > 0
-
-              return (
-                <div className="py-4 space-y-4">
-                  <p className="text-[11px] font-semibold text-black/40 uppercase tracking-wider">
-                    All measurements in inches&nbsp;/&nbsp;cm
-                  </p>
-                  <table className="w-full text-left text-xs font-bold">
-                    <thead>
-                      <tr className="border-b border-neutral-200 text-neutral-400 uppercase">
-                        <th className="py-2.5">Size</th>
-                        <th className="py-2.5">Chest</th>
-                        <th className="py-2.5">Length</th>
-                        <th className="py-2.5">Sleeve</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-neutral-100 text-neutral-800">
-                      {hasDynamic
-                        ? Array.from(variantRows!.values())
-                            .sort((a: any, b: any) => (a.size?.sortOrder ?? 0) - (b.size?.sortOrder ?? 0))
-                            .map((v: any) => (
-                              <tr key={v.id}>
-                                <td className="py-2.5 font-black">{v.size?.code}</td>
-                                <td className="py-2.5 font-medium">{formatMeasurement(v.chestWidth)}</td>
-                                <td className="py-2.5 font-medium">{formatMeasurement(v.bodyLength)}</td>
-                                <td className="py-2.5 font-medium">{formatMeasurement(v.sleeveLength)}</td>
-                              </tr>
-                            ))
-                        : /* fallback static table */
-                          [
-                            { s: 'XS', chest: '38 - 40" / 96-102 cm', len: '27.5" / 69.9 cm', slv: '7.5" / 19.1 cm' },
-                            { s: 'S',  chest: '40 - 42" / 102-107 cm', len: '28.5" / 72.4 cm', slv: '8.0" / 20.3 cm' },
-                            { s: 'M',  chest: '42 - 44" / 107-112 cm', len: '29.5" / 74.9 cm', slv: '8.5" / 21.6 cm' },
-                            { s: 'L',  chest: '44 - 46" / 112-117 cm', len: '30.5" / 77.5 cm', slv: '9.0" / 22.9 cm' },
-                            { s: 'XL', chest: '46 - 48" / 117-122 cm', len: '31.5" / 80.0 cm', slv: '9.5" / 24.1 cm' },
-                            { s: 'XXL',chest: '48 - 50" / 122-127 cm', len: '32.5" / 82.6 cm', slv: '10.0" / 25.4 cm' },
-                          ].map((row) => (
-                            <tr key={row.s}>
-                              <td className="py-2.5 font-black">{row.s}</td>
-                              <td className="py-2.5 font-medium">{row.chest}</td>
-                              <td className="py-2.5 font-medium">{row.len}</td>
-                              <td className="py-2.5 font-medium">{row.slv}</td>
-                            </tr>
-                          ))
-                      }
-                    </tbody>
-                  </table>
-
-                  <div className="pt-2 text-center">
-                    <Link
-                      to="/size-guide"
-                      className="text-xs font-extrabold text-neutral-800 underline underline-offset-4 hover:text-black"
-                    >
-                      View full measurement guide &amp; instructions →
-                    </Link>
-                  </div>
-                </div>
-              )
-            })()}
           </div>
         </div>
       )}

@@ -99,6 +99,7 @@ export interface ProductVariant {
   chestWidth?: number | string | null
   bodyLength?: number | string | null
   sleeveLength?: number | string | null
+  shoulderWidth?: number | string | null
 }
 
 export interface ProductDetail extends Product {
