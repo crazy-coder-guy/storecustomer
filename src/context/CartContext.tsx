@@ -26,6 +26,7 @@ interface CartContextType {
   subtotal: number
   totalDiscount: number
   deliveryFee: number
+  freeDeliveryThreshold: number
   finalTotal: number
   couponCode: string | null
   couponDiscount: number
@@ -102,6 +103,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const subtotal = summary.subtotal
   const totalDiscount = summary.discount
   const deliveryFee = summary.deliveryFee
+  const freeDeliveryThreshold = summary.freeDeliveryThreshold
   const finalTotal = summary.total
   const couponCode = summary.couponCode
   const couponDiscount = summary.couponDiscount
@@ -147,6 +149,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         subtotal,
         totalDiscount,
         deliveryFee,
+        freeDeliveryThreshold,
         finalTotal,
         couponCode,
         couponDiscount,

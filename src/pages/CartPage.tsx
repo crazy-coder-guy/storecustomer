@@ -33,6 +33,7 @@ export function CartPage() {
     subtotal,
     totalDiscount,
     deliveryFee,
+    freeDeliveryThreshold,
     finalTotal,
     couponCode,
     couponDiscount,
@@ -418,7 +419,9 @@ export function CartPage() {
                             <HugeiconsIcon icon={DeliveryTruck01Icon} size={16} />
                           </div>
                           <p className="text-xs font-black text-black">Free Shipping</p>
-                          <p className="text-[10px] text-black/50">Orders above ₹399</p>
+                          <p className="text-[10px] text-black/50">
+                            {freeDeliveryThreshold > 0 ? `Orders above ${formatCurrency(freeDeliveryThreshold)}` : 'On every order'}
+                          </p>
                         </div>
 
                         <div className="space-y-1">
