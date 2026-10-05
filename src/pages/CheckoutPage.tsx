@@ -168,6 +168,10 @@ export function CheckoutPage() {
     setValue('state', '')
   }
 
+  const isUsingSavedAddress = selectedAddressId !== null && selectedAddressId !== 'new'
+
+  const hasStockIssue = items.some((item) => item.stockQuantity === 0 || item.quantity > item.stockQuantity)
+
   // Fires once the checkout page is actually usable (not mid-resume, cart
   // intact) — not on every re-render as the form state changes.
   const hasFiredInitiateCheckout = useRef(false)
@@ -182,10 +186,6 @@ export function CheckoutPage() {
       currency: 'INR',
     })
   }, [isResumingOrder, items, hasStockIssue, cartCount, finalTotal])
-
-  const isUsingSavedAddress = selectedAddressId !== null && selectedAddressId !== 'new'
-
-  const hasStockIssue = items.some((item) => item.stockQuantity === 0 || item.quantity > item.stockQuantity)
 
   // Block the form while we resolve a leftover order from a previous,
   // interrupted checkout attempt — otherwise a reload mid-payment could let
