@@ -44,6 +44,7 @@ import { NotificationPermissionPrompt } from './components/NotificationPermissio
 import { InstallAppPrompt } from './components/InstallAppPrompt'
 import { SplashScreen } from './components/SplashScreen'
 import { ScrollManager } from './components/ScrollManager'
+import { PixelPageViewTracker } from './components/PixelPageViewTracker'
 import { HapticFeedback } from './components/HapticFeedback'
 import { VisitTracker } from './components/VisitTracker'
 import { RealtimeSync } from './components/RealtimeSync'
@@ -79,6 +80,7 @@ export function App() {
           <WishlistProvider>
             <BrowserRouter>
               <ScrollManager />
+              <PixelPageViewTracker />
               <WishlistDrawer />
               <Routes>
                 <Route path="/" element={<HomePage />} />

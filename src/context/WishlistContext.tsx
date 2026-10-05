@@ -4,6 +4,7 @@ import { toast } from 'sonner'
 import { useAuth } from './AuthContext'
 import * as favoriteService from '../services/favorite.service'
 import { getErrorMessage } from '../services/api'
+import { trackPixelEvent } from '../lib/metaPixel'
 
 interface WishlistContextType {
   wishlistIds: string[]
@@ -70,6 +71,7 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
     }
     await addMutation.mutateAsync(productId)
     queryClient.invalidateQueries({ queryKey: wishlistKey })
+    trackPixelEvent('AddToWishlist', { content_ids: [productId], content_type: 'product' })
   }
 
   function removeFromWishlist(productId: string) {

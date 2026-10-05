@@ -239,6 +239,18 @@
       </svg>
     </div>
 
+    <!-- Meta Pixel noscript fallback — the fbq init/PageView call itself lives
+         in src/lib/metaPixel.ts (JS-gated to production, see initMetaPixel()) -->
+    <noscript>
+      <img
+        height="1"
+        width="1"
+        style="display:none"
+        src="https://www.facebook.com/tr?id=1753947472423218&ev=PageView&noscript=1"
+        alt=""
+      />
+    </noscript>
+
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

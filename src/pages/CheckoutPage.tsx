@@ -29,6 +29,7 @@ import { createRazorpayOrder, verifyPayment } from '../services/payment.service'
 import { lookupPincode } from '../services/pincode.service'
 import { getErrorMessage } from '../services/api'
 import { useSeoMeta } from '../hooks/useSeoMeta'
+import { trackPixelEvent } from '../lib/metaPixel'
 import type { Address } from '../types'
 
 const schema = z.object({
@@ -167,6 +168,21 @@ export function CheckoutPage() {
     setValue('state', '')
   }
 
+  // Fires once the checkout page is actually usable (not mid-resume, cart
+  // intact) — not on every re-render as the form state changes.
+  const hasFiredInitiateCheckout = useRef(false)
+  useEffect(() => {
+    if (hasFiredInitiateCheckout.current) return
+    if (isResumingOrder || items.length === 0 || hasStockIssue) return
+    hasFiredInitiateCheckout.current = true
+    trackPixelEvent('InitiateCheckout', {
+      content_ids: items.map((item) => item.variantId),
+      num_items: cartCount,
+      value: finalTotal,
+      currency: 'INR',
+    })
+  }, [isResumingOrder, items, hasStockIssue, cartCount, finalTotal])
+
   const isUsingSavedAddress = selectedAddressId !== null && selectedAddressId !== 'new'
 
   const hasStockIssue = items.some((item) => item.stockQuantity === 0 || item.quantity > item.stockQuantity)
@@ -209,6 +225,12 @@ export function CheckoutPage() {
       // updated" happens) can still be resolved — see the resume effect above.
       localStorage.setItem(PENDING_ORDER_KEY, order.id)
       const razorpayOrder = await createRazorpayOrder(order.id)
+      trackPixelEvent('AddPaymentInfo', {
+        content_ids: items.map((item) => item.variantId),
+        num_items: cartCount,
+        value: finalTotal,
+        currency: 'INR',
+      })
 
       // Build dynamic description showing the exact items/garments being purchased
       const itemsSummary = items
@@ -241,6 +263,12 @@ export function CheckoutPage() {
               razorpaySignature: response.razorpay_signature,
             })
             localStorage.removeItem(PENDING_ORDER_KEY)
+            trackPixelEvent('Purchase', {
+              content_ids: items.map((item) => item.variantId),
+              num_items: cartCount,
+              value: finalTotal,
+              currency: 'INR',
+            })
             clearCart()
             navigate(`/order-confirmation/${order.id}`)
           } catch (err) {

@@ -13,6 +13,7 @@ import { useSearchProducts, PLACEHOLDER_PRODUCT_IMAGE } from '../hooks/queries'
 import { Reveal } from '../components/Reveal'
 import { formatCurrency } from '../utils/formatCurrency'
 import { useSeoMeta } from '../hooks/useSeoMeta'
+import { trackPixelEvent } from '../lib/metaPixel'
 
 const POPULAR_SEARCHES = [
   'Oversized Shirts',
@@ -73,6 +74,17 @@ export function SearchPage() {
 
   const { data, isLoading } = useSearchProducts(debouncedQuery)
   const products = data?.items ?? []
+
+  // Fires once per settled (debounced) query, after results come back —
+  // not on every keystroke.
+  useEffect(() => {
+    if (!debouncedQuery || !data) return
+    trackPixelEvent('Search', {
+      search_string: debouncedQuery,
+      content_ids: products.map((p) => p.id),
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedQuery, data])
 
   return (
     <div className="min-h-screen bg-neutral-50 pb-20 font-sans text-black">

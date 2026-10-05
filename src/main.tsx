@@ -4,9 +4,11 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import './index.css'
 import App from './App.tsx'
 import { initClarity } from './lib/clarity'
+import { initMetaPixel } from './lib/metaPixel'
 import { printConsoleBanner } from './lib/consoleBanner'
 
 initClarity()
+initMetaPixel()
 printConsoleBanner()
 
 const queryClient = new QueryClient({

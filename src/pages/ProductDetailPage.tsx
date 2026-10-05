@@ -12,6 +12,7 @@ import { Reveal } from '../components/Reveal'
 import { ShareModal } from '../components/ShareModal'
 import { ProductReviews } from '../components/ProductReviews'
 import { useSeoMeta } from '../hooks/useSeoMeta'
+import { trackPixelEvent } from '../lib/metaPixel'
 import { buildProductJsonLd, buildProductBreadcrumb, buildBreadcrumbJsonLd } from '../utils/seo'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
@@ -131,6 +132,17 @@ export function ProductDetailPage() {
   useEffect(() => {
     setSelectedImage(images[0] || PLACEHOLDER_PRODUCT_IMAGE)
   }, [images])
+
+  useEffect(() => {
+    if (!product) return
+    trackPixelEvent('ViewContent', {
+      content_ids: [product.id],
+      content_name: product.name,
+      content_type: 'product',
+      value: Number(product.basePrice),
+      currency: 'INR',
+    })
+  }, [product])
 
   const sizes = useMemo(() => {
     if (!product) return []
@@ -257,6 +269,14 @@ export function ProductDetailPage() {
     setIsAddingToCart(true)
     try {
       await addToCart(selectedVariant.id, quantity)
+      trackPixelEvent('AddToCart', {
+        content_ids: [selectedVariant.id],
+        content_name: product.name,
+        content_type: 'product',
+        value: effectivePrice * quantity,
+        currency: 'INR',
+        num_items: quantity,
+      })
     } finally {
       setIsAddingToCart(false)
     }
